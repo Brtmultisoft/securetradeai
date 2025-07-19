@@ -59,7 +59,7 @@ A comprehensive Flutter-based cryptocurrency trading platform with automated bot
 
 ### **1. Clone the Repository**
 ```bash
-git clone https://github.com/yourusername/securetradeai.git
+git clone https://github.com/artichaudharybrt/securetradeai.git
 cd securetradeai
 ```
 
@@ -173,8 +173,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 **Support**
 
 For support and questions:
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/securetradeai/issues)
-- 📧 Email: contact.brtmultisoftware@gmail.com
+- 🐛 Issues: [GitHub Issues](https://github.com/artichaudharybrt/securetradeai/issues)
+- 📧 Email: dev2.brt@gmail.com
 
 ## ⚠️ **Disclaimer**
 
