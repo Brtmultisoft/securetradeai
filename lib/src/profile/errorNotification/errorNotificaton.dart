@@ -4,8 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:securetradeai/data/api.dart';
-import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/data/strings.dart';
+import 'package:securetradeai/src/Service/assets_service.dart';
 
 class ErrorNotification extends StatefulWidget {
   const ErrorNotification({Key? key}) : super(key: key);
@@ -21,7 +21,8 @@ class _ErrorNotificationState extends State<ErrorNotification> {
   _getData() async {
     setState(() => isAPIcalled = true);
     final res = await http.post(Uri.parse(errorNotification),
-        body: jsonEncode({"user_id": commonuserId, "page": "0", "size": "100"}));
+        body:
+            jsonEncode({"user_id": commonuserId, "page": "0", "size": "100"}));
 
     if (res.statusCode != 200) {
       showtoast("Server Error", context);
@@ -63,11 +64,14 @@ class _ErrorNotificationState extends State<ErrorNotification> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bg2,
       appBar: AppBar(
-        title: InkWell(onTap: _getData, child: Text("Error Notification")),
+        backgroundColor: appBar,
+        title:
+            InkWell(onTap: _getData, child: const Text("Error Notification")),
       ),
       body: isAPIcalled
-          ? Center(
+          ? const Center(
               child: CupertinoActivityIndicator(),
             )
           : Column(
@@ -82,14 +86,22 @@ class _ErrorNotificationState extends State<ErrorNotification> {
                           print(a);
                           return Padding(
                             padding: const EdgeInsets.only(
-                                top: 8.0, left: 8, right: 8),
+                                left: 15, right: 15, top: 15),
                             child: Container(
-                              padding: EdgeInsets.all(12),
-                              height: MediaQuery.of(context).size.height/ 5,
+                              padding: const EdgeInsets.all(20),
+                              // height: MediaQuery.of(context).size.height / 5,
                               decoration: BoxDecoration(
-                                color: primaryColor,
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(20.0)),
+                                gradient: const LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Color(0xFF1E2026),
+                                    Color(0xFF12151C),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                    color: const Color(0xFF2A2D35), width: 1),
                               ),
                               child: Column(
                                 children: [
@@ -101,16 +113,16 @@ class _ErrorNotificationState extends State<ErrorNotification> {
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 10,
                                       ),
-                                      Text(
+                                      const Text(
                                         "-",
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 10,
                                       ),
                                       Text(
@@ -119,16 +131,16 @@ class _ErrorNotificationState extends State<ErrorNotification> {
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 10,
                                       ),
-                                      Text(
+                                      const Text(
                                         "-",
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      SizedBox(
+                                      const SizedBox(
                                         width: 10,
                                       ),
                                       Text(
@@ -139,7 +151,7 @@ class _ErrorNotificationState extends State<ErrorNotification> {
                                       )
                                     ],
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 8,
                                   ),
                                   Row(
@@ -160,7 +172,7 @@ class _ErrorNotificationState extends State<ErrorNotification> {
                                       ),
                                     ],
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 8,
                                   ),
                                   Text(

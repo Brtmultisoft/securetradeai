@@ -8,7 +8,7 @@ class LocaleString extends Translations {
           'selectLanguage': 'Select Language',
           //hare is Login content Start
           "login": "Login",
-          "userid": "User Id",
+          "userid": "User Id / Email",
           "loginpassword": "Password",
           "forgotPassword": "Forgot Password",
           "dontAccount": "Don\'t Have An Account ?",
@@ -105,7 +105,8 @@ class LocaleString extends Translations {
           'direct_recommend': 'Profit on Your Investment.',
           'robot_activation_direct': 'Returns up to 50% to 80% Monthly.',
           'team_reward': 'Direct Team Trading Profit.',
-          'profit_distrubution': 'Earn 10% trading profit from your direct sponsor',
+          'profit_distrubution':
+              'Earn 10% trading profit from your direct sponsor',
           'mamber_uses': 'Member User Rules',
           '1':
               '1. Directly push user Profit to deduct the positive part of fuel consumption. and directly push member to purchase activation code.',
@@ -321,7 +322,7 @@ class LocaleString extends Translations {
           'levelincome': 'स्तर आय',
           'directIncome': 'प्रत्यक्ष आय',
           'universalpool': 'यूनिवर्सल पूल आय',
-           "profitSharingincome": "लाभ-साझा आय",
+          "profitSharingincome": "लाभ-साझा आय",
           "royalty": "रॉयल्टी आय",
           // share
           'copyUrl': 'यूआरएल कॉपी करें',
@@ -487,7 +488,7 @@ class LocaleString extends Translations {
           'levelincome': 'مستوى الدخل',
           'directIncome': 'الدخل المباشر',
           'universalpool': 'الدخل المجمع الشامل',
-           "profitSharingincome": "دخل تقاسم الربح",
+          "profitSharingincome": "دخل تقاسم الربح",
           "royalty": "دخل الملوك",
           // share
           'copyUrl': 'إنسخ الرابط',

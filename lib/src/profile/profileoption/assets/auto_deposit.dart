@@ -1,11 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:securetradeai/data/strings.dart';
+
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:securetradeai/Data/Api.dart';
+import 'package:securetradeai/data/strings.dart';
+
+import '../../../../method/methods.dart';
+import '../../../../model/DeposittransactionModel.dart';
 import '../../../Service/assets_service.dart';
 import '../../../Service/wallet_service.dart';
 
@@ -16,7 +18,8 @@ class AutoDeposit extends StatefulWidget {
   State<AutoDeposit> createState() => _AutoDepositState();
 }
 
-class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStateMixin {
+class _AutoDepositState extends State<AutoDeposit>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   var amount = TextEditingController();
 
@@ -37,12 +40,49 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
 
   // Balance is now updated directly when wallet info is fetched
 
+  // Gas wallet transaction data
+  List<Detail> gasTransactions = [];
+  bool isLoadingGasTransactions = false;
+  bool hasGasTransactionData = false;
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _checkExistingWallet();
     _loadDepositHistory();
+
+    _loadGasTransactions();
+  }
+
+  // Load gas wallet transactions using deposit transaction API
+  Future<void> _loadGasTransactions() async {
+    setState(() {
+      isLoadingGasTransactions = true;
+    });
+
+    try {
+      final depositData = await CommonMethod().getDepositTransactionDetail(1);
+      if (depositData.status == "success") {
+        setState(() {
+          gasTransactions = depositData.data.details;
+          hasGasTransactionData = gasTransactions.isNotEmpty;
+        });
+      } else {
+        setState(() {
+          hasGasTransactionData = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading gas transactions: $e');
+      setState(() {
+        hasGasTransactionData = false;
+      });
+    } finally {
+      setState(() {
+        isLoadingGasTransactions = false;
+      });
+    }
   }
 
   // Check if user already has a wallet address
@@ -59,7 +99,8 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
       });
 
       final BuildContext currentContext = context;
-      Future.microtask(() => showtoast("Please log in again to access deposit features", currentContext));
+      Future.microtask(() => showtoast(
+          "Please log in again to access deposit features", currentContext));
       return;
     }
 
@@ -78,7 +119,8 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
             result['data']['pay_address'] != null &&
             result['data']['pay_address'].toString().isNotEmpty) {
           // User already has a wallet address
-          print('✅ Found existing wallet address: ${result['data']['pay_address']}');
+          print(
+              '✅ Found existing wallet address: ${result['data']['pay_address']}');
           print('✅✅✅✅found balance ${result['data']}');
           final balance = result['data']['balance'] ?? '0.00';
           setState(() {
@@ -91,7 +133,8 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
 
           // Show success toast
           final BuildContext currentContext = context;
-          Future.microtask(() => showtoast("Using your existing wallet address", currentContext));
+          Future.microtask(() =>
+              showtoast("Using your existing wallet address", currentContext));
         } else {
           // User doesn't have a wallet address, generate one
           print('ℹ️ No existing wallet found, generating new wallet');
@@ -128,7 +171,8 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
       print('🔍 Generate wallet response: ${result.toString()}');
 
       if (result['status'] == 'success') {
-        print('✅ Successfully generated new wallet address: ${result['data']['wallet_address']}');
+        print(
+            '✅ Successfully generated new wallet address: ${result['data']['wallet_address']}');
         // Try to get balance from wallet info
         final balance = result['data']['balance'] ?? '0.00';
         setState(() {
@@ -141,7 +185,8 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
 
         // Show success toast
         final BuildContext currentContext = context;
-        Future.microtask(() => showtoast("New wallet address generated successfully", currentContext));
+        Future.microtask(() => showtoast(
+            "New wallet address generated successfully", currentContext));
       } else {
         print('❌ Failed to generate wallet: ${result['message']}');
         setState(() {
@@ -150,7 +195,8 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
         });
 
         final BuildContext currentContext = context;
-        Future.microtask(() => showtoast(result['message'] ?? "Failed to generate wallet", currentContext));
+        Future.microtask(() => showtoast(
+            result['message'] ?? "Failed to generate wallet", currentContext));
       }
     } catch (e) {
       print('❌ Exception generating wallet: $e');
@@ -176,20 +222,26 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
 
       if (result['status'] == 'success') {
         var historyData = result['data']['history'];
-        print('✅ Successfully retrieved deposit history: ${historyData is List ? historyData.length : 0} items');
+        print(
+            '✅ Successfully retrieved deposit history: ${historyData is List ? historyData.length : 0} items');
 
         // Format the history data if needed
         if (historyData is List && historyData.isNotEmpty) {
           // Ensure each history item has required fields
           historyData = historyData.map((item) {
             // Convert item to Map if it's not already
-            Map<String, dynamic> historyItem = item is Map ? Map<String, dynamic>.from(item) : {};
+            Map<String, dynamic> historyItem =
+                item is Map ? Map<String, dynamic>.from(item) : {};
 
             // Ensure required fields exist
             historyItem['amount'] = historyItem['amount'] ?? '0.00';
-            historyItem['date'] = historyItem['date'] ?? historyItem['timestamp'] ?? 'Unknown';
+            historyItem['date'] =
+                historyItem['date'] ?? historyItem['timestamp'] ?? 'Unknown';
             historyItem['status'] = historyItem['status'] ?? 'completed';
-            historyItem['hash'] = historyItem['hash'] ?? historyItem['txid'] ?? historyItem['transaction_id'] ?? 'Unknown';
+            historyItem['hash'] = historyItem['hash'] ??
+                historyItem['txid'] ??
+                historyItem['transaction_id'] ??
+                'Unknown';
 
             return historyItem;
           }).toList();
@@ -228,14 +280,18 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
     // Validate user ID
     if (commonuserId.isEmpty || commonuserId == "23") {
       print('❌ Invalid user ID: $commonuserId');
-      Future.microtask(() => showtoast("Please log in again to access deposit features", currentContext));
+      Future.microtask(() => showtoast(
+          "Please log in again to access deposit features", currentContext));
       return;
     }
 
     // Validate wallet address and private key
-    if (walletAddress.isEmpty || walletAddress == "Loading..." || walletAddress == "Error generating wallet") {
+    if (walletAddress.isEmpty ||
+        walletAddress == "Loading..." ||
+        walletAddress == "Error generating wallet") {
       print('❌ Invalid wallet address: $walletAddress');
-      Future.microtask(() => showtoast("Invalid wallet address. Please refresh the page.", currentContext));
+      Future.microtask(() => showtoast(
+          "Invalid wallet address. Please refresh the page.", currentContext));
       return;
     }
 
@@ -247,9 +303,7 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
         print('🔄 Attempting to refresh wallet info');
         final result = await WalletService.getWalletInfo(commonuserId);
 
-        if (result['status'] == 'success' &&
-            result['data'] != null) {
-
+        if (result['status'] == 'success' && result['data'] != null) {
           // Try multiple possible field names for private key
           String? retrievedKey;
 
@@ -258,28 +312,33 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
             retrievedKey = result['data']['private_key'];
             print('✅ Successfully retrieved private_key');
           } else if (result['data']['pay_private_key'] != null &&
-                     result['data']['pay_private_key'].toString().isNotEmpty) {
+              result['data']['pay_private_key'].toString().isNotEmpty) {
             retrievedKey = result['data']['pay_private_key'];
             print('✅ Successfully retrieved pay_private_key');
           }
 
           if (retrievedKey != null) {
-            print('✅ Successfully retrieved private key: ${retrievedKey.substring(0, 5)}...');
+            print(
+                '✅ Successfully retrieved private key: ${retrievedKey.substring(0, 5)}...');
             privateKey = retrievedKey;
           } else {
             print('❌ No private key found in response');
             print('❌ Available fields: ${result['data'].keys.join(', ')}');
-            Future.microtask(() => showtoast("Private key not found in wallet data", currentContext));
+            Future.microtask(() => showtoast(
+                "Private key not found in wallet data", currentContext));
             return;
           }
         } else {
           print('❌ Failed to retrieve private key');
-          Future.microtask(() => showtoast("Could not retrieve wallet information. Please try again later.", currentContext));
+          Future.microtask(() => showtoast(
+              "Could not retrieve wallet information. Please try again later.",
+              currentContext));
           return;
         }
       } catch (e) {
         print('❌ Error refreshing wallet info: $e');
-        Future.microtask(() => showtoast("Error retrieving wallet information: $e", currentContext));
+        Future.microtask(() => showtoast(
+            "Error retrieving wallet information: $e", currentContext));
         return;
       }
     }
@@ -292,7 +351,8 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
 
     try {
       print('📤 Sending monitor wallet request with address: $walletAddress');
-      final result = await WalletService.monitorWallet(walletAddress, privateKey);
+      final result =
+          await WalletService.monitorWallet(walletAddress, privateKey);
       print('📥 Monitor wallet response: ${result.toString()}');
 
       // Check if widget is still mounted before using context
@@ -305,11 +365,12 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
         if (result['data'] != null &&
             result['data']['monitoring_result'] != null &&
             result['data']['monitoring_result']['found'] == true) {
-
           // Extract amount from the new response format
           final amount = result['data']['monitoring_result']['amount'];
-          final currency = result['data']['monitoring_result']['currency'] ?? 'USDT';
-          final message = result['data']['monitoring_result']['message'] ?? 'Transfer completed successfully';
+          final currency =
+              result['data']['monitoring_result']['currency'] ?? 'USDT';
+          final message = result['data']['monitoring_result']['message'] ??
+              'Transfer completed successfully';
 
           print('✅ Payment detected: $amount $currency');
           setState(() {
@@ -323,8 +384,9 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
           // Show animated success toast
           _showSuccessToast(amount, currency, message, currentContext);
 
-        // Check for the old response format as fallback
-        } else if (result['data'] != null && result['data']['deposit_found'] == true) {
+          // Check for the old response format as fallback
+        } else if (result['data'] != null &&
+            result['data']['deposit_found'] == true) {
           print('✅ Payment detected (old format): ${result['data']['amount']}');
           setState(() {
             transactionStatus = "Payment detected!";
@@ -335,14 +397,17 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
           _loadDepositHistory();
 
           // Show animated success toast
-          _showSuccessToast(result['data']['amount'], 'USDT', 'Transfer completed successfully', currentContext);
+          _showSuccessToast(result['data']['amount'], 'USDT',
+              'Transfer completed successfully', currentContext);
         } else {
           print('ℹ️ No payment found yet');
           setState(() {
             transactionStatus = "No payment found yet.";
           });
 
-          Future.microtask(() => showtoast("No payment found yet. Please try again after making the payment.", currentContext));
+          Future.microtask(() => showtoast(
+              "No payment found yet. Please try again after making the payment.",
+              currentContext));
         }
       } else {
         print('❌ Error checking payment: ${result['message']}');
@@ -350,7 +415,8 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
           transactionStatus = "Error checking payment";
         });
 
-        Future.microtask(() => showtoast(result['message'] ?? "Error checking payment", currentContext));
+        Future.microtask(() => showtoast(
+            result['message'] ?? "Error checking payment", currentContext));
       }
     } catch (e) {
       // Check if widget is still mounted before using context
@@ -366,10 +432,9 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
     }
   }
 
-
-
   // Show animated success toast for deposit
-  void _showSuccessToast(dynamic amount, String currency, String message, BuildContext context) {
+  void _showSuccessToast(
+      dynamic amount, String currency, String message, BuildContext context) {
     // Format amount to 4 decimal places
     String formattedAmount = double.parse(amount.toString()).toStringAsFixed(4);
 
@@ -405,7 +470,7 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Success icon with animation
+                /// Success icon with animation
                 TweenAnimationBuilder(
                   duration: Duration(milliseconds: 800),
                   tween: Tween<double>(begin: 0, end: 1),
@@ -441,7 +506,7 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
                 ),
                 SizedBox(height: 10),
 
-                // Amount with animation
+                /// Amount with animation
                 TweenAnimationBuilder(
                   duration: Duration(milliseconds: 1200),
                   tween: Tween<double>(begin: 0, end: 1),
@@ -525,14 +590,15 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
           unselectedLabelColor: const Color(0xFF848E9C),
           tabs: const [
             Tab(text: 'Deposit'),
-            Tab(text: 'History'),
+            // Tab(text: 'History'),
+            Tab(text: 'Gas History'),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          // Deposit Tab
+          /// Deposit Tab
           SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -544,7 +610,8 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
                   decoration: BoxDecoration(
                     color: const Color(0xFF1E2026), // Dark blue card background
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF2A3A5A), width: 1),
+                    border:
+                        Border.all(color: const Color(0xFF2A3A5A), width: 1),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.2),
@@ -712,7 +779,8 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
                   decoration: BoxDecoration(
                     color: const Color(0xFF1E2026), // Binance card background
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF2A2D35), width: 1),
+                    border:
+                        Border.all(color: const Color(0xFF2A2D35), width: 1),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -749,7 +817,8 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2B3139), // Binance input background
+                          color: const Color(
+                              0xFF2B3139), // Binance input background
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Row(
@@ -768,27 +837,33 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
                             InkWell(
                               onTap: () {
                                 final BuildContext currentContext = context;
-                                Clipboard.setData(ClipboardData(text: walletAddress));
-                                Future.microtask(() => showtoast("Copied", currentContext));
+                                Clipboard.setData(
+                                    ClipboardData(text: walletAddress));
+                                Future.microtask(
+                                    () => showtoast("Copied", currentContext));
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFF0B90B).withOpacity(0.1), // Binance yellow with opacity
+                                  color: const Color(0xFFF0B90B).withOpacity(
+                                      0.1), // Binance yellow with opacity
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Row(
                                   children: const [
                                     Icon(
                                       Icons.copy,
-                                      color: Color(0xFFF0B90B), // Binance yellow
+                                      color:
+                                          Color(0xFFF0B90B), // Binance yellow
                                       size: 16,
                                     ),
                                     SizedBox(width: 4),
                                     Text(
                                       "Copy",
                                       style: TextStyle(
-                                        color: Color(0xFFF0B90B), // Binance yellow
+                                        color:
+                                            Color(0xFFF0B90B), // Binance yellow
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -832,7 +907,8 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
                   decoration: BoxDecoration(
                     color: const Color(0xFF1E2026), // Binance card background
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF2A2D35), width: 1),
+                    border:
+                        Border.all(color: const Color(0xFF2A2D35), width: 1),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -848,7 +924,8 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2B3139), // Binance input background
+                          color: const Color(
+                              0xFF2B3139), // Binance input background
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Row(
@@ -951,128 +1028,379 @@ class _AutoDepositState extends State<AutoDeposit> with SingleTickerProviderStat
           ),
 
           // History Tab
-          isHistoryLoading
-              ? const Center(
-                  child: CircularProgressIndicator(
-                    color: Color(0xFFF0B90B),
+          // isHistoryLoading
+          //     ? const Center(
+          //         child: CircularProgressIndicator(
+          //           color: Color(0xFFF0B90B),
+          //         ),
+          //       )
+          //     : depositHistory.isEmpty
+          //         ? Center(
+          //             child: Column(
+          //               mainAxisAlignment: MainAxisAlignment.center,
+          //               children: const [
+          //                 Icon(
+          //                   Icons.history,
+          //                   size: 64,
+          //                   color: Color(0xFF848E9C),
+          //                 ),
+          //                 SizedBox(height: 16),
+          //                 Text(
+          //                   'No deposit history found',
+          //                   style: TextStyle(
+          //                     color: Color(0xFF848E9C),
+          //                     fontSize: 16,
+          //                   ),
+          //                 ),
+          //               ],
+          //             ),
+          //           )
+          //         : ListView.builder(
+          //             padding: const EdgeInsets.all(16),
+          //             itemCount: depositHistory.length,
+          //             itemBuilder: (context, index) {
+          //               final deposit = depositHistory[index];
+          //               return Container(
+          //                 margin: const EdgeInsets.only(bottom: 12),
+          //                 padding: const EdgeInsets.all(16),
+          //                 decoration: BoxDecoration(
+          //                   color: const Color(0xFF1E2026),
+          //                   borderRadius: BorderRadius.circular(8),
+          //                   border: Border.all(
+          //                       color: const Color(0xFF2A2D35), width: 1),
+          //                 ),
+          //                 child: Column(
+          //                   crossAxisAlignment: CrossAxisAlignment.start,
+          //                   children: [
+          //                     Row(
+          //                       mainAxisAlignment:
+          //                           MainAxisAlignment.spaceBetween,
+          //                       children: [
+          //                         Text(
+          //                           '${deposit['amount']} USD',
+          //                           style: const TextStyle(
+          //                             color: Colors.white,
+          //                             fontSize: 16,
+          //                             fontWeight: FontWeight.w500,
+          //                           ),
+          //                         ),
+          //                         Container(
+          //                           padding: const EdgeInsets.symmetric(
+          //                               horizontal: 8, vertical: 4),
+          //                           decoration: BoxDecoration(
+          //                             color: deposit['status'] == 'completed'
+          //                                 ? const Color(0xFF0ECB81)
+          //                                     .withOpacity(0.1)
+          //                                 : deposit['status'] == 'pending'
+          //                                     ? const Color(0xFFF0B90B)
+          //                                         .withOpacity(0.1)
+          //                                     : const Color(0xFFFF4C4C)
+          //                                         .withOpacity(0.1),
+          //                             borderRadius: BorderRadius.circular(4),
+          //                           ),
+          //                           child: Text(
+          //                             deposit['status'].toUpperCase(),
+          //                             style: TextStyle(
+          //                               color: deposit['status'] == 'completed'
+          //                                   ? const Color(0xFF0ECB81)
+          //                                   : deposit['status'] == 'pending'
+          //                                       ? const Color(0xFFF0B90B)
+          //                                       : const Color(0xFFFF4C4C),
+          //                               fontSize: 12,
+          //                               fontWeight: FontWeight.w500,
+          //                             ),
+          //                           ),
+          //                         ),
+          //                       ],
+          //                     ),
+          //                     const SizedBox(height: 8),
+          //                     Text(
+          //                       'Date: ${deposit['date']}',
+          //                       style: const TextStyle(
+          //                         color: Color(0xFF848E9C),
+          //                         fontSize: 14,
+          //                       ),
+          //                     ),
+          //                     const SizedBox(height: 4),
+          //                     Row(
+          //                       children: [
+          //                         Expanded(
+          //                           child: Text(
+          //                             'TxID: ${deposit['hash']}',
+          //                             style: const TextStyle(
+          //                               color: Color(0xFF848E9C),
+          //                               fontSize: 14,
+          //                             ),
+          //                             overflow: TextOverflow.ellipsis,
+          //                           ),
+          //                         ),
+          //                         const SizedBox(width: 8),
+          //                         InkWell(
+          //                           onTap: () {
+          //                             final BuildContext currentContext =
+          //                                 context;
+          //                             Clipboard.setData(
+          //                                 ClipboardData(text: deposit['hash']));
+          //                             Future.microtask(() =>
+          //                                 showtoast("Copied", currentContext));
+          //                           },
+          //                           child: const Icon(
+          //                             Icons.copy,
+          //                             color: Color(0xFFF0B90B),
+          //                             size: 16,
+          //                           ),
+          //                         ),
+          //                       ],
+          //                     ),
+          //                   ],
+          //                 ),
+          //               );
+          //             },
+          //           ),
+
+          // Gas Wallet History Tab
+
+          /// gas history
+          _buildGasHistoryTab(),
+        ],
+      ),
+    );
+  }
+
+  /// Build Gas Wallet History Tab using deposit transaction data
+  Widget _buildGasHistoryTab() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          // Header similar to transaction history
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E2026),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFF2A2D35), width: 1),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Gas Wallet History',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
-                )
-              : depositHistory.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(
-                            Icons.history,
-                            size: 64,
-                            color: Color(0xFF848E9C),
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            'No deposit history found',
-                            style: TextStyle(
-                              color: Color(0xFF848E9C),
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
+                ),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2B3139),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF2A3A5A)),
+                  ),
+                  child: const Icon(Icons.filter_list, color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Transaction cards using deposit transaction data
+          Expanded(
+            child: RefreshIndicator(
+              color: const Color(0xFFF0B90B),
+              backgroundColor: const Color(0xFF1E2026),
+              onRefresh: () async {
+                await _loadGasTransactions();
+                if (mounted) {
+                  showtoast("Gas wallet history refreshed!", context);
+                }
+              },
+              child: isLoadingGasTransactions
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFFF0B90B),
                       ),
                     )
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: depositHistory.length,
-                      itemBuilder: (context, index) {
-                        final deposit = depositHistory[index];
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1E2026),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFF2A2D35), width: 1),
-                          ),
+                  : !hasGasTransactionData
+                      ? Center(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '${deposit['amount']} USD',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: deposit['status'] == 'completed'
-                                          ? const Color(0xFF0ECB81).withOpacity(0.1)
-                                          : deposit['status'] == 'pending'
-                                              ? const Color(0xFFF0B90B).withOpacity(0.1)
-                                              : const Color(0xFFFF4C4C).withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      deposit['status'].toUpperCase(),
-                                      style: TextStyle(
-                                        color: deposit['status'] == 'completed'
-                                            ? const Color(0xFF0ECB81)
-                                            : deposit['status'] == 'pending'
-                                                ? const Color(0xFFF0B90B)
-                                                : const Color(0xFFFF4C4C),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(
+                                Icons.history,
+                                color: Color(0xFF848E9C),
+                                size: 64,
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: 16),
                               Text(
-                                'Date: ${deposit['date']}',
-                                style: const TextStyle(
+                                "No Gas Transactions Found",
+                                style: TextStyle(
                                   color: Color(0xFF848E9C),
-                                  fontSize: 14,
+                                  fontSize: 16,
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      'TxID: ${deposit['hash']}',
-                                      style: const TextStyle(
-                                        color: Color(0xFF848E9C),
-                                        fontSize: 14,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  InkWell(
-                                    onTap: () {
-                                      final BuildContext currentContext = context;
-                                      Clipboard.setData(ClipboardData(text: deposit['hash']));
-                                      Future.microtask(() => showtoast("Copied", currentContext));
-                                    },
-                                    child: const Icon(
-                                      Icons.copy,
-                                      color: Color(0xFFF0B90B),
-                                      size: 16,
-                                    ),
-                                  ),
-                                ],
                               ),
                             ],
                           ),
-                        );
-                      },
-                    ),
+                        )
+                      : _buildGasTransactionList(),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  /// Build gas transaction list using deposit transaction data
+  Widget _buildGasTransactionList() {
+    return ListView.builder(
+      physics: const BouncingScrollPhysics(),
+      itemCount: gasTransactions.length,
+      itemBuilder: (context, index) {
+        final transaction = gasTransactions[index];
+        final isDeposit = transaction.cr != "0";
+        final amount = isDeposit
+            ? double.tryParse(transaction.cr) ?? 0.0
+            : double.tryParse(transaction.dr) ?? 0.0;
+
+        return Container(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E2026),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFF2A2D35)),
+          ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(16),
+            leading: Container(
+              width: 40,
+              height: 40,
+              margin: EdgeInsets.only(top: 10),
+              decoration: BoxDecoration(
+                color: isDeposit
+                    ? const Color(0xFF0ECB81).withOpacity(0.1)
+                    : const Color(0xFFFF4C4C).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(
+                isDeposit ? Icons.add : Icons.remove,
+                color: isDeposit
+                    ? const Color(0xFF0ECB81)
+                    : const Color(0xFFFF4C4C),
+                size: 24,
+              ),
+            ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  isDeposit ? 'Deposit' : 'Withdrawal',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '${isDeposit ? '+' : '-'}\$${amount.toStringAsFixed(4)}',
+                  style: TextStyle(
+                    color: isDeposit
+                        ? const Color(0xFF0ECB81)
+                        : const Color(0xFFFF4C4C),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Date',
+                      style: TextStyle(
+                        color: Color(0xFF848E9C),
+                        fontSize: 12,
+                      ),
+                    ),
+                    Text(
+                      '${transaction.createdDate.day}/${transaction.createdDate.month}/${transaction.createdDate.year}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Status',
+                      style: TextStyle(
+                        color: Color(0xFF848E9C),
+                        fontSize: 12,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0ECB81).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        transaction.status?.toString() ?? 'Completed',
+                        style: const TextStyle(
+                          color: Color(0xFF0ECB81),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (transaction.descr != null &&
+                    transaction.descr!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Description',
+                        style: TextStyle(
+                          color: Color(0xFF848E9C),
+                          fontSize: 12,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          transaction.descr!,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.right,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

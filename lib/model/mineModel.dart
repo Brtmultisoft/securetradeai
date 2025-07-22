@@ -54,6 +54,9 @@ class Datum {
   String totalTeam;
   String totalActiveTeam;
   String mobile;
+  String totalRoiIncome;
+  String totalDirectRoiIncome;
+  String totalBusinessIncome;
 
   Datum(
       {required this.userId,
@@ -72,7 +75,10 @@ class Datum {
       required this.daysBal,
       required this.totalTeam,
       required this.totalActiveTeam,
-      required this.mobile});
+      required this.mobile,
+      required this.totalRoiIncome,
+      required this.totalDirectRoiIncome,
+      required this.totalBusinessIncome});
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
       userId: json["user_id"] ?? "",
@@ -91,7 +97,10 @@ class Datum {
       daysBal: json["days_bal"] ?? "0",
       totalTeam: json["total_team"] ?? "0",
       totalActiveTeam: json["active_team"] ?? "0", // Fixed: API sends active_team, not total_active_team
-      mobile: json['mobile'] ?? "");
+      mobile: json['mobile'] ?? "",
+      totalRoiIncome: json["total_roi_income"] ?? "0",
+      totalDirectRoiIncome: json["total_direct_roi_income"] ?? "0",
+      totalBusinessIncome: json["total_business_income"] ?? "0");
 
   Map<String, dynamic> toJson() => {
         "user_id": userId,
@@ -110,6 +119,9 @@ class Datum {
         "days_bal": daysBal,
         "total_team": totalTeam,
         "active_team": totalActiveTeam, // Fixed: API expects active_team
-        "mobile": mobile
+        "mobile": mobile,
+        "total_roi_income": totalRoiIncome,
+        "total_direct_roi_income": totalDirectRoiIncome,
+        "total_business_income": totalBusinessIncome
       };
 }

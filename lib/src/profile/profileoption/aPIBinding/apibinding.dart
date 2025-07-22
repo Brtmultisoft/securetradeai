@@ -2,10 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
-import 'package:securetradeai/src/Service/assets_service.dart';
-import 'package:securetradeai/src/profile/profileoption/APIBinding/binance.dart';
 import 'package:http/http.dart' as http;
 import 'package:securetradeai/data/strings.dart';
+import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/profile/profileoption/APIBinding/binance.dart';
+
 import '../../../../data/api.dart';
 
 class ApiBinding extends StatefulWidget {
@@ -101,15 +102,15 @@ class _ApiBindingState extends State<ApiBinding> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    final double categoryHeight = size.height * 0.20;
+    final double categoryHeight = size.height * 0.15;
     return Scaffold(
-        backgroundColor: bg,
+        backgroundColor: const Color(0xFF0C0E12),
         appBar: AppBar(
-            backgroundColor: bg,
+            backgroundColor: const Color(0xFF161A1E),
             title: Text(
               "api_bindige".tr,
               style: TextStyle(
-                  fontFamily: fontFamily, fontSize: 20, color: Colors.black),
+                  fontFamily: fontFamily, fontSize: 20, color: Colors.white),
             ),
             leading: IconButton(
                 onPressed: () {
@@ -117,36 +118,28 @@ class _ApiBindingState extends State<ApiBinding> {
                 },
                 icon: Icon(
                   Icons.arrow_back,
-                  color: Colors.black,
+                  color: Colors.white,
                   size: 20,
                 ))),
         body: Column(
           children: [
             Container(
-                margin: EdgeInsets.only(top: 10, right: 15, left: 15),
+                margin: EdgeInsets.only(top: 30, right: 15, left: 15),
                 height: categoryHeight,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.0, 1.0],
-                    colors: [
-                      Colors.green,
-                      Colors.blue, // securetradeaicolor as end color
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(16.0),
-                  // image: DecorationImage(
-                  //     image: AssetImage("assets/img/bnb.png"),
-                  //     fit: BoxFit.cover),
+                  color: const Color(0xFF2B3139),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: const Color(0xFF2A3A5A)),
                 ),
                 child: Center(
                     child: ListTile(
                   onTap: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => BinanaceBinding()));
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BinanaceBinding(),
+                      ),
+                    );
                   },
                   leading: Image.asset(
                     "assets/img/bnb2.png",

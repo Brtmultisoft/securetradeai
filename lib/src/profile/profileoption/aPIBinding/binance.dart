@@ -5,11 +5,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
-import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:securetradeai/data/strings.dart';
+import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/profile/profileoption/APIBinding/notice_carefully_page.dart';
 import 'package:timer_builder/timer_builder.dart';
-import 'package:securetradeai/data/strings.dart';
+
 import '../../../../Data/Api.dart';
 import '../../../User/signup.dart';
 
@@ -87,14 +88,14 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
         ? MediaQuery.of(context).size.height / 5
         : MediaQuery.of(context).size.height / 5;
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: const Color(0xFF0C0E12),
       appBar: AppBar(
-        backgroundColor: bg,
-        iconTheme: IconThemeData(color: Colors.black),
+        backgroundColor: const Color(0xFF161A1E),
+        iconTheme: IconThemeData(color: Colors.white),
         title: const Text(
           "Binance Binding",
           style: TextStyle(
-              fontFamily: fontFamily, fontSize: 20, color: Colors.black),
+              fontFamily: fontFamily, fontSize: 20, color: Colors.white),
         ),
       ),
       body: SingleChildScrollView(
@@ -105,17 +106,9 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                 margin: const EdgeInsets.only(top: 10, right: 15, left: 15),
                 height: categoryHeight,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.0, 1.0],
-                    colors: [
-                      primaryColor,
-                      Colors.blue,
-                    ],
-                  ),
-                  color: securetradeaicolor,
-                  borderRadius: BorderRadius.circular(16.0),
+                  color: const Color(0xFF2B3139),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: const Color(0xFF2A3A5A)),
                 ),
                 child: Column(
                   children: [
@@ -159,16 +152,9 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                     ? MediaQuery.of(context).size.height / 2.3
                     : MediaQuery.of(context).size.height / 2.7,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    stops: [0.0, 1.0],
-                    colors: [
-                      primaryColor,
-                      Colors.blue,
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(16.0),
+                  color: const Color(0xFF2B3139),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: const Color(0xFF2A3A5A)),
                 ),
                 child: Column(
                   children: [
@@ -197,9 +183,9 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                           const EdgeInsets.only(left: 15, top: 15, right: 15),
                       height: 50,
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white),
-                        // color: Colors.redAccent,
-                        borderRadius: BorderRadius.circular(16.0),
+                        color: const Color(0xFF2B3139),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: const Color(0xFF2A3A5A)),
                       ),
                       child: Container(
                         margin: const EdgeInsets.only(left: 10, right: 10),
@@ -235,16 +221,9 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
               margin: const EdgeInsets.only(top: 10, right: 15, left: 15),
               height: MediaQuery.of(context).size.height / 2.8,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: [0.0, 1.0],
-                  colors: [
-                    primaryColor,
-                    Colors.blue,
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(16.0),
+                color: const Color(0xFF2B3139),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFF2A3A5A)),
               ),
               child: Column(children: [
                 Container(
@@ -272,8 +251,10 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                               padding: const EdgeInsets.only(left: 8.0),
                               child: TextField(
                                   controller: apiKey,
+                                  style: TextStyle(color: Colors.white),
                                   decoration: const InputDecoration(
-                                    hintStyle: TextStyle(fontSize: 13),
+                                    hintStyle: TextStyle(
+                                        fontSize: 13, color: Colors.white),
                                     hintText: "Enter API Key",
                                     border: InputBorder.none,
                                     enabledBorder: InputBorder.none,
@@ -315,8 +296,10 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                               padding: const EdgeInsets.only(left: 8.0),
                               child: TextField(
                                   controller: secretKey,
+                                  style: TextStyle(color: Colors.white),
                                   decoration: const InputDecoration(
-                                    hintStyle: TextStyle(fontSize: 13),
+                                    hintStyle: TextStyle(
+                                        fontSize: 13, color: Colors.white),
                                     hintText: "Enter Secret key",
                                     border: InputBorder.none,
                                     enabledBorder: InputBorder.none,
@@ -329,7 +312,11 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                     ],
                   ),
                 ),
-                const Divider(),
+                const Divider(
+                  color: Colors.grey,
+                  indent: 15,
+                  endIndent: 15,
+                ),
                 Container(
                   margin: const EdgeInsets.only(
                     left: 15,
@@ -359,8 +346,10 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                               child: TextField(
                                   keyboardType: TextInputType.number,
                                   controller: verificatation,
+                                  style: TextStyle(color: Colors.white),
                                   decoration: const InputDecoration(
-                                    hintStyle: TextStyle(fontSize: 13),
+                                    hintStyle: TextStyle(
+                                        fontSize: 13, color: Colors.white),
                                     hintText: "Enter OTP",
                                     border: InputBorder.none,
                                     enabledBorder: InputBorder.none,
@@ -409,7 +398,10 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.transparent,
-                                      disabledForegroundColor: Colors.transparent.withOpacity(0.38), disabledBackgroundColor: Colors.transparent.withOpacity(0.12),
+                                      disabledForegroundColor:
+                                          Colors.transparent.withOpacity(0.38),
+                                      disabledBackgroundColor:
+                                          Colors.transparent.withOpacity(0.12),
                                       shadowColor: Colors.transparent,
                                     ),
                                     onPressed: () {
@@ -461,7 +453,10 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
-                      disabledForegroundColor: Colors.transparent.withOpacity(0.38), disabledBackgroundColor: Colors.transparent.withOpacity(0.12),
+                      disabledForegroundColor:
+                          Colors.transparent.withOpacity(0.38),
+                      disabledBackgroundColor:
+                          Colors.transparent.withOpacity(0.12),
                       shadowColor: Colors.transparent,
                     ),
                     onPressed: () {
@@ -493,7 +488,10 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
-                      disabledForegroundColor: Colors.transparent.withOpacity(0.38), disabledBackgroundColor: Colors.transparent.withOpacity(0.12),
+                      disabledForegroundColor:
+                          Colors.transparent.withOpacity(0.38),
+                      disabledBackgroundColor:
+                          Colors.transparent.withOpacity(0.12),
                       shadowColor: Colors.transparent,
                     ),
                     onPressed: () {
@@ -540,8 +538,8 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
             TextSpan(
               children: [
                 TextSpan(
-                  text: 'ihaveAPIbinding'.tr,
-                ),
+                    text: 'ihaveAPIbinding'.tr,
+                    style: TextStyle(color: Colors.white)),
                 TextSpan(
                   text: 'theRisk'.tr,
                   recognizer: TapGestureRecognizer()

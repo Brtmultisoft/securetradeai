@@ -9,8 +9,34 @@ import 'notification_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:securetradeai/data/api.dart';
 
+// OPTIMIZATION: Import optimized background processing
+import 'optimized_background_manager.dart';
+import 'optimized_data_processor.dart';
+import 'optimized_bot_service.dart';
+
 // This is the name of our background task
 const String backgroundTaskName = "com.securetradeai.bot.backgroundTask";
+
+// OPTIMIZATION: Global optimized background manager instance
+OptimizedBackgroundManager? _optimizedManager;
+
+// OPTIMIZATION: Initialize optimized background service
+Future<void> initializeOptimizedBackgroundService() async {
+  try {
+    print('🚀 INITIALIZING OPTIMIZED BACKGROUND SERVICE...');
+
+    // Initialize optimized background manager
+    _optimizedManager = OptimizedBackgroundManager();
+    await _optimizedManager!.initialize();
+
+    print('✅ OPTIMIZED BACKGROUND SERVICE INITIALIZED SUCCESSFULLY');
+
+  } catch (e) {
+    print('❌ ERROR INITIALIZING OPTIMIZED BACKGROUND SERVICE: $e');
+    // Fallback to regular background service
+    await initializeBackgroundService();
+  }
+}
 
 // Initialize the background service
 Future<void> initializeBackgroundService() async {

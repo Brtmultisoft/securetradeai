@@ -3,6 +3,7 @@ import 'dart:convert';
 
 // import 'package:animated_text_kit/animated_text_kit.dart';
 // import 'package:carousel_slider/carousel_slider.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:http/http.dart' as http;
@@ -20,16 +21,26 @@ import 'package:securetradeai/src/more/userguide.dart';
 import 'package:securetradeai/src/more/videos.dart';
 import 'package:securetradeai/src/profile/profileoption/APIBinding/apibinding.dart';
 import 'package:securetradeai/src/profile/profileoption/Allincome.dart';
+import 'package:securetradeai/src/profile/profileoption/Arbitrade/arbitrade.dart';
 import 'package:securetradeai/src/profile/profileoption/Team/team.dart';
+import 'package:securetradeai/src/quantitative/quatitativepage.dart';
 import 'package:securetradeai/src/widget/animated_toast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 
+import '../future_trading/future_trading_section.dart';
 import '../profile/profileoption/Transaction/payment_section.dart';
 import '../profile/profileoption/assets/autoDeposit.dart';
 import '../profile/profileoption/assets/auto_deposit.dart';
 import '../profile/profileoption/share/share.dart';
 import '../tabscreen/tabscreen.dart';
 import '../versionpopup/popupdesign.dart';
+
+// OPTIMIZATION: Import optimized services and widgets (ready for future use)
+// import '../Service/optimized_background_manager.dart';
+// import '../Service/optimized_data_processor.dart';
+// import '../Service/optimized_bot_service.dart';
+// import '../widget/optimized_image.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({
@@ -236,7 +247,7 @@ class _HomepageState extends State<Homepage> {
       Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => AutoDeposit1(),
+            builder: (context) => const AutoDeposit1(),
           )).then((value) async {
         if (value != null && value >= 100) {
           final result =
@@ -356,14 +367,14 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: RefreshIndicator(
-        color: Color(0xFF4A90E2),
-        backgroundColor: Color(0xFF0A0E17),
+        color: const Color(0xFF4A90E2),
+        backgroundColor: const Color(0xFF0A0E17),
         onRefresh: () {
           Navigator.pushReplacement(
               context,
               PageRouteBuilder(
                   pageBuilder: (a, b, c) => Tabscreen(reffral: widget.reffral),
-                  transitionDuration: Duration(milliseconds: 300),
+                  transitionDuration: const Duration(milliseconds: 300),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
                     return FadeTransition(
@@ -374,7 +385,7 @@ class _HomepageState extends State<Homepage> {
           return Future.value(false);
         },
         child: Scaffold(
-          backgroundColor: Color(0xFF0A0E17),
+          backgroundColor: const Color(0xFF0A0E17),
           body: DefaultTabController(
             length: 1,
             child: NestedScrollView(
@@ -386,149 +397,150 @@ class _HomepageState extends State<Homepage> {
                       const SizedBox(height: 10.0),
                       Consumer<HomePageProvider>(
                           builder: (context, banner, child) {
-                        return Container();
-                        // return CarouselSlider.builder(
-                        //   itemCount: banner.bannerList.length,
-                        //   itemBuilder: (context, index, realIndex) {
-                        //     return banner.bannerList.isEmpty
-                        //         ? Shimmer.fromColors(
-                        //             baseColor: Color(0xFF1A2234),
-                        //             highlightColor: Color(0xFF2A3A5A),
-                        //             child: Container(
-                        //               margin: const EdgeInsets.only(
-                        //                   left: 10, right: 10),
-                        //               width: double.infinity,
-                        //               height:
-                        //                   MediaQuery.of(context).size.height *
-                        //                       0.5,
-                        //               decoration: BoxDecoration(
-                        //                 color: Color(0xFF1A2234),
-                        //                 borderRadius:
-                        //                     BorderRadius.circular(16.0),
-                        //                 boxShadow: [
-                        //                   BoxShadow(
-                        //                     color:
-                        //                         Colors.black.withOpacity(0.3),
-                        //                     spreadRadius: 1,
-                        //                     blurRadius: 10,
-                        //                     offset: Offset(0, 3),
-                        //                   ),
-                        //                 ],
-                        //               ),
-                        //             ),
-                        //           )
-                        //         : Container(
-                        //             margin: const EdgeInsets.only(
-                        //                 left: 10, right: 10),
-                        //             width: double.infinity,
-                        //             height: MediaQuery.of(context).size.height *
-                        //                 0.5,
-                        //             decoration: BoxDecoration(
-                        //               borderRadius: BorderRadius.circular(16.0),
-                        //               image: DecorationImage(
-                        //                   image: NetworkImage(path +
-                        //                       banner.bannerList[index]
-                        //                           .bannerImage),
-                        //                   fit: BoxFit.fill),
-                        //               boxShadow: [
-                        //                 BoxShadow(
-                        //                   color: Colors.black.withOpacity(0.3),
-                        //                   spreadRadius: 1,
-                        //                   blurRadius: 10,
-                        //                   offset: Offset(0, 3),
-                        //                 ),
-                        //               ],
-                        //             ),
-                        //           );
-                        //   },
-                        //   options: CarouselOptions(
-                        //     initialPage: 1,
-                        //     aspectRatio: 16 / 8,
-                        //     viewportFraction: 1,
-                        //     autoPlay: true,
-                        //     autoPlayAnimationDuration:
-                        //         Duration(milliseconds: 800),
-                        //     autoPlayCurve: Curves.fastOutSlowIn,
-                        //   ),
-                        // );
+                        // return Container();
+                        return CarouselSlider.builder(
+                          itemCount: banner.bannerList.length,
+                          itemBuilder: (context, index, realIndex) {
+                            return banner.bannerList.isEmpty
+                                ? Shimmer.fromColors(
+                                    baseColor: Color(0xFF1A2234),
+                                    highlightColor: Color(0xFF2A3A5A),
+                                    child: Container(
+                                      margin: const EdgeInsets.only(
+                                          left: 10, right: 10),
+                                      width: double.infinity,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.5,
+                                      decoration: BoxDecoration(
+                                        color: Color(0xFF1A2234),
+                                        borderRadius:
+                                            BorderRadius.circular(16.0),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.3),
+                                            spreadRadius: 1,
+                                            blurRadius: 10,
+                                            offset: Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                : Container(
+                                    margin: const EdgeInsets.only(
+                                        left: 10, right: 10),
+                                    width: double.infinity,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.5,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16.0),
+                                      image: DecorationImage(
+                                          image: NetworkImage(path +
+                                              banner.bannerList[index]
+                                                  .bannerImage),
+                                          fit: BoxFit.fill),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.3),
+                                          spreadRadius: 1,
+                                          blurRadius: 10,
+                                          offset: Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                          },
+                          options: CarouselOptions(
+                            initialPage: 1,
+                            aspectRatio: 16 / 8,
+                            viewportFraction: 1,
+                            autoPlay: true,
+                            autoPlayAnimationDuration:
+                                Duration(milliseconds: 800),
+                            autoPlayCurve: Curves.fastOutSlowIn,
+                          ),
+                        );
                       }),
-                      Container(
-                        height: 20,
-                        margin:
-                            const EdgeInsets.only(top: 10, left: 10, right: 10),
-                        child: Row(
-                          children: [
-                            Text(
-                              "topnews".tr + " : ",
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: fontFamily,
-                                  color: Color(0xFF4A90E2)),
-                            ),
-                            // Expanded(
-                            //   child: Consumer<HomePageProvider>(
-                            //     builder: (context, banner, child) {
-                            //       return AnimatedTextKit(
-                            //           isRepeatingAnimation: true,
-                            //           repeatForever: true,
-                            //           onTap: () {
-                            //             Navigator.push(
-                            //                 context,
-                            //                 PageRouteBuilder(
-                            //                     pageBuilder: (context,
-                            //                             animation,
-                            //                             secondaryAnimation) =>
-                            //                         const TopNews(),
-                            //                     transitionsBuilder: (context,
-                            //                         animation,
-                            //                         secondaryAnimation,
-                            //                         child) {
-                            //                       return FadeTransition(
-                            //                         opacity: animation,
-                            //                         child: child,
-                            //                       );
-                            //                     },
-                            //                     transitionDuration: Duration(
-                            //                         milliseconds: 300)));
-                            //           },
-                            //           animatedTexts: [
-                            //             RotateAnimatedText(banner.lastnews,
-                            //                 textStyle: const TextStyle(
-                            //                     fontWeight: FontWeight.bold,
-                            //                     fontFamily: fontfamily,
-                            //                     color: Colors.white)),
-                            //           ]);
-                            //     },
-                            //   ),
-                            // ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 10),
+                      // Container(
+                      //   height: 20,
+                      //   margin:
+                      //       const EdgeInsets.only(top: 10, left: 10, right: 10),
+                      //   child: Row(
+                      //     children: [
+                      //       // Text(
+                      //       //   "topnews".tr + " : ",
+                      //       //   style: const TextStyle(
+                      //       //       fontWeight: FontWeight.bold,
+                      //       //       fontFamily: fontFamily,
+                      //       //       color: Color(0xFF4A90E2)),
+                      //       // ),
+                      //       // Expanded(
+                      //       //   child: Consumer<HomePageProvider>(
+                      //       //     builder: (context, banner, child) {
+                      //       //       return AnimatedTextKit(
+                      //       //           isRepeatingAnimation: true,
+                      //       //           repeatForever: true,
+                      //       //           onTap: () {
+                      //       //             Navigator.push(
+                      //       //                 context,
+                      //       //                 PageRouteBuilder(
+                      //       //                     pageBuilder: (context,
+                      //       //                             animation,
+                      //       //                             secondaryAnimation) =>
+                      //       //                         const TopNews(),
+                      //       //                     transitionsBuilder: (context,
+                      //       //                         animation,
+                      //       //                         secondaryAnimation,
+                      //       //                         child) {
+                      //       //                       return FadeTransition(
+                      //       //                         opacity: animation,
+                      //       //                         child: child,
+                      //       //                       );
+                      //       //                     },
+                      //       //                     transitionDuration: Duration(
+                      //       //                         milliseconds: 300)));
+                      //       //           },
+                      //       //           animatedTexts: [
+                      //       //             RotateAnimatedText(banner.lastnews,
+                      //       //                 textStyle: const TextStyle(
+                      //       //                     fontWeight: FontWeight.bold,
+                      //       //                     fontFamily: fontfamily,
+                      //       //                     color: Colors.white)),
+                      //       //           ]);
+                      //       //     },
+                      //       //   ),
+                      //       // ),
+                      //     ],
+                      //   ),
+                      // ),
+                      const SizedBox(height: 10),
                       options(),
                     ]),
                   ),
                   SliverPersistentHeader(
                     delegate: _SliverAppBarDelegate(
                       TabBar(
-                        labelPadding: EdgeInsets.only(left: 10, right: 10),
+                        labelPadding:
+                            const EdgeInsets.only(left: 10, right: 10),
                         isScrollable: true,
                         labelColor: Colors.white,
                         unselectedLabelColor: Colors.grey,
                         indicatorSize: TabBarIndicatorSize.label,
-                        indicatorColor: Color(0xFF4A90E2),
+                        indicatorColor: const Color(0xFF4A90E2),
                         indicator: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: Color(0xFF4A90E2),
+                            color: const Color(0xFF4A90E2),
                             boxShadow: [
                               BoxShadow(
-                                color: Color(0xFF4A90E2).withOpacity(0.3),
+                                color: const Color(0xFF4A90E2).withOpacity(0.3),
                                 spreadRadius: 1,
                                 blurRadius: 5,
-                                offset: Offset(0, 2),
+                                offset: const Offset(0, 2),
                               ),
                             ]),
-                        labelStyle: TextStyle(fontFamily: fontFamily),
+                        labelStyle: const TextStyle(fontFamily: fontFamily),
                         tabs: [
                           Tab(
                             child: Container(
@@ -538,7 +550,7 @@ class _HomepageState extends State<Homepage> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text('openTrade'.tr,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                       fontSize: 13)),
@@ -552,11 +564,11 @@ class _HomepageState extends State<Homepage> {
                         },
                       ),
                       Container(
-                          margin: EdgeInsets.only(right: 15),
+                          margin: const EdgeInsets.only(right: 15),
                           child: DropdownButton(
                             value: dropdownvalue,
-                            dropdownColor: Color(0xFF121824),
-                            underline: SizedBox(),
+                            dropdownColor: const Color(0xFF121824),
+                            underline: const SizedBox(),
                             icon: const Icon(
                               Icons.keyboard_arrow_down,
                               color: Colors.white,
@@ -577,12 +589,13 @@ class _HomepageState extends State<Homepage> {
                                                 : items == "OKX"
                                                     ? "assets/img/okx.jpeg"
                                                     : "assets/img/huboi.png")),
-                                        SizedBox(
+                                        const SizedBox(
                                           width: 8,
                                         ),
                                         Text(
                                           items,
-                                          style: TextStyle(color: Colors.white),
+                                          style: const TextStyle(
+                                              color: Colors.white),
                                         ),
                                       ],
                                     ),
@@ -610,7 +623,7 @@ class _HomepageState extends State<Homepage> {
                                         );
                                       },
                                       transitionDuration:
-                                          Duration(milliseconds: 300)));
+                                          const Duration(milliseconds: 300)));
                             },
                           )),
                     ),
@@ -621,16 +634,16 @@ class _HomepageState extends State<Homepage> {
               body: dropdownvalue != "Binance"
                   ? Center(
                       child: Container(
-                        padding: EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Color(0xFF1A2234),
+                          color: const Color(0xFF1A2234),
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.3),
                               spreadRadius: 1,
                               blurRadius: 10,
-                              offset: Offset(0, 3),
+                              offset: const Offset(0, 3),
                             ),
                           ],
                         ),
@@ -643,10 +656,10 @@ class _HomepageState extends State<Homepage> {
                           exchanger == "Binance"
                               ? list.check_TransactionData
                                   ? Container(
-                                      margin: EdgeInsets.only(top: 20),
-                                      padding: EdgeInsets.all(20),
+                                      margin: const EdgeInsets.only(top: 20),
+                                      padding: const EdgeInsets.all(20),
                                       decoration: BoxDecoration(
-                                        color: Color(0xFF1A2234),
+                                        color: const Color(0xFF1A2234),
                                         borderRadius: BorderRadius.circular(20),
                                         boxShadow: [
                                           BoxShadow(
@@ -654,14 +667,14 @@ class _HomepageState extends State<Homepage> {
                                                 Colors.black.withOpacity(0.3),
                                             spreadRadius: 1,
                                             blurRadius: 10,
-                                            offset: Offset(0, 3),
+                                            offset: const Offset(0, 3),
                                           ),
                                         ],
                                       ),
                                       child: Image.asset("assets/img/logo.png"),
                                     )
                                   : list.finalTransactionData.isEmpty
-                                      ? Center(
+                                      ? const Center(
                                           child: CircularProgressIndicator(
                                               color: Color(0xFF4A90E2)))
                                       : Column(
@@ -669,16 +682,16 @@ class _HomepageState extends State<Homepage> {
                                             Expanded(
                                                 child: _display1(
                                                     list.finalTransactionData)),
-                                            SizedBox(
+                                            const SizedBox(
                                               height: 20,
                                             )
                                           ],
                                         )
                               : list.check_TransactionDatahuobi
                                   ? Container(
-                                      padding: EdgeInsets.all(20),
+                                      padding: const EdgeInsets.all(20),
                                       decoration: BoxDecoration(
-                                        color: Color(0xFF1A2234),
+                                        color: const Color(0xFF1A2234),
                                         borderRadius: BorderRadius.circular(20),
                                         boxShadow: [
                                           BoxShadow(
@@ -686,14 +699,14 @@ class _HomepageState extends State<Homepage> {
                                                 Colors.black.withOpacity(0.3),
                                             spreadRadius: 1,
                                             blurRadius: 10,
-                                            offset: Offset(0, 3),
+                                            offset: const Offset(0, 3),
                                           ),
                                         ],
                                       ),
                                       child: Image.asset("assets/img/logo.png"),
                                     )
                                   : list.finalTransactionDataHuobi.isEmpty
-                                      ? Center(
+                                      ? const Center(
                                           child: CircularProgressIndicator(
                                               color: Colors.white))
                                       : Column(
@@ -701,7 +714,7 @@ class _HomepageState extends State<Homepage> {
                                             Expanded(
                                                 child: _display1Huobi(list
                                                     .finalTransactionDataHuobi)),
-                                            SizedBox(
+                                            const SizedBox(
                                               height: 20,
                                             )
                                           ],
@@ -760,20 +773,21 @@ class _HomepageState extends State<Homepage> {
               padding: const EdgeInsets.all(5.0),
               child: Column(
                 children: [
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Container(
                     decoration: BoxDecoration(
-                      color: Color(0xFF1A2234),
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      color: const Color(0xFF1A2234),
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
                       border: Border.all(
-                        color: Color(0xFF2A3A5A),
+                        color: const Color(0xFF2A3A5A),
                         width: 1,
                       ),
                     ),
                     height: MediaQuery.of(context).size.height * 0.2,
                     width: double.infinity,
                     child: Container(
-                      margin: EdgeInsets.only(left: 10, right: 10, top: 10),
+                      margin:
+                          const EdgeInsets.only(left: 10, right: 10, top: 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -791,7 +805,7 @@ class _HomepageState extends State<Homepage> {
                                               "https://securetradeai.com/assets/images/logo/logo2.png")
                                           : NetworkImage(
                                               _data[index]['asset_img'])),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 5,
                                   ),
                                   Row(
@@ -816,8 +830,8 @@ class _HomepageState extends State<Homepage> {
                               ),
                               Container(
                                   decoration: BoxDecoration(
-                                      border:
-                                          Border.all(color: Color(0xFF2A3A5A))),
+                                      border: Border.all(
+                                          color: const Color(0xFF2A3A5A))),
                                   width: 60,
                                   height: 25,
                                   child: Center(
@@ -825,30 +839,34 @@ class _HomepageState extends State<Homepage> {
                                       _data[index]['cycle'] == "0"
                                           ? "Cycle"
                                           : "One Shot",
-                                      style: TextStyle(color: Colors.white),
+                                      style:
+                                          const TextStyle(color: Colors.white),
                                     ),
                                   )),
                               Container(
                                   decoration: BoxDecoration(
-                                      border:
-                                          Border.all(color: Color(0xFF2A3A5A))),
+                                      border: Border.all(
+                                          color: const Color(0xFF2A3A5A))),
                                   width: 60,
                                   height: 25,
                                   child: Center(
                                     child: Text(
                                       _data[index]['type'] ?? "",
-                                      style: TextStyle(color: Colors.white),
+                                      style:
+                                          const TextStyle(color: Colors.white),
                                     ),
                                   )),
                               Container(
                                   decoration: BoxDecoration(
                                     color: checkavgPrice
-                                        ? Color(0xFFE53935).withOpacity(0.1)
-                                        : Color(0xFF00C853).withOpacity(0.1),
-                                    border:
-                                        Border.all(color: Color(0xFF2A3A5A)),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(6)),
+                                        ? const Color(0xFFE53935)
+                                            .withOpacity(0.1)
+                                        : const Color(0xFF00C853)
+                                            .withOpacity(0.1),
+                                    border: Border.all(
+                                        color: const Color(0xFF2A3A5A)),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(6)),
                                   ),
                                   width: 70,
                                   height: 25,
@@ -869,14 +887,14 @@ class _HomepageState extends State<Homepage> {
                             color: Color(0xFF2A3A5A),
                           ),
                           Container(
-                            margin: EdgeInsets.only(left: 10),
+                            margin: const EdgeInsets.only(left: 10),
                             child: Row(children: <Widget>[
                               Text.rich(
                                 TextSpan(
                                   children: [
                                     TextSpan(
                                       text: 'quantity'.tr,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontSize: 15,
                                           color: Colors.white,
                                           fontFamily: fontFamily,
@@ -884,7 +902,7 @@ class _HomepageState extends State<Homepage> {
                                     ),
                                     TextSpan(
                                         text: " " + _data[index]['qty'],
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white,
                                             fontSize: 15,
@@ -894,18 +912,18 @@ class _HomepageState extends State<Homepage> {
                               ),
                             ]),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                           Container(
-                            margin: EdgeInsets.only(left: 10),
+                            margin: const EdgeInsets.only(left: 10),
                             child: Row(children: <Widget>[
                               Text.rich(
                                 TextSpan(
                                   children: [
                                     TextSpan(
                                       text: 'price'.tr,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontSize: 15,
                                           color: Colors.white,
                                           fontFamily: fontFamily,
@@ -922,7 +940,7 @@ class _HomepageState extends State<Homepage> {
                                   ],
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 20,
                               ),
                               Text.rich(
@@ -940,8 +958,8 @@ class _HomepageState extends State<Homepage> {
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: a
-                                                ? Color(0xFFE53935)
-                                                : Color(0xFF00C853),
+                                                ? const Color(0xFFE53935)
+                                                : const Color(0xFF00C853),
                                             fontSize: 14,
                                             fontFamily: fontFamily)),
                                   ],
@@ -1008,20 +1026,21 @@ class _HomepageState extends State<Homepage> {
               padding: const EdgeInsets.all(5.0),
               child: Column(
                 children: [
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Container(
                     decoration: BoxDecoration(
-                      color: Color(0xFF1A2234),
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      color: const Color(0xFF1A2234),
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
                       border: Border.all(
-                        color: Color(0xFF2A3A5A),
+                        color: const Color(0xFF2A3A5A),
                         width: 1,
                       ),
                     ),
                     height: MediaQuery.of(context).size.height * 0.2,
                     width: double.infinity,
                     child: Container(
-                      margin: EdgeInsets.only(left: 10, right: 10, top: 10),
+                      margin:
+                          const EdgeInsets.only(left: 10, right: 10, top: 10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1039,7 +1058,7 @@ class _HomepageState extends State<Homepage> {
                                               "https://securetradeai.com/assets/images/logo/logo2.png")
                                           : NetworkImage(
                                               _data[index]['asset_img'])),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 5,
                                   ),
                                   Row(
@@ -1066,8 +1085,8 @@ class _HomepageState extends State<Homepage> {
                               ),
                               Container(
                                   decoration: BoxDecoration(
-                                      border:
-                                          Border.all(color: Color(0xFF2A3A5A))),
+                                      border: Border.all(
+                                          color: const Color(0xFF2A3A5A))),
                                   width: 60,
                                   height: 25,
                                   child: Center(
@@ -1075,30 +1094,34 @@ class _HomepageState extends State<Homepage> {
                                       _data[index]['cycle'] == "0"
                                           ? "Cycle"
                                           : "One Shot",
-                                      style: TextStyle(color: Colors.white),
+                                      style:
+                                          const TextStyle(color: Colors.white),
                                     ),
                                   )),
                               Container(
                                   decoration: BoxDecoration(
-                                      border:
-                                          Border.all(color: Color(0xFF2A3A5A))),
+                                      border: Border.all(
+                                          color: const Color(0xFF2A3A5A))),
                                   width: 60,
                                   height: 25,
                                   child: Center(
                                     child: Text(
                                       _data[index]['type'] ?? "emptys",
-                                      style: TextStyle(color: Colors.white),
+                                      style:
+                                          const TextStyle(color: Colors.white),
                                     ),
                                   )),
                               Container(
                                   decoration: BoxDecoration(
                                     color: checkavgPrice
-                                        ? Color(0xFFE53935).withOpacity(0.1)
-                                        : Color(0xFF00C853).withOpacity(0.1),
-                                    border:
-                                        Border.all(color: Color(0xFF2A3A5A)),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(6)),
+                                        ? const Color(0xFFE53935)
+                                            .withOpacity(0.1)
+                                        : const Color(0xFF00C853)
+                                            .withOpacity(0.1),
+                                    border: Border.all(
+                                        color: const Color(0xFF2A3A5A)),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(6)),
                                   ),
                                   width: 70,
                                   height: 25,
@@ -1119,14 +1142,14 @@ class _HomepageState extends State<Homepage> {
                             color: Color(0xFF2A3A5A),
                           ),
                           Container(
-                            margin: EdgeInsets.only(left: 10),
+                            margin: const EdgeInsets.only(left: 10),
                             child: Row(children: <Widget>[
                               Text.rich(
                                 TextSpan(
                                   children: [
                                     TextSpan(
                                       text: 'quantity'.tr,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontSize: 15,
                                           color: Colors.white,
                                           fontFamily: fontFamily,
@@ -1134,7 +1157,7 @@ class _HomepageState extends State<Homepage> {
                                     ),
                                     TextSpan(
                                         text: " " + _data[index]['qty'],
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white,
                                             fontSize: 15,
@@ -1144,26 +1167,25 @@ class _HomepageState extends State<Homepage> {
                               ),
                             ]),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                           Container(
-                            margin: EdgeInsets.only(left: 10),
+                            margin: const EdgeInsets.only(left: 10),
                             child: Row(children: <Widget>[
                               Text.rich(
                                 TextSpan(
                                   children: [
                                     TextSpan(
                                       text: 'price'.tr,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontSize: 15,
                                           color: Colors.white,
                                           fontFamily: fontFamily,
                                           fontWeight: FontWeight.bold),
                                     ),
                                     TextSpan(
-                                        text: " : " +
-                                            _data[index]['price'].toString(),
+                                        text: " : ${_data[index]['price']}",
                                         style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
@@ -1172,7 +1194,7 @@ class _HomepageState extends State<Homepage> {
                                   ],
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 20,
                               ),
                               Text.rich(
@@ -1190,8 +1212,8 @@ class _HomepageState extends State<Homepage> {
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: a
-                                                ? Color(0xFFE53935)
-                                                : Color(0xFF00C853),
+                                                ? const Color(0xFFE53935)
+                                                : const Color(0xFF00C853),
                                             fontSize: 14,
                                             fontFamily: fontFamily)),
                                   ],
@@ -1221,219 +1243,220 @@ class _HomepageState extends State<Homepage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Bot Subscription button with enhanced design
-          Container(
-            margin: const EdgeInsets.only(bottom: 12, left: 2, right: 2),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  botStatus == "1"
-                      ? const Color(0xFF0A3D1A)
-                      : const Color(0xFF0F1923),
-                  botStatus == "1"
-                      ? const Color(0xFF052510)
-                      : const Color(0xFF0A1218),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color:
-                    botStatus == "1" ? const Color(0xFF00C853) : binanceYellow,
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: (botStatus == "1"
-                          ? const Color(0xFF00C853)
-                          : binanceYellow)
-                      .withOpacity(0.15),
-                  spreadRadius: 0,
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: botStatus == "1" ? null : () => _activateSubscription(),
-                splashColor: binanceYellow.withOpacity(0.1),
-                highlightColor: binanceYellow.withOpacity(0.05),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 6), // Reduced horizontal padding
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          // Animated icon container with glow effect
-                          Container(
-                            height: 45,
-                            width: 45,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  (botStatus == "1"
-                                          ? const Color(0xFF00C853)
-                                          : binanceYellow)
-                                      .withOpacity(0.15),
-                                  (botStatus == "1"
-                                          ? const Color(0xFF00C853)
-                                          : binanceYellow)
-                                      .withOpacity(0.05),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: (botStatus == "1"
-                                        ? const Color(0xFF00C853)
-                                        : binanceYellow)
-                                    .withOpacity(0.3),
-                                width: 1.5,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: (botStatus == "1"
-                                          ? const Color(0xFF00C853)
-                                          : binanceYellow)
-                                      .withOpacity(0.2),
-                                  spreadRadius: 0,
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: Center(
-                              child: Image.asset(
-                                "assets/img/rocket.png",
-                                color: botStatus == "1"
-                                    ? const Color(0xFF00C853)
-                                    : binanceYellow,
-                                height: 30,
-                                width: 30,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                "Bot Subscription",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  const Text(
-                                    "Trading automation",
-                                    style: TextStyle(
-                                      color: Color(0xFF848E9C),
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  if (botStatus == "1") ...[
-                                    // Show status indicator if activated
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF00C853)
-                                            .withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: const [
-                                          Icon(
-                                            Icons.check_circle,
-                                            color: Color(0xFF00C853),
-                                            size: 12,
-                                          ),
-                                          SizedBox(width: 4),
-                                          Text(
-                                            "Active",
-                                            style: TextStyle(
-                                              color: Color(0xFF00C853),
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-
-                      /// Enhanced button with gradient
-                      Container(
-                        height: 38,
-                        width: 68, // Reduced width to fix overflow
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 2), // Reduced padding
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              botStatus == "1"
-                                  ? const Color(0xFF00C853)
-                                  : const Color(0xFFF0B90B),
-                              botStatus == "1"
-                                  ? const Color(0xFF009940)
-                                  : const Color(0xFFE0AA0A),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: (botStatus == "1"
-                                      ? const Color(0xFF00C853)
-                                      : binanceYellow)
-                                  .withOpacity(0.3),
-                              spreadRadius: 0,
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-
-                        /// subscribed  or subscribe
-                        child: Center(
-                          child: Text(
-                            botStatus == "1" ? "Subscribed" : "Subscribe",
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+          // // Bot Subscription button with enhanced design
+          // Container(
+          //   margin: const EdgeInsets.only(bottom: 12, left: 2, right: 2),
+          //   decoration: BoxDecoration(
+          //     gradient: LinearGradient(
+          //       begin: Alignment.topLeft,
+          //       end: Alignment.bottomRight,
+          //       colors: [
+          //         botStatus == "1"
+          //             ? const Color(0xFF0A3D1A)
+          //             ? const Color(0xFF0A3D1A)
+          //             : const Color(0xFF0F1923),
+          //         botStatus == "1"
+          //             ? const Color(0xFF052510)
+          //             : const Color(0xFF0A1218),
+          //       ],
+          //     ),
+          //     borderRadius: BorderRadius.circular(12),
+          //     border: Border.all(
+          //       color:
+          //           botStatus == "1" ? const Color(0xFF00C853) : binanceYellow,
+          //       width: 1.5,
+          //     ),
+          //     boxShadow: [
+          //       BoxShadow(
+          //         color: (botStatus == "1"
+          //                 ? const Color(0xFF00C853)
+          //                 : binanceYellow)
+          //             .withOpacity(0.15),
+          //         spreadRadius: 0,
+          //         blurRadius: 12,
+          //         offset: const Offset(0, 4),
+          //       ),
+          //     ],
+          //   ),
+          //   // child: Material(
+          //   //   color: Colors.transparent,
+          //   //   child: InkWell(
+          //   //     borderRadius: BorderRadius.circular(12),
+          //   //     onTap: botStatus == "1" ? null : () => _activateSubscription(),
+          //   //     splashColor: binanceYellow.withOpacity(0.1),
+          //   //     highlightColor: binanceYellow.withOpacity(0.05),
+          //   //     child: Padding(
+          //   //       padding: const EdgeInsets.symmetric(
+          //   //           vertical: 16,
+          //   //           horizontal: 6), // Reduced horizontal padding
+          //   //       child: Row(
+          //   //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   //         children: [
+          //   //           Row(
+          //   //             children: [
+          //   //               // Animated icon container with glow effect
+          //   //               // Container(
+          //   //               //   height: 45,
+          //   //               //   width: 45,
+          //   //               //   decoration: BoxDecoration(
+          //   //               //     gradient: LinearGradient(
+          //   //               //       begin: Alignment.topLeft,
+          //   //               //       end: Alignment.bottomRight,
+          //   //               //       colors: [
+          //   //               //         (botStatus == "1"
+          //   //               //                 ? const Color(0xFF00C853)
+          //   //               //                 : binanceYellow)
+          //   //               //             .withOpacity(0.15),
+          //   //               //         (botStatus == "1"
+          //   //               //                 ? const Color(0xFF00C853)
+          //   //               //                 : binanceYellow)
+          //   //               //             .withOpacity(0.05),
+          //   //               //       ],
+          //   //               //     ),
+          //   //               //     borderRadius: BorderRadius.circular(10),
+          //   //               //     border: Border.all(
+          //   //               //       color: (botStatus == "1"
+          //   //               //               ? const Color(0xFF00C853)
+          //   //               //               : binanceYellow)
+          //   //               //           .withOpacity(0.3),
+          //   //               //       width: 1.5,
+          //   //               //     ),
+          //   //               //     boxShadow: [
+          //   //               //       BoxShadow(
+          //   //               //         color: (botStatus == "1"
+          //   //               //                 ? const Color(0xFF00C853)
+          //   //               //                 : binanceYellow)
+          //   //               //             .withOpacity(0.2),
+          //   //               //         spreadRadius: 0,
+          //   //               //         blurRadius: 10,
+          //   //               //         offset: const Offset(0, 2),
+          //   //               //       ),
+          //   //               //     ],
+          //   //               //   ),
+          //   //               //   child: Center(
+          //   //               //     child: Image.asset(
+          //   //               //       "assets/img/rocket.png",
+          //   //               //       color: botStatus == "1"
+          //   //               //           ? const Color(0xFF00C853)
+          //   //               //           : binanceYellow,
+          //   //               //       height: 30,
+          //   //               //       width: 30,
+          //   //               //     ),
+          //   //               //   ),
+          //   //               // ),
+          //   //               // const SizedBox(width: 10),
+          //   //               // Column(
+          //   //               //   crossAxisAlignment: CrossAxisAlignment.start,
+          //   //               //   mainAxisAlignment: MainAxisAlignment.center,
+          //   //               //   children: [
+          //   //               //     const Text(
+          //   //               //       "Bot Subscription",
+          //   //               //       style: TextStyle(
+          //   //               //         color: Colors.white,
+          //   //               //         fontWeight: FontWeight.bold,
+          //   //               //         fontSize: 16,
+          //   //               //       ),
+          //   //               //     ),
+          //   //               //     const SizedBox(height: 4),
+          //   //               //     Row(
+          //   //               //       children: [
+          //   //               //         const Text(
+          //   //               //           "Trading automation",
+          //   //               //           style: TextStyle(
+          //   //               //             color: Color(0xFF848E9C),
+          //   //               //             fontSize: 13,
+          //   //               //           ),
+          //   //               //         ),
+          //   //               //         if (botStatus == "1") ...[
+          //   //               //           // Show status indicator if activated
+          //   //               //           const SizedBox(width: 8),
+          //   //               //           Container(
+          //   //               //             padding: const EdgeInsets.symmetric(
+          //   //               //                 horizontal: 6, vertical: 2),
+          //   //               //             decoration: BoxDecoration(
+          //   //               //               color: const Color(0xFF00C853)
+          //   //               //                   .withOpacity(0.2),
+          //   //               //               borderRadius: BorderRadius.circular(4),
+          //   //               //             ),
+          //   //               //             child: Row(
+          //   //               //               mainAxisSize: MainAxisSize.min,
+          //   //               //               children: const [
+          //   //               //                 Icon(
+          //   //               //                   Icons.check_circle,
+          //   //               //                   color: Color(0xFF00C853),
+          //   //               //                   size: 12,
+          //   //               //                 ),
+          //   //               //                 SizedBox(width: 4),
+          //   //               //                 Text(
+          //   //               //                   "Active",
+          //   //               //                   style: TextStyle(
+          //   //               //                     color: Color(0xFF00C853),
+          //   //               //                     fontSize: 10,
+          //   //               //                     fontWeight: FontWeight.bold,
+          //   //               //                   ),
+          //   //               //                 ),
+          //   //               //               ],
+          //   //               //             ),
+          //   //               //           ),
+          //   //               //         ],
+          //   //               //       ],
+          //   //               //     ),
+          //   //               //   ],
+          //   //               // ),
+          //   //             ],
+          //   //           ),
+          //   //
+          //   //           /// Enhanced button with gradient
+          //   //           Container(
+          //   //             height: 38,
+          //   //             width: 68, // Reduced width to fix overflow
+          //   //             padding: const EdgeInsets.symmetric(
+          //   //                 horizontal: 2), // Reduced padding
+          //   //             decoration: BoxDecoration(
+          //   //               gradient: LinearGradient(
+          //   //                 begin: Alignment.topLeft,
+          //   //                 end: Alignment.bottomRight,
+          //   //                 colors: [
+          //   //                   botStatus == "1"
+          //   //                       ? const Color(0xFF00C853)
+          //   //                       : const Color(0xFFF0B90B),
+          //   //                   botStatus == "1"
+          //   //                       ? const Color(0xFF009940)
+          //   //                       : const Color(0xFFE0AA0A),
+          //   //                 ],
+          //   //               ),
+          //   //               borderRadius: BorderRadius.circular(8),
+          //   //               boxShadow: [
+          //   //                 BoxShadow(
+          //   //                   color: (botStatus == "1"
+          //   //                           ? const Color(0xFF00C853)
+          //   //                           : binanceYellow)
+          //   //                       .withOpacity(0.3),
+          //   //                   spreadRadius: 0,
+          //   //                   blurRadius: 8,
+          //   //                   offset: const Offset(0, 2),
+          //   //                 ),
+          //   //               ],
+          //   //             ),
+          //   //
+          //   //             /// subscribed  or subscribe
+          //   //             child: Center(
+          //   //               child: Text(
+          //   //                 botStatus == "1" ? "Subscribed" : "Subscribe",
+          //   //                 style: const TextStyle(
+          //   //                   color: Colors.black,
+          //   //                   fontWeight: FontWeight.bold,
+          //   //                   fontSize: 12,
+          //   //                 ),
+          //   //               ),
+          //   //             ),
+          //   //           ),
+          //   //         ],
+          //   //       ),
+          //   //     ),
+          //   //   ),
+          //   // ),
+          // ),
 
           // Section title with yellow indicator
           Padding(
@@ -1501,8 +1524,10 @@ class _HomepageState extends State<Homepage> {
                   _buildGridOptionItem(
                     icon: "assets/img/api.png",
                     label: "API Binding",
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => ApiBinding())),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ApiBinding())),
                   ),
                   // Trading Revenue
                   _buildGridOptionItem(
@@ -1597,9 +1622,17 @@ class _HomepageState extends State<Homepage> {
                 crossAxisSpacing: 10,
                 childAspectRatio: 1.3,
                 children: [
-                  // Transactions
+                  /// Arbitrade
                   _buildGridOptionItem(
-                    icon: "assets/img/money.png",
+                    icon: "assets/img/stock.png",
+                    label: "Arbitrade",
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ArbiTradeSection())),
+                  ), // Transactions
+                  _buildGridOptionItem(
+                    icon: "assets/img/transaction.png",
                     label: "Transactions",
                     onTap: () => Navigator.push(
                         context,
@@ -1622,14 +1655,16 @@ class _HomepageState extends State<Homepage> {
                     onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => Team(image: null))),
+                            builder: (context) => const Team(image: null))),
                   ),
                   // User Guide
                   _buildGridOptionItem(
                     icon: "assets/img/userguide.png",
                     label: "User Guide",
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => UserGuide())),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const UserGuide())),
                   ),
                   // Invite Friends
                   _buildGridOptionItem(
@@ -1640,6 +1675,94 @@ class _HomepageState extends State<Homepage> {
                         MaterialPageRoute(
                             builder: (context) =>
                                 Sharescreen(reffral: widget.reffral))),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          /// trading
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: binanceYellow,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  "Trading Bots",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          /// Future and Spot trading bots
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF161D2B),
+                  Color(0xFF0F1923),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: cardBorder,
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  spreadRadius: 0,
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                childAspectRatio: 1.3,
+                children: [
+                  /// Spot trading
+                  _buildGridOptionItem(
+                    icon: "assets/img/spot_trading.png",
+                    label: "Spot Trading",
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SpotTradingService(),
+                        )),
+                  ),
+
+                  /// future trading
+                  _buildGridOptionItem(
+                    icon: "assets/img/future_trading.png",
+                    label: "Future Trading",
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                const FutureTradingSection())),
                   ),
                 ],
               ),

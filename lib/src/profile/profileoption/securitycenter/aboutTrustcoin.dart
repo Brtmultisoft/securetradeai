@@ -12,12 +12,13 @@ class _AboutTrustcoinState extends State<AboutTrustcoin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bg2,
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.black),
-        backgroundColor: bg,
+        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: appBar,
         title: const Text("About Us",
             style: TextStyle(
-                color: Colors.black,
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontFamily: fontFamily)),
       ),
@@ -30,14 +31,21 @@ class _AboutTrustcoinState extends State<AboutTrustcoin> {
             ),
             Text(
               "TRUST COIN: THE FIRST AI-ALGORITHMIC CRYPTO TRADING & STAKING APP, A SINGLE APP!",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.white,
+              ),
             ),
             SizedBox(
               height: 20,
             ),
             Text(
               "Trust Coin have introduced the first ever staking program within the TRADING APP – means double benefit within A SINGLE APP & SYSTEM. The Trust Coin staking plan works with the growth of the applica􏰀on and its userbase. Trust Coin management have taken a major step towards the basic principle of the Blockchain and they have chosen Trust Coin as a fuel to the applica􏰀on, that will bring the Trust Coin Users with first 100% community-based Trust Coin ownership and governance. By Trust Coin staking plans, the growth of the applica􏰀on and demand of the Trust Coin will be boosted. h􏰁ps://www.trustcoin.app",
-              style: TextStyle(fontSize: 15),
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.white,
+              ),
             ),
           ],
         ),

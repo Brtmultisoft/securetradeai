@@ -1,14 +1,16 @@
 import 'dart:convert';
-import 'package:securetradeai/data/strings.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/profile/profileoption/securitycenter/aboutTrustcoin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../../data/api.dart';
 import '../../../sharedpreferences.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:http/http.dart' as http;
 
 class SystemCenter extends StatefulWidget {
   const SystemCenter({Key? key}) : super(key: key);
@@ -78,16 +80,23 @@ class _SystemCenterState extends State<SystemCenter> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
+        backgroundColor: Color(0xFF1A2234),
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(25.0))),
-        title: Text("Select Currency"),
+        title: Text(
+          "Select Currency",
+          style: TextStyle(color: Colors.white),
+        ),
         content: Container(
           width: double.maxFinite,
           child: ListView.separated(
             shrinkWrap: true,
             itemBuilder: (context, index) => InkWell(
                 child: Padding(
-                  child: Text(currency[index]['symbol']),
+                  child: Text(
+                    currency[index]['symbol'],
+                    style: TextStyle(color: Colors.white),
+                  ),
                   padding: const EdgeInsets.symmetric(vertical: 8),
                 ),
                 onTap: () async {
@@ -101,7 +110,7 @@ class _SystemCenterState extends State<SystemCenter> {
                   Navigator.pop(context);
                 }),
             separatorBuilder: (context, index) => const Divider(
-              color: Colors.black,
+              color: Colors.grey,
             ),
             itemCount: currency.length,
           ),
@@ -157,13 +166,13 @@ class _SystemCenterState extends State<SystemCenter> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: bg,
+      backgroundColor: Color(0xFF1A2234),
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.black),
-        backgroundColor: bg,
+        iconTheme: IconThemeData(color: Colors.white),
+        backgroundColor: appBar,
         title: Text("systemSetting".tr,
             style: const TextStyle(
-                color: Colors.black,
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontFamily: fontFamily)),
       ),
@@ -183,11 +192,13 @@ class _SystemCenterState extends State<SystemCenter> {
                     children: [
                       Text(
                         "version".tr,
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.white),
                       ),
                       Text(
                         "V " + appVersion,
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.white),
                       )
                     ],
                   ),
@@ -209,11 +220,13 @@ class _SystemCenterState extends State<SystemCenter> {
                       children: [
                         Text(
                           "About Us", // not add language
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                         Icon(
                           Icons.arrow_forward_ios,
                           size: 20,
+                          color: Colors.white,
                         )
                       ],
                     ),
@@ -260,7 +273,8 @@ class _SystemCenterState extends State<SystemCenter> {
                       children: [
                         Text(
                           "currency".tr,
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                         Row(
                           children: [
@@ -268,7 +282,9 @@ class _SystemCenterState extends State<SystemCenter> {
                               currentCurrency == "null"
                                   ? "USD"
                                   : currentCurrency,
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
                             ),
                             const SizedBox(
                               width: 10,
@@ -276,6 +292,7 @@ class _SystemCenterState extends State<SystemCenter> {
                             const Icon(
                               Icons.arrow_forward_ios,
                               size: 20,
+                              color: Colors.white,
                             ),
                           ],
                         )

@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:securetradeai/data/strings.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:securetradeai/Data/Api.dart';
+import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
-import 'package:http/http.dart' as http;
 
 import '../../../method/methods.dart';
 
@@ -68,11 +69,12 @@ class _PersonalInfoState extends State<PersonalInfo> {
 
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFF1A2234),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF161A1E),
         title: Text(
           "personalinfo".tr,
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: Colors.white),
         ),
         leading: IconButton(
             onPressed: () {
@@ -80,7 +82,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
             },
             icon: Icon(
               Icons.arrow_back,
-              color: Colors.black,
+              color: Colors.white,
             )),
       ),
       body: isAPIcalle
@@ -104,12 +106,14 @@ class _PersonalInfoState extends State<PersonalInfo> {
                         children: [
                           Text(
                             "nickname".tr,
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 15, color: Colors.white),
                           ),
                           Row(
                             children: [
                               Text(
                                 finalData.name,
+                                style: TextStyle(
+                                    fontSize: 15, color: Colors.white),
                               ),
                               IconButton(
                                   onPressed: () {
@@ -120,6 +124,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                                   icon: const Icon(
                                     Icons.arrow_forward_ios,
                                     size: 15,
+                                    color: Colors.white,
                                   ))
                             ],
                           )
@@ -137,22 +142,30 @@ class _PersonalInfoState extends State<PersonalInfo> {
                         children: [
                           Text(
                             "uuid".tr,
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 15, color: Colors.white),
                           ),
                           Row(
                             children: [
                               Text(
                                 finalData.referralCode,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
                               ),
                               IconButton(
                                   onPressed: () {
-                                    Clipboard.setData(ClipboardData(
-                                        text: finalData.referralCode));
+                                    Clipboard.setData(
+                                      ClipboardData(
+                                        text: finalData.referralCode,
+                                      ),
+                                    );
                                     showtoast("Copy", context);
                                   },
                                   icon: const Icon(
                                     Icons.copy,
                                     size: 15,
+                                    color: Colors.white,
                                   ))
                             ],
                           )
@@ -171,7 +184,10 @@ class _PersonalInfoState extends State<PersonalInfo> {
                         children: [
                           Text(
                             "avatar".tr,
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.white,
+                            ),
                           ),
                           InkWell(
                             onTap: () => showsnakbar(context),
@@ -201,20 +217,28 @@ class _PersonalInfoState extends State<PersonalInfo> {
                         children: [
                           Text(
                             "email".tr,
-                            style: const TextStyle(fontSize: 15),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.white,
+                            ),
                           ),
                           Row(
                             children: [
                               Text(
                                 finalData.email,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
                               ),
                               IconButton(
                                   onPressed: () {
-                                    // _changeEmail(context);
+                                    _changeEmail(context);
                                   },
                                   icon: const Icon(
                                     Icons.arrow_forward_ios,
                                     size: 15,
+                                    color: Colors.white,
                                   ))
                             ],
                           ),
@@ -233,10 +257,17 @@ class _PersonalInfoState extends State<PersonalInfo> {
                         children: [
                           Text(
                             "Mobile",
-                            style: const TextStyle(fontSize: 15),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.white,
+                            ),
                           ),
                           Text(
                             finalData.mobile,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.white,
+                            ),
                           ),
                         ],
                       ),
@@ -253,10 +284,15 @@ class _PersonalInfoState extends State<PersonalInfo> {
                         children: [
                           Text(
                             "location".tr,
-                            style: const TextStyle(fontSize: 15),
+                            style: const TextStyle(
+                                fontSize: 15, color: Colors.white),
                           ),
                           Text(
                             finalData.country,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.white,
+                            ),
                           ),
                         ],
                       ),
@@ -272,7 +308,8 @@ class _PersonalInfoState extends State<PersonalInfo> {
                         children: [
                           Text(
                             "changePassword".tr,
-                            style: const TextStyle(fontSize: 15),
+                            style: const TextStyle(
+                                fontSize: 15, color: Colors.white),
                           ),
                           IconButton(
                               onPressed: () {
@@ -281,6 +318,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                               icon: const Icon(
                                 Icons.arrow_forward_ios,
                                 size: 15,
+                                color: Colors.white,
                               ))
                         ],
                       ),
@@ -307,29 +345,48 @@ class _PersonalInfoState extends State<PersonalInfo> {
         context: context,
         builder: (context) {
           return AlertDialog(
+            backgroundColor: Color(0xFF1A2234),
             contentPadding:
                 const EdgeInsets.only(bottom: 10, left: 20, right: 10),
-            title: const Text('Enter Your Name'),
+            title: const Text(
+              'Enter Your Name',
+              style: TextStyle(color: Colors.white),
+            ),
             content: TextField(
               controller: name,
-              // decoration: InputDecoration(hintText: "Text Field in Dialog"),
+              style: TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                hintStyle: TextStyle(color: Colors.white),
+              ),
             ),
             actions: [
               GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Cancel")),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: const Text(
+                  "Cancel",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
               const SizedBox(
                 width: 10,
               ),
               GestureDetector(
-                  onTap: () {
-                    _update();
-                  },
-                  child: const Text("Update",
-                      style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold))),
+                onTap: () {
+                  _update();
+                },
+                child: const Text(
+                  "Update",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
               const SizedBox(
                 width: 10,
               ),
@@ -346,33 +403,53 @@ class _PersonalInfoState extends State<PersonalInfo> {
         context: context,
         builder: (context) {
           return AlertDialog(
+            backgroundColor: Color(0xFF1A2234),
             contentPadding: EdgeInsets.only(bottom: 10, left: 20, right: 10),
-            title: const Text('Change your Password'),
+            title: const Text(
+              'Change your Password',
+              style: TextStyle(color: Colors.white),
+            ),
             content: Container(
               height: 150,
               child: Column(
                 children: [
                   TextField(
-                    decoration: InputDecoration(hintText: "Enter old password"),
+                    decoration: InputDecoration(
+                      hintText: "Enter old password",
+                      hintStyle: TextStyle(color: Colors.white),
+                    ),
                     controller: oldpass,
+                    style: TextStyle(color: Colors.white),
                   ),
                   TextField(
-                    decoration: InputDecoration(hintText: "Enter new password"),
+                    decoration: InputDecoration(
+                      hintText: "Enter new password",
+                      hintStyle: TextStyle(color: Colors.white),
+                    ),
                     controller: newpasswrod,
+                    style: TextStyle(color: Colors.white),
                   ),
                   TextField(
-                    decoration: InputDecoration(hintText: "Confirm Password"),
+                    decoration: InputDecoration(
+                      hintText: "Confirm Password",
+                      hintStyle: TextStyle(color: Colors.white),
+                    ),
                     controller: conformPassord,
+                    style: TextStyle(color: Colors.white),
                   ),
                 ],
               ),
             ),
             actions: [
               GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text("Cancel")),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
               SizedBox(
                 width: 10,
               ),
@@ -382,7 +459,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                   },
                   child: const Text("Change",
                       style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold))),
+                          color: Colors.white, fontWeight: FontWeight.bold))),
               SizedBox(
                 width: 10,
               ),
@@ -399,19 +476,31 @@ class _PersonalInfoState extends State<PersonalInfo> {
         context: context,
         builder: (context) {
           return AlertDialog(
+            backgroundColor: Color(0xFF1A2234),
             contentPadding: EdgeInsets.only(bottom: 10, left: 20, right: 10),
-            title: const Text('Change your Email'),
+            title: const Text(
+              'Change your Email',
+              style: TextStyle(color: Colors.white),
+            ),
             content: Container(
               height: 100,
               child: Column(
                 children: [
                   TextField(
-                    decoration: InputDecoration(hintText: "Enter New  Email"),
+                    decoration: InputDecoration(
+                      hintText: "Enter New  Email",
+                      hintStyle: TextStyle(color: Colors.white),
+                    ),
                     controller: email,
+                    style: TextStyle(color: Colors.white),
                   ),
                   TextField(
-                    decoration: InputDecoration(hintText: "Enter  password"),
+                    decoration: InputDecoration(
+                      hintText: "Enter  password",
+                      hintStyle: TextStyle(color: Colors.white),
+                    ),
                     controller: password,
+                    style: TextStyle(color: Colors.white),
                   ),
                 ],
               ),
@@ -421,7 +510,12 @@ class _PersonalInfoState extends State<PersonalInfo> {
                   onTap: () {
                     Navigator.pop(context);
                   },
-                  child: Text("Cancel")),
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  )),
               SizedBox(
                 width: 10,
               ),
@@ -431,9 +525,9 @@ class _PersonalInfoState extends State<PersonalInfo> {
                   },
                   child: const Text("Update",
                       style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold))),
+                          color: Colors.white, fontWeight: FontWeight.bold))),
               SizedBox(
-                width: 10,
+                width: 20,
               ),
             ],
           );
@@ -554,7 +648,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
             child: Container(
               height: 100.0,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Color(0xFF1A2234),
                 borderRadius: BorderRadius.circular(30.0),
               ),
               child: Padding(
@@ -571,18 +665,27 @@ class _PersonalInfoState extends State<PersonalInfo> {
                               icon: Icon(
                                 Icons.image,
                                 size: 40,
+                                color: Colors.white,
                               )),
-                          Text("Gallery")
+                          Text(
+                            "Gallery",
+                            style: TextStyle(color: Colors.white),
+                          )
                         ],
                       ),
                       Column(
                         children: [
                           IconButton(
-                              onPressed: () {
-                                _getFromGallery(ImageSource.camera);
-                              },
-                              icon: Icon(Icons.camera, size: 40)),
-                          Text("Camera")
+                            onPressed: () {
+                              _getFromGallery(ImageSource.camera);
+                            },
+                            icon: Icon(Icons.camera,
+                                size: 40, color: Colors.white),
+                          ),
+                          Text(
+                            "Camera",
+                            style: TextStyle(color: Colors.white),
+                          )
                         ],
                       )
                     ],

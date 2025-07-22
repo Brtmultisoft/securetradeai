@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:http/http.dart' as http;
 import 'package:securetradeai/src/Service/assets_service.dart';
@@ -54,14 +53,14 @@ class _QuantitativeState extends State<Quantitative> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: bg,
+        backgroundColor: const Color(0xFF0C0E12),
         appBar: AppBar(
-          backgroundColor: bg,
-          iconTheme: IconThemeData(color: Colors.black),
+          backgroundColor: const Color(0xFF161A1E),
+          iconTheme: const IconThemeData(color: Colors.white),
           title: Text(
             "Videos".tr,
             style: const TextStyle(
-                fontFamily: fontFamily, fontSize: 20, color: Colors.black),
+                fontFamily: fontFamily, fontSize: 20, color: Colors.white),
           ),
         ),
         body: isAPIcalled
@@ -99,22 +98,40 @@ class _QuantitativeState extends State<Quantitative> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SizedBox(height: 10),
+                                    const SizedBox(height: 10),
                                     Container(
-                                      margin: EdgeInsets.only(left: 10),
+                                      margin: const EdgeInsets.all(10),
                                       child: Text(
                                         finaldata[index]['title'],
-                                        style: TextStyle(
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 24,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ),
-                                    SizedBox(height: 5),
-                                    YoutubePlayer(
-                                      controller: _controller,
-                                      liveUIColor: Colors.amber,
-                                    ),
-                                    Divider()
+                                    const SizedBox(height: 5),
+                                    Container(
+                                        margin: const EdgeInsets.symmetric(
+                                          vertical: 5,
+                                          horizontal: 10,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF2B3139),
+                                          borderRadius:
+                                              BorderRadius.circular(24),
+                                          border: Border.all(
+                                              color: const Color(0xFF2A3A5A)),
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(24),
+                                          child: YoutubePlayer(
+                                            controller: _controller,
+                                            liveUIColor: Colors.amber,
+                                          ),
+                                        )),
+                                    const Divider()
                                   ],
                                 ),
                               );

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 /// DIAGNOSTIC: Authentication service tester
 /// Use this to identify login/signup issues

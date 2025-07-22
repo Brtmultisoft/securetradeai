@@ -173,22 +173,77 @@ class CommonMethod {
     return price;
   }
 
-  // Get user's current balance
+  /// Get user's current balance
   Future<double> getUserBalance() async {
+    print("🔍 DEBUG: Getting user balance for user: $commonuserId");
+    print("🔍 DEBUG: Balance API URL: $usdBalance");
+
     try {
       final res = await http.post(Uri.parse(usdBalance),
           body: jsonEncode({"user_id": commonuserId}));
 
+      print("🔍 DEBUG: Balance response status: ${res.statusCode}");
+      print("🔍 DEBUG: Balance response body: ${res.body}");
+
       if (res.statusCode == 200) {
         var data = jsonDecode(res.body);
+        print("🔍 DEBUG: Parsed balance data: $data");
+
         if (data['status'] == 'success') {
-          return double.tryParse(data['data']['balance'].toString()) ?? 0.0;
+          final balance = double.tryParse(data['data']['balance'].toString()) ?? 0.0;
+          print("✅ User balance retrieved: $balance");
+          return balance;
+        } else {
+          print("❌ Balance API failed - Status: ${data['status']}, Message: ${data['message'] ?? 'No message'}");
         }
+      } else {
+        print("❌ Balance API HTTP error: ${res.statusCode}");
       }
       return 0.0;
     } catch (e) {
-      print("Error getting user balance: $e");
+      print("❌ Exception getting user balance: $e");
       return 0.0;
+    }
+  }
+
+  /// Investment Package Methods
+  Future<Map<String, dynamic>> getUserInvestments() async {
+    try {
+      final res = await http.post(Uri.parse(getUserInvestmentsPost),
+          body: jsonEncode({"user_id": commonuserId}));
+      return jsonDecode(res.body);
+    } catch (e) {
+      print('Error getting user investments: $e');
+      return {"status": "error", "message": "Network error"};
+    }
+  }
+
+  /// Buy investment package (50 - 1000)
+  Future<Map<String, dynamic>> buyInvestmentPackage(
+      String amount, String type) async {
+    try {
+      final res = await http.post(Uri.parse(buyPackagePost),
+          body: jsonEncode(
+              {"user_id": commonuserId, "amount": amount, "type": type}));
+      return jsonDecode(res.body);
+    } catch (e) {
+      print('Error buying investment package: $e');
+      return {"status": "error", "message": "Network error"};
+    }
+  }
+
+  /// Get user incomes by type (roi, direct_income, level_income, rank_rewards)
+  Future<Map<String, dynamic>> getIncomes(String type) async {
+    try {
+      final res = await http.post(Uri.parse(getIncomesPost),
+          body: jsonEncode({
+            "user_id": commonuserId,
+            "type": type
+          }));
+      return jsonDecode(res.body);
+    } catch (e) {
+      print('Error getting incomes: $e');
+      return {"status": false, "message": "Network error"};
     }
   }
 }

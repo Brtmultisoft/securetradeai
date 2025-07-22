@@ -1,4 +1,3 @@
-
 const String mainUrl = "https://securetradeai.com/";
 const String path = "${mainUrl}uploads/offers/";
 const String imagepath = "${mainUrl}uploads/user/";
@@ -119,3 +118,11 @@ const String getWalletInfoUrl = "${url}get_wallet_info";
 
 // Subscription API endpoints
 const String activateSubscriptionUrl = "${url}activate_subscription";
+
+// Investment Package API endpoints
+const String buyPackagePost = "${url}buy_package";
+const String getUserInvestmentsPost = "${url}get_user_investments";
+const String getIncomesPost = "${url}get_incomes";
+
+// Future Trading API endpoints
+const String dualSideAccountBalance = "${url}dual_side_account_balance";

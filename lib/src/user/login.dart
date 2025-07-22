@@ -122,25 +122,25 @@ class _LoginPageState extends State<LoginPage>
         isAPicalled = true;
       });
 
-      var bodydata = jsonEncode({
-        "mobile": user,
-        "password": pass,
-        "type": "Normal"
-      });
+      var bodydata =
+          jsonEncode({"mobile": user, "password": pass, "type": "Normal"});
 
       print('🔍 LOGIN REQUEST: $bodydata'); // Debug logging
 
-      final response = await http.post(
-        Uri.parse(loginUrl),
-        headers: {
-          'Content-Type': 'application/json',  // FIX: Add required headers
-          'Accept': 'application/json',
-          'User-Agent': 'SecureTradeAI-Mobile-App',
-        },
-        body: bodydata,
-      ).timeout(const Duration(seconds: 15));  // FIX: Add timeout
+      final response = await http
+          .post(
+            Uri.parse(loginUrl),
+            headers: {
+              'Content-Type': 'application/json', // FIX: Add required headers
+              'Accept': 'application/json',
+              'User-Agent': 'SecureTradeAI-Mobile-App',
+            },
+            body: bodydata,
+          )
+          .timeout(const Duration(seconds: 15)); // FIX: Add timeout
 
-      print('🔍 LOGIN RESPONSE: ${response.statusCode} - ${response.body}'); // Debug logging
+      print(
+          '🔍 LOGIN RESPONSE: ${response.statusCode} - ${response.body}'); // Debug logging
 
       if (response.statusCode == 200) {
         if (response.body.isNotEmpty) {
@@ -159,17 +159,19 @@ class _LoginPageState extends State<LoginPage>
           showtoast("Empty response from server", context);
         }
       } else {
-        showtoast("Server Error: ${response.statusCode}", context);  // FIX: Show actual error code
+        showtoast("Server Error: ${response.statusCode}",
+            context); // FIX: Show actual error code
       }
-
     } on SocketException {
       showtoast("No internet connection", context);
       print('Socket Exception');
     } on TimeoutException {
-      showtoast("Request timeout - server is slow", context);  // FIX: Handle timeout
+      showtoast(
+          "Request timeout - server is slow", context); // FIX: Handle timeout
       print('Timeout Exception');
     } catch (e) {
-      showtoast("Login error: ${e.toString()}", context);  // FIX: Show actual error
+      showtoast(
+          "Login error: ${e.toString()}", context); // FIX: Show actual error
       print('LOGIN ERROR: $e');
     } finally {
       setState(() {
@@ -401,7 +403,7 @@ class _LoginPageState extends State<LoginPage>
                         cursorColor: _primaryColor,
                         decoration: InputDecoration(
                           border: InputBorder.none,
-                          hintText: "Enter your email or phone",
+                          hintText: "Enter your email or user id",
                           hintStyle: TextStyle(color: _hintColor),
                         ),
                       ),
@@ -576,17 +578,20 @@ class _LoginPageState extends State<LoginPage>
 
         print('🔍 LOGIN REQUEST: $bodydata'); // Debug logging
 
-        final response = await http.post(
-          Uri.parse(loginUrl),
-          headers: {
-            'Content-Type': 'application/json',  // FIX: Add required headers
-            'Accept': 'application/json',
-            'User-Agent': 'SecureTradeAI-Mobile-App',
-          },
-          body: bodydata,
-        ).timeout(const Duration(seconds: 15));  // FIX: Add timeout
+        final response = await http
+            .post(
+              Uri.parse(loginUrl),
+              headers: {
+                'Content-Type': 'application/json', // FIX: Add required headers
+                'Accept': 'application/json',
+                'User-Agent': 'SecureTradeAI-Mobile-App',
+              },
+              body: bodydata,
+            )
+            .timeout(const Duration(seconds: 15)); // FIX: Add timeout
 
-        print('🔍 LOGIN RESPONSE: ${response.statusCode} - ${response.body}'); // Debug logging
+        print(
+            '🔍 LOGIN RESPONSE: ${response.statusCode} - ${response.body}'); // Debug logging
 
         if (response.statusCode == 200) {
           if (response.body.isNotEmpty) {
@@ -619,16 +624,18 @@ class _LoginPageState extends State<LoginPage>
             Navigator.pop(context);
           }
         } else {
-          showtoast("Server Error: ${response.statusCode}", context);  // FIX: Show actual error code
+          showtoast("Server Error: ${response.statusCode}",
+              context); // FIX: Show actual error code
           Navigator.pop(context);
         }
-
       } on SocketException {
         showtoast("No internet connection", context);
       } on TimeoutException {
-        showtoast("Request timeout - server is slow", context);  // FIX: Handle timeout
+        showtoast(
+            "Request timeout - server is slow", context); // FIX: Handle timeout
       } catch (e) {
-        showtoast("Login error: ${e.toString()}", context);  // FIX: Show actual error
+        showtoast(
+            "Login error: ${e.toString()}", context); // FIX: Show actual error
         print('LOGIN ERROR: $e');
       } finally {
         setState(() {

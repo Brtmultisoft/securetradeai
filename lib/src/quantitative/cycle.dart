@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:provider/provider.dart';
+import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/model/repoModel.dart';
 import 'package:securetradeai/src/homepage/SubbinMode.dart';
-import 'package:securetradeai/data/strings.dart';
+
 import '../../method/homepageProvider.dart';
-import '../homepage/Maintradesetting.dart';
 import '../Service/assets_service.dart';
+import '../homepage/Maintradesetting.dart';
 
 class Cycle extends StatefulWidget {
   const Cycle({Key? key, this.reffral}) : super(key: key);
@@ -123,8 +124,8 @@ class _CycleState extends State<Cycle> {
                                     SizedBox(height: 5),
                                     Container(
                                         decoration: BoxDecoration(
-                                          color:
-                                              securetradeaicolor.withOpacity(0.7),
+                                          color: securetradeaicolor
+                                              .withOpacity(0.7),
                                           borderRadius: BorderRadius.all(
                                               Radius.circular(20)),
                                         ),

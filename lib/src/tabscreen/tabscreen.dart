@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:securetradeai/src/homepage/home.dart';
-import 'package:securetradeai/src/quantitative/quatitativepage.dart';
+import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/homepage/home.dart';
 import 'package:securetradeai/src/news/newspage.dart';
 import 'package:securetradeai/src/profile/profile.dart';
-import 'package:securetradeai/data/strings.dart';
+import 'package:securetradeai/src/quantitative/quatitativepage.dart';
+
 import '../../model/repoModel.dart';
 
 class Tabscreen extends StatefulWidget {
@@ -43,7 +44,7 @@ class _TabscreenState extends State<Tabscreen> {
         controller: _controller,
         children: [
           Homepage(reffral: widget.reffral),
-          Quantitative(
+          SpotTradingService(
             reffralno: widget.reffral,
           ),
           News(),
@@ -95,25 +96,25 @@ class _TabscreenState extends State<Tabscreen> {
                       setState(() => refreshTime = true);
                       final bal = Provider.of<Repo>(context, listen: false);
                       await Future.delayed(
-                        const Duration(seconds: 3),
-                        () => bal.updateBalance(exchanger == "null" ? "Binance" : exchanger)
-                      );
+                          const Duration(seconds: 3),
+                          () => bal.updateBalance(
+                              exchanger == "null" ? "Binance" : exchanger));
                       setState(() => refreshTime = false);
                     },
                     icon: refreshTime
-                      ? SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
+                        ? SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Color(0xFF4A90E2),
+                            ),
+                          )
+                        : Icon(
+                            Icons.refresh,
                             color: Color(0xFF4A90E2),
+                            size: 16,
                           ),
-                        )
-                      : Icon(
-                          Icons.refresh,
-                          color: Color(0xFF4A90E2),
-                          size: 16,
-                        ),
                   ),
                 ],
               ),
@@ -137,7 +138,7 @@ class _TabscreenState extends State<Tabscreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildNavItem(0, Icons.home, "Home"),
-                  _buildNavItem(1, Icons.bar_chart, "Market"),
+                  _buildNavItem(1, Icons.bar_chart, "Spot Trading"),
                   _buildNavItem(2, Icons.receipt_long, "Orders"),
                   _buildNavItem(3, Icons.person, "Me"),
                 ],

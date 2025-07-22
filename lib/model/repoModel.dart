@@ -30,19 +30,36 @@ class Repo extends ChangeNotifier {
   }
 
   _getBinanceBalance(String finalString) async {
-    final res = await http.post(Uri.parse(usdBalance),
-        body: jsonEncode({"user_id": commonuserId, "type": finalString}));
-    if (res.statusCode != 200) {
-      print("Server Error");
-    } else {
-      var resposne = jsonDecode(res.body);
-      if (resposne['status'] == 'success') {
-        var finalamt = double.parse(resposne['data']).toStringAsFixed(2);
-        value = "$finalString Balance : $finalamt";
-      } else {
+    print("🔍 DEBUG: Fetching $finalString balance for user: $commonuserId");
+    print("🔍 DEBUG: API URL: $usdBalance");
+
+    try {
+      final res = await http.post(Uri.parse(usdBalance),
+          body: jsonEncode({"user_id": commonuserId, "type": finalString}));
+
+      print("🔍 DEBUG: Response status code: ${res.statusCode}");
+      print("🔍 DEBUG: Response body: ${res.body}");
+
+      if (res.statusCode != 200) {
+        print("❌ Server Error: ${res.statusCode}");
         value = "$finalString Balance : 0.00000";
-        print("Binance balance get failed");
+      } else {
+        var resposne = jsonDecode(res.body);
+        print("🔍 DEBUG: Parsed response: $resposne");
+
+        if (resposne['status'] == 'success') {
+          print("🔍 DEBUG: Success response data: ${resposne['data']}");
+          var finalamt = double.parse(resposne['data']).toStringAsFixed(2);
+          value = "$finalString Balance : $finalamt";
+          print("✅ $finalString Balance set to: $finalamt");
+        } else {
+          value = "$finalString Balance : 0.00000";
+          print("❌ Binance balance get failed - Status: ${resposne['status']}, Message: ${resposne['message'] ?? 'No message'}");
+        }
       }
+    } catch (e) {
+      print("❌ Exception in _getBinanceBalance: $e");
+      value = "$finalString Balance : 0.00000";
     }
     notifyListeners();
   }
