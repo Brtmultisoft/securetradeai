@@ -30,7 +30,7 @@ class _StrategyMonitorPopupState extends State<StrategyMonitorPopup> {
 
     try {
       print('🔄 Loading dual-side strategy monitoring data...');
-      
+
       final response = await FutureTradingService.getDualSideMonitor(
         userId: commonuserId,
       );
@@ -92,7 +92,7 @@ class _StrategyMonitorPopupState extends State<StrategyMonitorPopup> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 16),
       decoration: BoxDecoration(
         color: TradingTheme.secondaryBackground,
         borderRadius: const BorderRadius.only(
@@ -102,19 +102,19 @@ class _StrategyMonitorPopupState extends State<StrategyMonitorPopup> {
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: TradingTheme.primaryAccent.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.monitor_heart,
-              color: TradingTheme.primaryAccent,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
+          // Container(
+          //   padding: const EdgeInsets.all(8),
+          //   decoration: BoxDecoration(
+          //     color: TradingTheme.primaryAccent.withOpacity(0.2),
+          //     borderRadius: BorderRadius.circular(8),
+          //   ),
+          //   child: const Icon(
+          //     Icons.monitor_heart,
+          //     color: TradingTheme.primaryAccent,
+          //     size: 20,
+          //   ),
+          // ),
+          // const SizedBox(width: 10),
           Text(
             'Strategy Monitor',
             style: TradingTypography.heading3,
@@ -214,16 +214,16 @@ class _StrategyMonitorPopupState extends State<StrategyMonitorPopup> {
 
   Widget _buildStatusInfo() {
     final hasActivity = _monitorData!.hasActivity;
-    
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: hasActivity 
+        color: hasActivity
             ? TradingTheme.successColor.withOpacity(0.1)
             : TradingTheme.secondaryBackground,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: hasActivity 
+          color: hasActivity
               ? TradingTheme.successColor.withOpacity(0.3)
               : TradingTheme.primaryBorder.withOpacity(0.3),
         ),
@@ -232,14 +232,18 @@ class _StrategyMonitorPopupState extends State<StrategyMonitorPopup> {
         children: [
           Icon(
             hasActivity ? Icons.check_circle : Icons.info,
-            color: hasActivity ? TradingTheme.successColor : TradingTheme.primaryAccent,
+            color: hasActivity
+                ? TradingTheme.successColor
+                : TradingTheme.primaryAccent,
             size: 16,
           ),
           const SizedBox(width: 8),
           Text(
             hasActivity ? 'Active Monitoring' : 'Monitoring Active',
             style: TradingTypography.bodyMedium.copyWith(
-              color: hasActivity ? TradingTheme.successColor : TradingTheme.primaryAccent,
+              color: hasActivity
+                  ? TradingTheme.successColor
+                  : TradingTheme.primaryAccent,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -277,7 +281,9 @@ class _StrategyMonitorPopupState extends State<StrategyMonitorPopup> {
                 child: _buildStatItem(
                   'TP Hits',
                   _monitorData!.tpHits.toString(),
-                  _monitorData!.tpHits > 0 ? TradingTheme.successColor : TradingTheme.primaryAccent,
+                  _monitorData!.tpHits > 0
+                      ? TradingTheme.successColor
+                      : TradingTheme.primaryAccent,
                 ),
               ),
               Expanded(
@@ -296,8 +302,8 @@ class _StrategyMonitorPopupState extends State<StrategyMonitorPopup> {
                 child: _buildStatItem(
                   'Strategies Updated',
                   _monitorData!.strategiesUpdated.length.toString(),
-                  _monitorData!.strategiesUpdated.isNotEmpty 
-                      ? TradingTheme.warningColor 
+                  _monitorData!.strategiesUpdated.isNotEmpty
+                      ? TradingTheme.warningColor
                       : TradingTheme.primaryAccent,
                 ),
               ),
@@ -305,7 +311,9 @@ class _StrategyMonitorPopupState extends State<StrategyMonitorPopup> {
                 child: _buildStatItem(
                   'Activity Status',
                   _monitorData!.hasActivity ? 'Active' : 'Idle',
-                  _monitorData!.hasActivity ? TradingTheme.successColor : TradingTheme.secondaryText,
+                  _monitorData!.hasActivity
+                      ? TradingTheme.successColor
+                      : TradingTheme.secondaryText,
                 ),
               ),
             ],
@@ -322,7 +330,8 @@ class _StrategyMonitorPopupState extends State<StrategyMonitorPopup> {
         decoration: BoxDecoration(
           color: TradingTheme.cardBackground,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: TradingTheme.primaryBorder.withOpacity(0.3)),
+          border:
+              Border.all(color: TradingTheme.primaryBorder.withOpacity(0.3)),
         ),
         child: Column(
           children: [
@@ -366,41 +375,41 @@ class _StrategyMonitorPopupState extends State<StrategyMonitorPopup> {
           ),
           const SizedBox(height: 16),
           ...(_monitorData!.strategiesUpdated.map((strategy) => Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: TradingTheme.warningColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: TradingTheme.warningColor.withOpacity(0.3),
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.update,
-                  color: TradingTheme.warningColor,
-                  size: 16,
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: TradingTheme.warningColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: TradingTheme.warningColor.withOpacity(0.3),
+                  ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    strategy,
-                    style: TradingTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w500,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.update,
+                      color: TradingTheme.warningColor,
+                      size: 16,
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        strategy,
+                        style: TradingTypography.bodyMedium.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      'Updated',
+                      style: TradingTypography.bodySmall.copyWith(
+                        color: TradingTheme.warningColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  'Updated',
-                  style: TradingTypography.bodySmall.copyWith(
-                    color: TradingTheme.warningColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ))).toList(),
+              ))).toList(),
         ],
       ),
     );

@@ -1633,6 +1633,94 @@ class RiskSettingsData {
   String get formattedEmergencyStopPercentage => '${emergencyStopLossPercentage.toStringAsFixed(2)}%';
 }
 
+// Dual Side System Health Response Model
+class DualSideSystemHealthResponse {
+  final String status;
+  final String message;
+  final String responsecode;
+  final SystemHealthData? data;
+
+  DualSideSystemHealthResponse({
+    required this.status,
+    required this.message,
+    required this.responsecode,
+    this.data,
+  });
+
+  factory DualSideSystemHealthResponse.fromJson(Map<String, dynamic> json) {
+    return DualSideSystemHealthResponse(
+      status: json['status'] ?? '',
+      message: json['message'] ?? '',
+      responsecode: json['responsecode'] ?? '',
+      data: json['data'] != null && json['data'] is Map<String, dynamic>
+          ? SystemHealthData.fromJson(json['data'])
+          : null,
+    );
+  }
+
+  bool get isSuccess => status == 'success';
+}
+
+// System Health Data Model
+class SystemHealthData {
+  final String timestamp;
+  final String overallStatus;
+  final int healthScore;
+  final bool database;
+  final bool apiConnectivity;
+  final int activeStrategies;
+  final int openPositions;
+  final double systemLoad;
+  final double memoryUsage;
+  final double errorRate;
+
+  SystemHealthData({
+    required this.timestamp,
+    required this.overallStatus,
+    required this.healthScore,
+    required this.database,
+    required this.apiConnectivity,
+    required this.activeStrategies,
+    required this.openPositions,
+    required this.systemLoad,
+    required this.memoryUsage,
+    required this.errorRate,
+  });
+
+  factory SystemHealthData.fromJson(Map<String, dynamic> json) {
+    return SystemHealthData(
+      timestamp: json['timestamp'] ?? '',
+      overallStatus: json['overall_status'] ?? '',
+      healthScore: json['health_score'] ?? 0,
+      database: json['database'] == true,
+      apiConnectivity: json['api_connectivity'] == true,
+      activeStrategies: json['active_strategies'] ?? 0,
+      openPositions: json['open_positions'] ?? 0,
+      systemLoad: double.tryParse(json['system_load']?.toString() ?? '0') ?? 0.0,
+      memoryUsage: double.tryParse(json['memory_usage']?.toString() ?? '0') ?? 0.0,
+      errorRate: double.tryParse(json['error_rate']?.toString() ?? '0') ?? 0.0,
+    );
+  }
+
+  // Helper getters
+  bool get isHealthy => overallStatus == 'HEALTHY';
+  bool get isWarning => overallStatus == 'WARNING';
+  bool get isCritical => overallStatus == 'CRITICAL';
+
+  String get formattedTimestamp {
+    try {
+      final dateTime = DateTime.parse(timestamp);
+      return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return timestamp;
+    }
+  }
+
+  String get formattedSystemLoad => systemLoad.toStringAsFixed(1);
+  String get formattedMemoryUsage => '${memoryUsage.toStringAsFixed(1)}%';
+  String get formattedErrorRate => '${errorRate.toStringAsFixed(1)}%';
+}
+
 // Dual Side Trading Report Response Models
 class DualSideTradingReportResponse {
   final String status;

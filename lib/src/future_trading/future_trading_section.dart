@@ -14,6 +14,7 @@ import 'package:securetradeai/src/future_trading/pnl_tracking_popup.dart';
 import 'package:securetradeai/src/future_trading/strategy_monitor_popup.dart';
 import 'package:securetradeai/src/future_trading/tpsl_monitor_popup.dart';
 import 'package:securetradeai/src/future_trading/emergency_stop_popup.dart';
+import 'package:securetradeai/src/future_trading/system_health_popup.dart';
 import 'package:securetradeai/src/widget/trading_widgets.dart';
 
 class FutureTradingSection extends StatefulWidget {
@@ -388,6 +389,14 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
       context: context,
       barrierDismissible: false, // Prevent dismissing by tapping outside
       builder: (context) => const EmergencyStopPopup(),
+    );
+  }
+
+  // Show system health popup
+  void _showSystemHealthPopup() {
+    showDialog(
+      context: context,
+      builder: (context) => const SystemHealthPopup(),
     );
   }
 
@@ -982,6 +991,20 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 12),
+              // System Health Button
+              SizedBox(
+                width: double.infinity,
+                child: _buildAnimatedActionButton(
+                  'System Health',
+                  () {
+                    _showSystemHealthPopup();
+                  },
+                  TradingTheme.secondaryBackground,
+                  TradingTheme.successColor,
+                  350,
+                ),
               ),
               const SizedBox(height: 12),
               // Emergency Stop Button

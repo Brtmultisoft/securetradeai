@@ -30,7 +30,7 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
 
     try {
       print('🔄 Loading dual-side TP/SL monitoring data...');
-      
+
       final response = await FutureTradingService.getDualSideMonitorTpSl(
         userId: commonuserId,
       );
@@ -50,7 +50,8 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
         }
       } else {
         setState(() {
-          _errorMessage = response?.message ?? 'Failed to load TP/SL monitoring data';
+          _errorMessage =
+              response?.message ?? 'Failed to load TP/SL monitoring data';
           _isLoading = false;
         });
       }
@@ -92,7 +93,7 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 16),
       decoration: BoxDecoration(
         color: TradingTheme.secondaryBackground,
         borderRadius: const BorderRadius.only(
@@ -214,36 +215,48 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
 
   Widget _buildStatusInfo() {
     final hasExecutions = _monitorData!.hasExecutions;
-    
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: hasExecutions 
+        color: hasExecutions
             ? TradingTheme.warningColor.withOpacity(0.1)
             : TradingTheme.secondaryBackground,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: hasExecutions 
+          color: hasExecutions
               ? TradingTheme.warningColor.withOpacity(0.3)
               : TradingTheme.primaryBorder.withOpacity(0.3),
         ),
       ),
-      child: Row(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            hasExecutions ? Icons.notifications_active : Icons.monitor,
-            color: hasExecutions ? TradingTheme.warningColor : TradingTheme.primaryAccent,
-            size: 16,
+          Row(
+            children: [
+              Icon(
+                hasExecutions ? Icons.notifications_active : Icons.monitor,
+                color: hasExecutions
+                    ? TradingTheme.warningColor
+                    : TradingTheme.primaryAccent,
+                size: 16,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                hasExecutions
+                    ? 'TP/SL Executions Detected'
+                    : 'TP/SL Monitoring Active',
+                style: TradingTypography.bodyMedium.copyWith(
+                  color: hasExecutions
+                      ? TradingTheme.warningColor
+                      : TradingTheme.primaryAccent,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+            ],
           ),
-          const SizedBox(width: 8),
-          Text(
-            hasExecutions ? 'TP/SL Executions Detected' : 'TP/SL Monitoring Active',
-            style: TradingTypography.bodyMedium.copyWith(
-              color: hasExecutions ? TradingTheme.warningColor : TradingTheme.primaryAccent,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const Spacer(),
           Text(
             'Last Check: ${_monitorData!.lastCheck}',
             style: TradingTypography.bodySmall.copyWith(
@@ -277,7 +290,9 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
                 child: _buildStatItem(
                   'Executed TP/SL',
                   _monitorData!.executedTpSl.toString(),
-                  _monitorData!.executedTpSl > 0 ? TradingTheme.warningColor : TradingTheme.primaryAccent,
+                  _monitorData!.executedTpSl > 0
+                      ? TradingTheme.warningColor
+                      : TradingTheme.primaryAccent,
                 ),
               ),
               Expanded(
@@ -296,8 +311,8 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
                 child: _buildStatItem(
                   'Executed Positions',
                   _monitorData!.executedPositions.length.toString(),
-                  _monitorData!.executedPositions.isNotEmpty 
-                      ? TradingTheme.warningColor 
+                  _monitorData!.executedPositions.isNotEmpty
+                      ? TradingTheme.warningColor
                       : TradingTheme.primaryAccent,
                 ),
               ),
@@ -305,7 +320,9 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
                 child: _buildStatItem(
                   'Execution Status',
                   _monitorData!.hasExecutions ? 'Active' : 'Idle',
-                  _monitorData!.hasExecutions ? TradingTheme.warningColor : TradingTheme.successColor,
+                  _monitorData!.hasExecutions
+                      ? TradingTheme.warningColor
+                      : TradingTheme.successColor,
                 ),
               ),
             ],
@@ -322,7 +339,8 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
         decoration: BoxDecoration(
           color: TradingTheme.cardBackground,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: TradingTheme.primaryBorder.withOpacity(0.3)),
+          border:
+              Border.all(color: TradingTheme.primaryBorder.withOpacity(0.3)),
         ),
         child: Column(
           children: [
@@ -366,41 +384,41 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
           ),
           const SizedBox(height: 16),
           ...(_monitorData!.executedPositions.map((position) => Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: TradingTheme.warningColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: TradingTheme.warningColor.withOpacity(0.3),
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.gps_fixed,
-                  color: TradingTheme.warningColor,
-                  size: 16,
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: TradingTheme.warningColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: TradingTheme.warningColor.withOpacity(0.3),
+                  ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    position,
-                    style: TradingTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w500,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.gps_fixed,
+                      color: TradingTheme.warningColor,
+                      size: 16,
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        position,
+                        style: TradingTypography.bodyMedium.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      'Executed',
+                      style: TradingTypography.bodySmall.copyWith(
+                        color: TradingTheme.warningColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  'Executed',
-                  style: TradingTypography.bodySmall.copyWith(
-                    color: TradingTheme.warningColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ))).toList(),
+              ))).toList(),
         ],
       ),
     );

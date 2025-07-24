@@ -138,5 +138,8 @@ const String dualSideMonitor = "${url}dual_side_monitor";
 const String dualSideMonitorTpSl = "${url}dual_side_monitor_tp_sl";
 const String dualSideEmergencyStop = "${url}dual_side_emergency_stop";
 
+// System Health API endpoint
+const String dualSideSystemHealth = "${url}dual_side_system_health";
+
 // Risk Settings API endpoint
 const String dualSideRiskSettings = "${url}dual_side_risk_settings";

@@ -873,6 +873,64 @@ class FutureTradingService {
     }
   }
 
+  /// Get dual-side system health
+  static Future<DualSideSystemHealthResponse?> getDualSideSystemHealth() async {
+    try {
+      print('🏥 Fetching dual-side system health...');
+
+      final requestBody = <String, dynamic>{};
+
+      print('📤 Request Body: ${jsonEncode(requestBody)}');
+
+      final response = await http
+          .post(
+            Uri.parse(dualSideSystemHealth),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode(requestBody),
+          )
+          .timeout(_timeout);
+
+      print('📥 Response Status: ${response.statusCode}');
+      print('📥 Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final apiResponse = DualSideSystemHealthResponse.fromJson(responseData);
+
+        if (apiResponse.isSuccess) {
+          print('✅ System health retrieved successfully');
+          print('🏥 Overall Status: ${apiResponse.data?.overallStatus ?? 'Unknown'}');
+          print('📊 Health Score: ${apiResponse.data?.healthScore ?? 0}');
+          print('💾 Database: ${apiResponse.data?.database == true ? 'OK' : 'ERROR'}');
+          print('🌐 API Connectivity: ${apiResponse.data?.apiConnectivity == true ? 'OK' : 'ERROR'}');
+          return apiResponse;
+        } else {
+          print('❌ API Error: ${apiResponse.message}');
+          return apiResponse;
+        }
+      } else {
+        print('❌ HTTP Error: ${response.statusCode} - ${response.body}');
+        return DualSideSystemHealthResponse(
+          status: 'error',
+          message: 'Server error: ${response.statusCode}',
+          responsecode: response.statusCode.toString(),
+          data: null,
+        );
+      }
+    } catch (e) {
+      print('❌ Network Error: $e');
+      return DualSideSystemHealthResponse(
+        status: 'error',
+        message: 'Network error: $e',
+        responsecode: '0',
+        data: null,
+      );
+    }
+  }
+
   /// Test API connectivity
   static Future<bool> testApiConnectivity() async {
     try {
