@@ -1136,6 +1136,228 @@ class DualSideTradeRecord {
   bool get isClosed => status == 'CLOSED';
 }
 
+// Dual Side Performance Response Model
+class DualSidePerformanceResponse {
+  final String status;
+  final String message;
+  final String responsecode;
+  final List<DailyPerformanceRecord>? data;
+
+  DualSidePerformanceResponse({
+    required this.status,
+    required this.message,
+    required this.responsecode,
+    this.data,
+  });
+
+  factory DualSidePerformanceResponse.fromJson(Map<String, dynamic> json) {
+    return DualSidePerformanceResponse(
+      status: json['status'] ?? '',
+      message: json['message'] ?? '',
+      responsecode: json['responsecode'] ?? '',
+      data: json['data'] != null && json['data'] is List
+          ? List<DailyPerformanceRecord>.from(
+              json['data'].map((x) => DailyPerformanceRecord.fromJson(x)))
+          : null,
+    );
+  }
+
+  bool get isSuccess => status == 'success';
+}
+
+// Daily Performance Record Model (matches your database structure)
+class DailyPerformanceRecord {
+  final int id;
+  final int strategyId;
+  final String userId;
+  final String symbol;
+  final String date;
+  final int totalTrades;
+  final int winningTrades;
+  final int losingTrades;
+  final double dailyPnl;
+  final double cumulativePnl;
+  final double maxDrawdown;
+  final double winRate;
+  final double avgProfitPerTrade;
+  final String createdAt;
+
+  DailyPerformanceRecord({
+    required this.id,
+    required this.strategyId,
+    required this.userId,
+    required this.symbol,
+    required this.date,
+    required this.totalTrades,
+    required this.winningTrades,
+    required this.losingTrades,
+    required this.dailyPnl,
+    required this.cumulativePnl,
+    required this.maxDrawdown,
+    required this.winRate,
+    required this.avgProfitPerTrade,
+    required this.createdAt,
+  });
+
+  factory DailyPerformanceRecord.fromJson(Map<String, dynamic> json) {
+    return DailyPerformanceRecord(
+      id: json['id'] ?? 0,
+      strategyId: json['strategy_id'] ?? 0,
+      userId: json['user_id'] ?? '',
+      symbol: json['symbol'] ?? '',
+      date: json['date'] ?? '',
+      totalTrades: json['total_trades'] ?? 0,
+      winningTrades: json['winning_trades'] ?? 0,
+      losingTrades: json['losing_trades'] ?? 0,
+      dailyPnl: double.tryParse(json['daily_pnl']?.toString() ?? '0') ?? 0.0,
+      cumulativePnl: double.tryParse(json['cumulative_pnl']?.toString() ?? '0') ?? 0.0,
+      maxDrawdown: double.tryParse(json['max_drawdown']?.toString() ?? '0') ?? 0.0,
+      winRate: double.tryParse(json['win_rate']?.toString() ?? '0') ?? 0.0,
+      avgProfitPerTrade: double.tryParse(json['avg_profit_per_trade']?.toString() ?? '0') ?? 0.0,
+      createdAt: json['created_at'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'strategy_id': strategyId,
+      'user_id': userId,
+      'symbol': symbol,
+      'date': date,
+      'total_trades': totalTrades,
+      'winning_trades': winningTrades,
+      'losing_trades': losingTrades,
+      'daily_pnl': dailyPnl,
+      'cumulative_pnl': cumulativePnl,
+      'max_drawdown': maxDrawdown,
+      'win_rate': winRate,
+      'avg_profit_per_trade': avgProfitPerTrade,
+      'created_at': createdAt,
+    };
+  }
+
+  // Helper getters
+  bool get isProfit => dailyPnl > 0;
+  bool get hasDrawdown => maxDrawdown < 0;
+  String get formattedDate {
+    try {
+      final dateTime = DateTime.parse(date);
+      return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+    } catch (e) {
+      return date;
+    }
+  }
+}
+
+// Dual Side PnL Tracking Response Model
+class DualSidePnlTrackingResponse {
+  final String status;
+  final String message;
+  final String responsecode;
+  final PnlTrackingData? data;
+
+  DualSidePnlTrackingResponse({
+    required this.status,
+    required this.message,
+    required this.responsecode,
+    this.data,
+  });
+
+  factory DualSidePnlTrackingResponse.fromJson(Map<String, dynamic> json) {
+    return DualSidePnlTrackingResponse(
+      status: json['status'] ?? '',
+      message: json['message'] ?? '',
+      responsecode: json['responsecode'] ?? '',
+      data: json['data'] != null && json['data'] is Map<String, dynamic>
+          ? PnlTrackingData.fromJson(json['data'])
+          : null,
+    );
+  }
+
+  bool get isSuccess => status == 'success';
+}
+
+// PnL Tracking Data Model
+class PnlTrackingData {
+  final String period;
+  final List<PnlTrackingRecord> pnlTracking;
+
+  PnlTrackingData({
+    required this.period,
+    required this.pnlTracking,
+  });
+
+  factory PnlTrackingData.fromJson(Map<String, dynamic> json) {
+    return PnlTrackingData(
+      period: json['period'] ?? '',
+      pnlTracking: json['pnl_tracking'] != null && json['pnl_tracking'] is List
+          ? List<PnlTrackingRecord>.from(
+              json['pnl_tracking'].map((x) => PnlTrackingRecord.fromJson(x)))
+          : [],
+    );
+  }
+}
+
+// PnL Tracking Record Model
+class PnlTrackingRecord {
+  final String period;
+  final int tradeCount;
+  final int winningTrades;
+  final int losingTrades;
+  final double totalPnl;
+  final double avgPnl;
+  final double bestTrade;
+  final double worstTrade;
+  final double totalVolume;
+
+  PnlTrackingRecord({
+    required this.period,
+    required this.tradeCount,
+    required this.winningTrades,
+    required this.losingTrades,
+    required this.totalPnl,
+    required this.avgPnl,
+    required this.bestTrade,
+    required this.worstTrade,
+    required this.totalVolume,
+  });
+
+  factory PnlTrackingRecord.fromJson(Map<String, dynamic> json) {
+    return PnlTrackingRecord(
+      period: json['period'] ?? '',
+      tradeCount: json['trade_count'] ?? 0,
+      winningTrades: json['winning_trades'] ?? 0,
+      losingTrades: json['losing_trades'] ?? 0,
+      totalPnl: double.tryParse(json['total_pnl']?.toString() ?? '0') ?? 0.0,
+      avgPnl: double.tryParse(json['avg_pnl']?.toString() ?? '0') ?? 0.0,
+      bestTrade: double.tryParse(json['best_trade']?.toString() ?? '0') ?? 0.0,
+      worstTrade: double.tryParse(json['worst_trade']?.toString() ?? '0') ?? 0.0,
+      totalVolume: double.tryParse(json['total_volume']?.toString() ?? '0') ?? 0.0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'period': period,
+      'trade_count': tradeCount,
+      'winning_trades': winningTrades,
+      'losing_trades': losingTrades,
+      'total_pnl': totalPnl,
+      'avg_pnl': avgPnl,
+      'best_trade': bestTrade,
+      'worst_trade': worstTrade,
+      'total_volume': totalVolume,
+    };
+  }
+
+  // Helper getters
+  bool get isProfit => totalPnl > 0;
+  double get winRate => tradeCount > 0 ? (winningTrades / tradeCount) * 100 : 0.0;
+  bool get hasPositiveBestTrade => bestTrade > 0;
+  bool get hasNegativeWorstTrade => worstTrade < 0;
+}
+
 // Dual Side Trading Report Response Models
 class DualSideTradingReportResponse {
   final String status;

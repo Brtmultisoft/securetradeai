@@ -131,3 +131,4 @@ const String dualSideTradeHistory = "${url}dual_side_trade_history";
 const String dualSideTradingReport = "${url}dual_side_trading_report";
 const String dualSideOpenPositions = "${url}dual_side_open_positions";
 const String dualSidePerformance = "${url}dual_side_performance";
+const String dualSidePnlTracking = "${url}dual_side_pnl_tracking";

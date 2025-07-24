@@ -406,6 +406,132 @@ class FutureTradingService {
     }
   }
 
+  /// Get dual-side performance report
+  static Future<DualSidePerformanceResponse?> getDualSidePerformance({
+    required String userId,
+    String? dateFrom,
+    String? dateTo,
+  }) async {
+    try {
+
+      // Start with only required parameter
+      final requestBody = <String, dynamic>{
+        'user_id': userId,
+      };
+
+      // Add optional date parameters
+      if (dateFrom != null && dateFrom.isNotEmpty) {
+        requestBody['date_from'] = dateFrom;
+      }
+      if (dateTo != null && dateTo.isNotEmpty) {
+        requestBody['date_to'] = dateTo;
+      }
+
+      final response = await http
+          .post(
+            Uri.parse(dualSidePerformance),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode(requestBody),
+          )
+          .timeout(_timeout);
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final apiResponse = DualSidePerformanceResponse.fromJson(responseData);
+
+        if (apiResponse.isSuccess) {
+          return apiResponse;
+        } else {
+          return apiResponse;
+        }
+      } else {
+        return DualSidePerformanceResponse(
+          status: 'error',
+          message: 'Server error: ${response.statusCode}',
+          responsecode: response.statusCode.toString(),
+          data: null,
+        );
+      }
+    } catch (e) {
+      return DualSidePerformanceResponse(
+        status: 'error',
+        message: 'Network error: $e',
+        responsecode: '0',
+        data: null,
+      );
+    }
+  }
+
+  /// Get dual-side PnL tracking data
+  static Future<DualSidePnlTrackingResponse?> getDualSidePnlTracking({
+    required String userId,
+    String period = 'daily',
+    int limit = 30,
+  }) async {
+    try {
+      print('📊 Fetching dual-side PnL tracking data...');
+      print('👤 User ID: $userId');
+      print('📅 Period: $period');
+      print('🔢 Limit: $limit');
+
+      final requestBody = <String, dynamic>{
+        'user_id': userId,
+        'period': period,
+        'limit': limit,
+      };
+
+      print('📤 Request Body: ${jsonEncode(requestBody)}');
+
+      final response = await http
+          .post(
+            Uri.parse(dualSidePnlTracking),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode(requestBody),
+          )
+          .timeout(_timeout);
+
+      print('📥 Response Status: ${response.statusCode}');
+      print('📥 Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final apiResponse = DualSidePnlTrackingResponse.fromJson(responseData);
+
+        if (apiResponse.isSuccess) {
+          print('✅ PnL tracking data retrieved successfully');
+          print('📊 Period: ${apiResponse.data?.period ?? 'N/A'}');
+          print('📈 Records count: ${apiResponse.data?.pnlTracking.length ?? 0}');
+          return apiResponse;
+        } else {
+          print('❌ API Error: ${apiResponse.message}');
+          return apiResponse;
+        }
+      } else {
+        print('❌ HTTP Error: ${response.statusCode} - ${response.body}');
+        return DualSidePnlTrackingResponse(
+          status: 'error',
+          message: 'Server error: ${response.statusCode}',
+          responsecode: response.statusCode.toString(),
+          data: null,
+        );
+      }
+    } catch (e) {
+      print('❌ Network Error: $e');
+      return DualSidePnlTrackingResponse(
+        status: 'error',
+        message: 'Network error: $e',
+        responsecode: '0',
+        data: null,
+      );
+    }
+  }
+
   /// Test API connectivity
   static Future<bool> testApiConnectivity() async {
     try {

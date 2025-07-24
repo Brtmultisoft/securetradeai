@@ -9,6 +9,8 @@ import 'package:securetradeai/src/future_trading/future_history_page.dart';
 import 'package:securetradeai/src/future_trading/future_positions_page.dart';
 import 'package:securetradeai/src/future_trading/future_settings_page.dart';
 import 'package:securetradeai/src/future_trading/future_trade_page.dart';
+import 'package:securetradeai/src/future_trading/performance_popup.dart';
+import 'package:securetradeai/src/future_trading/pnl_tracking_popup.dart';
 import 'package:securetradeai/src/widget/trading_widgets.dart';
 
 class FutureTradingSection extends StatefulWidget {
@@ -343,6 +345,22 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
     _rotationController.dispose();
     _refreshTimer?.cancel();
     super.dispose();
+  }
+
+  // Show performance popup
+  void _showPerformancePopup() {
+    showDialog(
+      context: context,
+      builder: (context) => const PerformancePopup(),
+    );
+  }
+
+  // Show PnL tracking popup
+  void _showPnlTrackingPopup() {
+    showDialog(
+      context: context,
+      builder: (context) => const PnlTrackingPopup(),
+    );
   }
 
   @override
@@ -871,6 +889,34 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 12),
+              // Performance Report Button
+              SizedBox(
+                width: double.infinity,
+                child: _buildAnimatedActionButton(
+                  'Performance Report',
+                  () {
+                    _showPerformancePopup();
+                  },
+                  TradingTheme.secondaryBackground,
+                  TradingTheme.primaryAccent,
+                  200,
+                ),
+              ),
+              const SizedBox(height: 12),
+              // PnL Tracking Button
+              SizedBox(
+                width: double.infinity,
+                child: _buildAnimatedActionButton(
+                  'PnL Tracking',
+                  () {
+                    _showPnlTrackingPopup();
+                  },
+                  TradingTheme.secondaryBackground,
+                  TradingTheme.successColor,
+                  250,
+                ),
               ),
             ],
           ),
