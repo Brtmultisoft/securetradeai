@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/model/future_trading_models.dart';
 import 'package:securetradeai/model/repoModel.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/Service/future_trading_service.dart';
 import 'package:securetradeai/src/widget/trading_widgets.dart';
 
 class FutureTradePage extends StatefulWidget {
@@ -27,7 +29,6 @@ class _FutureTradePageState extends State<FutureTradePage>
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _takeProfitController = TextEditingController();
-  final TextEditingController _stopLossController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // Trading data
@@ -35,8 +36,6 @@ class _FutureTradePageState extends State<FutureTradePage>
   List<FutureSymbol> _availableSymbols = [];
   List<FutureSymbol> _filteredSymbols = [];
   double _leverage = 10.0;
-  bool _enableTakeProfit = false;
-  bool _enableStopLoss = false;
 
   // Search functionality
   final TextEditingController _searchController = TextEditingController();
@@ -109,9 +108,9 @@ class _FutureTradePageState extends State<FutureTradePage>
                 symbol: symbol,
                 baseAsset: baseAsset,
                 quoteAsset: 'USDT',
-                currentPrice:
-                    double.tryParse(symbolData['lastPrice']?.toString() ?? '0') ??
-                        0.0,
+                currentPrice: double.tryParse(
+                        symbolData['lastPrice']?.toString() ?? '0') ??
+                    0.0,
                 priceChange24h: double.tryParse(
                         symbolData['priceChange']?.toString() ?? '0') ??
                     0.0,
@@ -121,12 +120,12 @@ class _FutureTradePageState extends State<FutureTradePage>
                 volume24h:
                     double.tryParse(symbolData['volume']?.toString() ?? '0') ??
                         0.0,
-                high24h:
-                    double.tryParse(symbolData['highPrice']?.toString() ?? '0') ??
-                        0.0,
-                low24h:
-                    double.tryParse(symbolData['lowPrice']?.toString() ?? '0') ??
-                        0.0,
+                high24h: double.tryParse(
+                        symbolData['highPrice']?.toString() ?? '0') ??
+                    0.0,
+                low24h: double.tryParse(
+                        symbolData['lowPrice']?.toString() ?? '0') ??
+                    0.0,
                 maxLeverage: 10, // Set to 10x as per requirement
                 minOrderSize: _getMinOrderSize(baseAsset),
                 tickSize: _getTickSize(baseAsset),
@@ -282,15 +281,20 @@ class _FutureTradePageState extends State<FutureTradePage>
         // Find matching data in API response
         for (final symbolData in repo.quantutumdata) {
           if (symbolData['symbol'] == currentSymbol.symbol) {
-            final newPrice = double.tryParse(symbolData['lastPrice']?.toString() ?? '0') ?? currentSymbol.currentPrice;
-            final newPriceChange = double.tryParse(symbolData['priceChange']?.toString() ?? '0') ?? currentSymbol.priceChange24h;
-            final newPriceChangePercent = double.tryParse(symbolData['priceChangePercent']?.toString() ?? '0') ?? currentSymbol.priceChangePercent24h;
+            final newPrice =
+                double.tryParse(symbolData['lastPrice']?.toString() ?? '0') ??
+                    currentSymbol.currentPrice;
+            final newPriceChange =
+                double.tryParse(symbolData['priceChange']?.toString() ?? '0') ??
+                    currentSymbol.priceChange24h;
+            final newPriceChangePercent = double.tryParse(
+                    symbolData['priceChangePercent']?.toString() ?? '0') ??
+                currentSymbol.priceChangePercent24h;
 
             // Only update if there are actual changes
             if (newPrice != currentSymbol.currentPrice ||
                 newPriceChange != currentSymbol.priceChange24h ||
                 newPriceChangePercent != currentSymbol.priceChangePercent24h) {
-
               _availableSymbols[i] = FutureSymbol(
                 symbol: currentSymbol.symbol,
                 baseAsset: currentSymbol.baseAsset,
@@ -298,9 +302,15 @@ class _FutureTradePageState extends State<FutureTradePage>
                 currentPrice: newPrice,
                 priceChange24h: newPriceChange,
                 priceChangePercent24h: newPriceChangePercent,
-                volume24h: double.tryParse(symbolData['volume']?.toString() ?? '0') ?? currentSymbol.volume24h,
-                high24h: double.tryParse(symbolData['highPrice']?.toString() ?? '0') ?? currentSymbol.high24h,
-                low24h: double.tryParse(symbolData['lowPrice']?.toString() ?? '0') ?? currentSymbol.low24h,
+                volume24h:
+                    double.tryParse(symbolData['volume']?.toString() ?? '0') ??
+                        currentSymbol.volume24h,
+                high24h: double.tryParse(
+                        symbolData['highPrice']?.toString() ?? '0') ??
+                    currentSymbol.high24h,
+                low24h: double.tryParse(
+                        symbolData['lowPrice']?.toString() ?? '0') ??
+                    currentSymbol.low24h,
                 maxLeverage: currentSymbol.maxLeverage,
                 minOrderSize: currentSymbol.minOrderSize,
                 tickSize: currentSymbol.tickSize,
@@ -327,7 +337,6 @@ class _FutureTradePageState extends State<FutureTradePage>
           setState(() {});
         }
       }
-
     } catch (e) {
       // Silently handle errors
     }
@@ -435,7 +444,6 @@ class _FutureTradePageState extends State<FutureTradePage>
     _amountController.dispose();
     _priceController.dispose();
     _takeProfitController.dispose();
-    _stopLossController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -485,10 +493,10 @@ class _FutureTradePageState extends State<FutureTradePage>
               ],
             ),
           ),
-          SizedBox(
+          const SizedBox(
             width: 15,
           ),
-          Text(
+          const Text(
             'New Order',
             style: TradingTypography.heading3,
           ),
@@ -515,20 +523,15 @@ class _FutureTradePageState extends State<FutureTradePage>
       child: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSymbolSelector(),
-              const SizedBox(height: 20),
               _buildLeverageSelector(),
-              const SizedBox(height: 20),
               _buildAmountInput(),
-              const SizedBox(height: 20),
-              _buildTakeProfitStopLoss(),
-              const SizedBox(height: 20),
+              _buildTakeProfit(),
               _buildOrderSummary(),
-              const SizedBox(height: 100), // Space for bottom actions
             ],
           ),
         ),
@@ -542,13 +545,13 @@ class _FutureTradePageState extends State<FutureTradePage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: [
-              const Icon(
+            children: const [
+              Icon(
                 Icons.currency_exchange,
                 color: TradingTheme.primaryAccent,
                 size: 20,
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Text(
                 'Select Symbol',
                 style: TradingTypography.heading3,
@@ -670,7 +673,7 @@ class _FutureTradePageState extends State<FutureTradePage>
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
-                      Text(
+                      const Text(
                         'Select Trading Pair',
                         style: TradingTypography.heading3,
                       ),
@@ -709,18 +712,18 @@ class _FutureTradePageState extends State<FutureTradePage>
                             fillColor: TradingTheme.surfaceBackground,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  BorderSide(color: TradingTheme.primaryBorder),
+                              borderSide: const BorderSide(
+                                  color: TradingTheme.primaryBorder),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  BorderSide(color: TradingTheme.primaryBorder),
+                              borderSide: const BorderSide(
+                                  color: TradingTheme.primaryBorder),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  BorderSide(color: TradingTheme.primaryAccent),
+                              borderSide: const BorderSide(
+                                  color: TradingTheme.primaryAccent),
                             ),
                           ),
                           onChanged: (value) {
@@ -751,7 +754,7 @@ class _FutureTradePageState extends State<FutureTradePage>
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.search_off,
                                       size: 48,
                                       color: TradingTheme.secondaryText,
@@ -812,7 +815,8 @@ class _FutureTradePageState extends State<FutureTradePage>
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     gradient: TradingTheme.accentGradient,
                     borderRadius: BorderRadius.circular(12),
@@ -854,7 +858,8 @@ class _FutureTradePageState extends State<FutureTradePage>
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: TradingTheme.surfaceBackground,
                     borderRadius: BorderRadius.circular(12),
@@ -969,7 +974,7 @@ class _FutureTradePageState extends State<FutureTradePage>
                 size: 20,
               ),
               const SizedBox(width: 12),
-              Text(
+              const Text(
                 'Leverage',
                 style: TradingTypography.heading3,
               ),
@@ -1005,7 +1010,7 @@ class _FutureTradePageState extends State<FutureTradePage>
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+            children: const [
               Text('1x', style: TradingTypography.bodySmall),
               Text('10x', style: TradingTypography.bodySmall),
             ],
@@ -1021,13 +1026,13 @@ class _FutureTradePageState extends State<FutureTradePage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: [
-              const Icon(
+            children: const [
+              Icon(
                 Icons.monetization_on,
                 color: TradingTheme.primaryAccent,
                 size: 20,
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Text(
                 'Amount (USDT)',
                 style: TradingTypography.heading3,
@@ -1051,15 +1056,15 @@ class _FutureTradePageState extends State<FutureTradePage>
               fillColor: TradingTheme.surfaceBackground,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: TradingTheme.primaryBorder),
+                borderSide: const BorderSide(color: TradingTheme.primaryBorder),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: TradingTheme.primaryBorder),
+                borderSide: const BorderSide(color: TradingTheme.primaryBorder),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: TradingTheme.primaryAccent),
+                borderSide: const BorderSide(color: TradingTheme.primaryAccent),
               ),
               suffixText: 'USDT',
               suffixStyle: TradingTypography.bodyMedium.copyWith(
@@ -1115,134 +1120,54 @@ class _FutureTradePageState extends State<FutureTradePage>
     );
   }
 
-  Widget _buildTakeProfitStopLoss() {
+  Widget _buildTakeProfit() {
     return AnimatedTradingCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: [
-              const Icon(
+            children: const [
+              Icon(
                 Icons.shield,
                 color: TradingTheme.primaryAccent,
                 size: 20,
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Text(
-                'Take Profit & Stop Loss',
+                'Take Profit',
                 style: TradingTypography.heading3,
               ),
             ],
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    TradingToggleSwitch(
-                      value: _enableTakeProfit,
-                      onChanged: (value) =>
-                          setState(() => _enableTakeProfit = value),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Take Profit',
-                      style: TradingTypography.bodyMedium,
-                    ),
-                  ],
+          TextFormField(
+            controller: _takeProfitController,
+            keyboardType: TextInputType.number,
+            style: TradingTypography.bodyMedium,
+            decoration: InputDecoration(
+              labelText: 'Take Profit Price',
+              labelStyle: TradingTypography.bodySmall.copyWith(
+                color: TradingTheme.successColor,
+              ),
+              filled: true,
+              fillColor: TradingTheme.surfaceBackground,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: TradingTheme.successColor),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: TradingTheme.successColor),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(
+                  color: TradingTheme.successColor,
+                  width: 2,
                 ),
               ),
-              Expanded(
-                child: Row(
-                  children: [
-                    TradingToggleSwitch(
-                      value: _enableStopLoss,
-                      onChanged: (value) =>
-                          setState(() => _enableStopLoss = value),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Stop Loss',
-                      style: TradingTypography.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          if (_enableTakeProfit || _enableStopLoss) ...[
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                if (_enableTakeProfit) ...[
-                  Expanded(
-                    child: TextFormField(
-                      controller: _takeProfitController,
-                      keyboardType: TextInputType.number,
-                      style: TradingTypography.bodyMedium,
-                      decoration: InputDecoration(
-                        labelText: 'TP Price',
-                        labelStyle: TradingTypography.bodySmall.copyWith(
-                          color: TradingTheme.successColor,
-                        ),
-                        filled: true,
-                        fillColor: TradingTheme.surfaceBackground,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide:
-                              BorderSide(color: TradingTheme.successColor),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide:
-                              BorderSide(color: TradingTheme.successColor),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                              color: TradingTheme.successColor, width: 2),
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (_enableStopLoss) const SizedBox(width: 12),
-                ],
-                if (_enableStopLoss) ...[
-                  Expanded(
-                    child: TextFormField(
-                      controller: _stopLossController,
-                      keyboardType: TextInputType.number,
-                      style: TradingTypography.bodyMedium,
-                      decoration: InputDecoration(
-                        labelText: 'SL Price',
-                        labelStyle: TradingTypography.bodySmall.copyWith(
-                          color: TradingTheme.errorColor,
-                        ),
-                        filled: true,
-                        fillColor: TradingTheme.surfaceBackground,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide:
-                              BorderSide(color: TradingTheme.errorColor),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide:
-                              BorderSide(color: TradingTheme.errorColor),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                              color: TradingTheme.errorColor, width: 2),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ],
             ),
-          ],
+          ),
         ],
       ),
     );
@@ -1254,13 +1179,13 @@ class _FutureTradePageState extends State<FutureTradePage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: [
-              const Icon(
+            children: const [
+              Icon(
                 Icons.receipt,
                 color: TradingTheme.primaryAccent,
                 size: 20,
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Text(
                 'Order Summary',
                 style: TradingTypography.heading3,
@@ -1321,7 +1246,7 @@ class _FutureTradePageState extends State<FutureTradePage>
   Widget _buildBottomActions() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: TradingTheme.secondaryBackground,
         border: Border(
           top: BorderSide(
@@ -1348,52 +1273,480 @@ class _FutureTradePageState extends State<FutureTradePage>
   }
 
   Future<void> _submitOrder() async {
-    if (!_formKey.currentState!.validate()) {
+    // if (!_formKey.currentState!.validate()) {
+    //   return;
+    // }
+
+    // Validate required fields
+    if (_selectedSymbol == null) {
+      // _showErrorMessage('Please select a trading pair');
+      return;
+    }
+
+    final amount = double.tryParse(_amountController.text);
+    if (amount == null || amount <= 0) {
+      // _showErrorMessage('Please enter a valid amount');
+      return;
+    }
+
+    final takeProfitPercent = double.tryParse(_takeProfitController.text);
+    if (takeProfitPercent == null || takeProfitPercent <= 0) {
+      // _showErrorMessage('Please enter a valid take profit percentage');
       return;
     }
 
     setState(() => _isLoading = true);
 
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      // Calculate position size: (amount in percentage) / (live price of selected symbol)
+      final currentPrice = _selectedSymbol!.currentPrice;
+      final positionSize =
+          double.parse((amount / currentPrice).toStringAsFixed(2));
 
-      // Simulate order submission
-      // Order details would be sent to API here
+      // Call the dual-side init API
+      final response = await FutureTradingService.initializeDualSideStrategy(
+        userId: commonuserId,
+        symbol: _selectedSymbol!.symbol,
+        positionSize: positionSize,
+        tpPercentage: takeProfitPercent,
+        leverage: _leverage.toInt(),
+      );
 
-      // Show success message
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Order submitted successfully!',
-              style: TradingTypography.bodyMedium.copyWith(color: Colors.white),
-            ),
-            backgroundColor: TradingTheme.successColor,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        if (response != null && response.isSuccess) {
+          // Show success popup and notification
+          await _showSuccessPopup(response.data!);
+          _sendSuccessNotification(response.data!);
 
-        // Navigate back to dashboard
-        Navigator.pop(context);
+          // Navigate back to dashboard
+          if (mounted) {
+            Navigator.pop(context);
+          }
+        } else {
+          // Show error popup and notification
+          final errorMessage = response?.message ?? 'Unknown error occurred';
+          await _showErrorPopup('Failed to initialize strategy', errorMessage);
+          _sendErrorNotification(errorMessage);
+        }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Failed to submit order: $e',
-              style: TradingTypography.bodyMedium.copyWith(color: Colors.white),
-            ),
-            backgroundColor: TradingTheme.errorColor,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        await _showErrorPopup(
+            'Network Error', 'Please check your connection and try again');
+        _sendErrorNotification('Network error occurred');
       }
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  // Success Popup Dialog
+  Future<void> _showSuccessPopup(DualSideInitData data) async {
+    // Haptic feedback for success
+    HapticFeedback.lightImpact();
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: TradingTheme.secondaryBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: TradingTheme.successColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.check_circle,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Strategy Initialized!',
+                  style: TradingTypography.heading3.copyWith(
+                    color: TradingTheme.successColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Your dual-side trading strategy has been successfully initialized.',
+                  style: TradingTypography.bodyMedium.copyWith(
+                    color: TradingTheme.primaryText,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: TradingTheme.surfaceBackground,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: TradingTheme.primaryBorder),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildDetailRow('🆔 Pair ID', data.pairId),
+                      _buildDetailRow('💰 Entry Price',
+                          '\$${data.entryPrice.toStringAsFixed(2)}'),
+                      _buildDetailRow(
+                          '📈 Long TP', '\$${data.longTp.toStringAsFixed(2)}'),
+                      _buildDetailRow('📉 Short TP',
+                          '\$${data.shortTp.toStringAsFixed(2)}'),
+                      _buildDetailRow('🔢 Long Position ID',
+                          data.longPositionId.toString()),
+                      _buildDetailRow('🔢 Short Position ID',
+                          data.shortPositionId.toString()),
+                      _buildDetailRow(
+                          '⚡ Strategy ID', data.strategyId.toString()),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: TradingTheme.successColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                        color: TradingTheme.successColor.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.info_outline,
+                        color: TradingTheme.successColor,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'You can monitor your positions in the Positions tab.',
+                          style: TradingTypography.bodySmall.copyWith(
+                            color: TradingTheme.successColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'View Positions',
+                style: TradingTypography.bodyMedium.copyWith(
+                  color: TradingTheme.secondaryText,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: TradingTheme.successColor,
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Got It!',
+                style: TradingTypography.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Error Popup Dialog
+  Future<void> _showErrorPopup(String title, String message) async {
+    // Haptic feedback for error
+    HapticFeedback.heavyImpact();
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: TradingTheme.secondaryBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: TradingTheme.errorColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.error_outline,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TradingTypography.heading3.copyWith(
+                    color: TradingTheme.errorColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                message,
+                style: TradingTypography.bodyMedium.copyWith(
+                  color: TradingTheme.primaryText,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: TradingTheme.errorColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                      color: TradingTheme.errorColor.withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.lightbulb_outline,
+                      color: TradingTheme.errorColor,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Please check your internet connection and try again.',
+                        style: TradingTypography.bodySmall.copyWith(
+                          color: TradingTheme.errorColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: TradingTypography.bodyMedium.copyWith(
+                  color: TradingTheme.secondaryText,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Retry the order
+                _submitOrder();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: TradingTheme.primaryAccent,
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Retry',
+                style: TradingTypography.bodyMedium.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Helper method to build detail rows
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TradingTypography.bodySmall.copyWith(
+              color: TradingTheme.secondaryText,
+            ),
+          ),
+          Text(
+            value,
+            style: TradingTypography.bodySmall.copyWith(
+              color: TradingTheme.primaryText,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Success Push Notification
+  void _sendSuccessNotification(DualSideInitData data) {
+    // Show local notification
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Icon(
+                Icons.check_circle,
+                color: TradingTheme.successColor,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Strategy Initialized Successfully!',
+                    style: TradingTypography.bodyMedium.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    'Pair ID: ${data.pairId} • Entry: \$${data.entryPrice.toStringAsFixed(2)}',
+                    style: TradingTypography.bodySmall.copyWith(
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: TradingTheme.successColor,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+          label: 'View',
+          textColor: Colors.white,
+          onPressed: () {
+            // Navigate to positions page
+          },
+        ),
+      ),
+    );
+
+    // Haptic feedback
+    HapticFeedback.lightImpact();
+  }
+
+  // Error Push Notification
+  void _sendErrorNotification(String message) {
+    // Show local notification
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Icon(
+                Icons.error_outline,
+                color: TradingTheme.errorColor,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Strategy Initialization Failed',
+                    style: TradingTypography.bodyMedium.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    message,
+                    style: TradingTypography.bodySmall.copyWith(
+                      color: Colors.white70,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: TradingTheme.errorColor,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 4),
+        action: SnackBarAction(
+          label: 'Retry',
+          textColor: Colors.white,
+          onPressed: () {
+            _submitOrder();
+          },
+        ),
+      ),
+    );
+
+    // Haptic feedback
+    HapticFeedback.heavyImpact();
   }
 }

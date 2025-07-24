@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/model/future_trading_models.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/Service/future_trading_service.dart';
 import 'package:securetradeai/src/widget/trading_widgets.dart';
 
 class FuturePositionsPage extends StatefulWidget {
@@ -18,8 +20,6 @@ class _FuturePositionsPageState extends State<FuturePositionsPage>
   late Animation<Offset> _slideAnimation;
 
   Timer? _refreshTimer;
-  bool _isLoading = true;
-  bool _isRefreshing = false;
 
   List<FuturePosition> _positions = [];
   String _filterType = 'ALL'; // 'ALL', 'LONG', 'SHORT', 'PROFIT', 'LOSS'
@@ -51,127 +51,61 @@ class _FuturePositionsPageState extends State<FuturePositionsPage>
 
   void _startAutoRefresh() {
     _refreshTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (mounted && !_isLoading) {
+      if (mounted) {
         _refreshPositions();
       }
     });
   }
 
   Future<void> _loadPositions() async {
-    setState(() => _isLoading = true);
-
+    // Call API in background without showing loader
     try {
-      // Simulate API call - replace with actual API integration
-      await Future.delayed(const Duration(seconds: 2));
+      // Load real positions from API
+      final response = await FutureTradingService.getDualSideOpenPositions(
+        userId: commonuserId,
+      );
 
-      // Mock data - replace with actual API response
-      _positions = [
-        FuturePosition(
-          id: '1',
-          symbol: 'BTCUSDT',
-          side: 'LONG',
-          entryPrice: 43250.0,
-          currentPrice: 43500.0,
-          quantity: 0.1,
-          leverage: 10.0,
-          unrealizedPnl: 25.0,
-          realizedPnl: 0.0,
-          profitPercent: 0.58,
-          marginUsed: 432.5,
-          liquidationPrice: 39000.0,
-          openTime: DateTime.now().subtract(const Duration(hours: 2)),
-          status: 'OPEN',
-          takeProfitPrice: 45000.0,
-          stopLossPrice: 42000.0,
-        ),
-        FuturePosition(
-          id: '2',
-          symbol: 'ETHUSDT',
-          side: 'SHORT',
-          entryPrice: 2680.0,
-          currentPrice: 2650.0,
-          quantity: 1.0,
-          leverage: 5.0,
-          unrealizedPnl: 30.0,
-          realizedPnl: 0.0,
-          profitPercent: 1.12,
-          marginUsed: 536.0,
-          liquidationPrice: 3000.0,
-          openTime: DateTime.now().subtract(const Duration(hours: 1)),
-          status: 'OPEN',
-        ),
-        FuturePosition(
-          id: '3',
-          symbol: 'BNBUSDT',
-          side: 'LONG',
-          entryPrice: 315.20,
-          currentPrice: 312.50,
-          quantity: 5.0,
-          leverage: 3.0,
-          unrealizedPnl: -13.5,
-          realizedPnl: 0.0,
-          profitPercent: -0.86,
-          marginUsed: 525.33,
-          liquidationPrice: 280.0,
-          openTime: DateTime.now().subtract(const Duration(minutes: 30)),
-          status: 'OPEN',
-        ),
-      ];
+      if (response != null && response.isSuccess && response.data != null) {
+        setState(() {
+          _positions = response.data!
+              .map((apiPosition) => apiPosition.toFuturePosition())
+              .toList();
+        });
+        print('✅ Loaded ${_positions.length} open positions');
+      } else {
+        print('❌ Failed to load positions: ${response?.message}');
+        setState(() {
+          _positions = [];
+        });
+      }
     } catch (e) {
       print('Error loading positions: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      setState(() {
+        _positions = [];
+      });
     }
   }
 
   Future<void> _refreshPositions() async {
-    setState(() => _isRefreshing = true);
-
+    // Refresh positions in background without showing loader
     try {
-      // Simulate price updates
-      for (int i = 0; i < _positions.length; i++) {
-        final position = _positions[i];
-        final priceChange = (DateTime.now().millisecond % 20 - 10) * 0.1;
-        final newCurrentPrice = position.currentPrice + priceChange;
-        final newUnrealizedPnl = position.isLong
-            ? (newCurrentPrice - position.entryPrice) *
-                position.quantity *
-                position.leverage
-            : (position.entryPrice - newCurrentPrice) *
-                position.quantity *
-                position.leverage;
-        final newProfitPercent =
-            ((newCurrentPrice - position.entryPrice) / position.entryPrice) *
-                100 *
-                position.leverage;
+      // Reload positions from API
+      final response = await FutureTradingService.getDualSideOpenPositions(
+        userId: commonuserId,
+      );
 
-        _positions[i] = FuturePosition(
-          id: position.id,
-          symbol: position.symbol,
-          side: position.side,
-          entryPrice: position.entryPrice,
-          currentPrice: newCurrentPrice,
-          quantity: position.quantity,
-          leverage: position.leverage,
-          unrealizedPnl: newUnrealizedPnl,
-          realizedPnl: position.realizedPnl,
-          profitPercent: position.isLong ? newProfitPercent : -newProfitPercent,
-          marginUsed: position.marginUsed,
-          liquidationPrice: position.liquidationPrice,
-          openTime: position.openTime,
-          status: position.status,
-          takeProfitPrice: position.takeProfitPrice,
-          stopLossPrice: position.stopLossPrice,
-        );
+      if (response != null && response.isSuccess && response.data != null) {
+        setState(() {
+          _positions = response.data!
+              .map((apiPosition) => apiPosition.toFuturePosition())
+              .toList();
+        });
+        print('✅ Refreshed ${_positions.length} open positions');
+      } else {
+        print('❌ Failed to refresh positions: ${response?.message}');
       }
     } catch (e) {
       print('Error refreshing positions: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isRefreshing = false);
-      }
     }
   }
 
@@ -202,7 +136,7 @@ class _FuturePositionsPageState extends State<FuturePositionsPage>
     return Scaffold(
       backgroundColor: TradingTheme.primaryBackground,
       appBar: _buildAppBar(),
-      body: _isLoading ? _buildLoadingScreen() : _buildPositionsContent(),
+      body: _buildPositionsContent(),
     );
   }
 
@@ -249,30 +183,11 @@ class _FuturePositionsPageState extends State<FuturePositionsPage>
         onPressed: () => Navigator.pop(context),
       ),
       actions: [
-        if (_isRefreshing)
-          Container(
-            margin: const EdgeInsets.all(16),
-            width: 20,
-            height: 20,
-            child: const CircularProgressIndicator(
-              strokeWidth: 2,
-              color: TradingTheme.primaryAccent,
-            ),
-          )
-        else
-          IconButton(
-            icon: const Icon(Icons.refresh, color: TradingTheme.primaryAccent),
-            onPressed: _refreshPositions,
-          ),
+        IconButton(
+          icon: const Icon(Icons.refresh, color: TradingTheme.primaryAccent),
+          onPressed: _refreshPositions,
+        ),
       ],
-    );
-  }
-
-  Widget _buildLoadingScreen() {
-    return const Center(
-      child: TradingLoadingIndicator(
-        message: 'Loading Positions...',
-      ),
     );
   }
 
@@ -457,14 +372,19 @@ class _FuturePositionsPageState extends State<FuturePositionsPage>
                 child: _buildPositionDetail(
                     'Quantity', position.quantity.toStringAsFixed(4)),
               ),
-              Expanded(
-                child: _buildPositionDetail('Margin Used',
-                    '\$${position.marginUsed.toStringAsFixed(2)}'),
-              ),
-              Expanded(
-                child: _buildPositionDetail('Liquidation',
-                    '\$${position.liquidationPrice.toStringAsFixed(2)}'),
-              ),
+              // Only show fields that have real data from API
+              if (position.marginUsed > 0) ...[
+                Expanded(
+                  child: _buildPositionDetail('Margin Used',
+                      '\$${position.marginUsed.toStringAsFixed(2)}'),
+                ),
+              ],
+              if (position.liquidationPrice > 0) ...[
+                Expanded(
+                  child: _buildPositionDetail('Liquidation',
+                      '\$${position.liquidationPrice.toStringAsFixed(2)}'),
+                ),
+              ],
             ],
           ),
 
@@ -523,18 +443,7 @@ class _FuturePositionsPageState extends State<FuturePositionsPage>
                   height: 40,
                 ),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TradingButton(
-                  text: 'Margin',
 
-                  /// Add Margin
-                  onPressed: () => _addMargin(position),
-                  backgroundColor: TradingTheme.primaryAccent,
-                  textColor: Colors.black,
-                  height: 40,
-                ),
-              ),
             ],
           ),
 
@@ -651,13 +560,7 @@ class _FuturePositionsPageState extends State<FuturePositionsPage>
     );
   }
 
-  void _addMargin(FuturePosition position) {
-    // Show add margin dialog
-    showDialog(
-      context: context,
-      builder: (context) => _AddMarginDialog(position: position),
-    );
-  }
+
 }
 
 // TP/SL Edit Dialog
@@ -814,101 +717,4 @@ class _TpSlEditDialogState extends State<_TpSlEditDialog> {
   }
 }
 
-// Add Margin Dialog
-class _AddMarginDialog extends StatefulWidget {
-  final FuturePosition position;
 
-  const _AddMarginDialog({required this.position});
-
-  @override
-  State<_AddMarginDialog> createState() => _AddMarginDialogState();
-}
-
-class _AddMarginDialogState extends State<_AddMarginDialog> {
-  late TextEditingController _marginController;
-
-  @override
-  void initState() {
-    super.initState();
-    _marginController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _marginController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: TradingTheme.secondaryBackground,
-      title: Text(
-        'Add Margin - ${widget.position.symbol}',
-        style: TradingTypography.heading3,
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Current Margin: \$${widget.position.marginUsed.toStringAsFixed(2)}',
-            style: TradingTypography.bodyMedium.copyWith(
-              color: TradingTheme.secondaryText,
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _marginController,
-            keyboardType: TextInputType.number,
-            style: TradingTypography.bodyMedium,
-            decoration: InputDecoration(
-              labelText: 'Additional Margin (USDT)',
-              labelStyle: TradingTypography.bodySmall.copyWith(
-                color: TradingTheme.primaryAccent,
-              ),
-              filled: true,
-              fillColor: TradingTheme.surfaceBackground,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: TradingTheme.primaryAccent),
-              ),
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(
-            'Cancel',
-            style: TradingTypography.bodyMedium.copyWith(
-              color: TradingTheme.secondaryText,
-            ),
-          ),
-        ),
-        TradingButton(
-          text: 'Add Margin',
-          onPressed: () {
-            // Simulate API call to add margin
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Margin added successfully!',
-                  style: TradingTypography.bodyMedium
-                      .copyWith(color: Colors.white),
-                ),
-                backgroundColor: TradingTheme.successColor,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          },
-          backgroundColor: TradingTheme.primaryAccent,
-          textColor: Colors.black,
-          width: 110,
-          height: 36,
-        ),
-      ],
-    );
-  }
-}

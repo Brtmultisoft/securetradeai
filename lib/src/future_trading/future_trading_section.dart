@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/model/future_trading_models.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/Service/future_trading_service.dart';
@@ -126,6 +127,9 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
       // Call real API to get account balance
       _accountSummary = await FutureTradingService.getAccountBalanceWithRetry();
 
+      // Load positions in background without affecting loading state
+      _loadOpenPositions();
+
       if (_accountSummary == null) {
         // If API fails, show error message
         if (mounted) {
@@ -161,11 +165,6 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
           canWithdraw: true,
         );
       }
-
-      // Mock recent positions (will be replaced with real API later)
-      _recentPositions = [
-        // Empty for now - will be populated from positions API
-      ];
     } catch (e) {
       // Handle error
       if (mounted) {
@@ -222,8 +221,8 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
         _accountSummary = refreshedSummary;
       }
 
-      // Note: Position updates will be handled when positions API is integrated
-      // For now, positions remain as they are
+      // Also refresh positions
+      await _loadOpenPositions();
     } catch (e) {
       // Silently handle refresh errors - don't show error messages for auto-refresh
       // The user can manually refresh if needed
@@ -234,6 +233,105 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
         _rotationController.stop();
         _rotationController.reset();
       }
+    }
+  }
+
+  // Load open positions from API
+  Future<void> _loadOpenPositions() async {
+    try {
+      print('🔄 Loading open positions...');
+
+      final response = await FutureTradingService.getDualSideOpenPositions(
+        userId: commonuserId,
+      );
+
+      if (response != null && response.isSuccess && response.data != null) {
+        setState(() {
+          // Convert API positions to FuturePosition objects
+          _recentPositions = response.data!
+              .map((apiPosition) => apiPosition.toFuturePosition())
+              .toList();
+
+          // Update account summary with correct open positions count
+          if (_accountSummary != null) {
+            _accountSummary = FutureAccountSummary(
+              totalWalletBalance: _accountSummary!.totalWalletBalance,
+              futuresBalance: _accountSummary!.futuresBalance,
+              unrealizedPnl: _accountSummary!.unrealizedPnl,
+              totalRealizedProfit: _accountSummary!.totalRealizedProfit,
+              openPositionsCount:
+                  _recentPositions.length, // ← Update with real count
+              todayPnl: _accountSummary!.todayPnl,
+              currentLeverage: _accountSummary!.currentLeverage,
+              availableBalance: _accountSummary!.availableBalance,
+              marginBalance: _accountSummary!.marginBalance,
+              maxWithdrawAmount: _accountSummary!.maxWithdrawAmount,
+              totalPositionInitialMargin:
+                  _accountSummary!.totalPositionInitialMargin,
+              totalOpenOrderInitialMargin:
+                  _accountSummary!.totalOpenOrderInitialMargin,
+              canTrade: _accountSummary!.canTrade,
+              canDeposit: _accountSummary!.canDeposit,
+              canWithdraw: _accountSummary!.canWithdraw,
+            );
+          }
+        });
+        print('✅ Loaded ${_recentPositions.length} open positions');
+      } else {
+        print('❌ Failed to load positions: ${response?.message}');
+        setState(() {
+          _recentPositions = [];
+          // Update account summary with 0 positions count
+          if (_accountSummary != null) {
+            _accountSummary = FutureAccountSummary(
+              totalWalletBalance: _accountSummary!.totalWalletBalance,
+              futuresBalance: _accountSummary!.futuresBalance,
+              unrealizedPnl: _accountSummary!.unrealizedPnl,
+              totalRealizedProfit: _accountSummary!.totalRealizedProfit,
+              openPositionsCount: 0, // ← Reset to 0 on error
+              todayPnl: _accountSummary!.todayPnl,
+              currentLeverage: _accountSummary!.currentLeverage,
+              availableBalance: _accountSummary!.availableBalance,
+              marginBalance: _accountSummary!.marginBalance,
+              maxWithdrawAmount: _accountSummary!.maxWithdrawAmount,
+              totalPositionInitialMargin:
+                  _accountSummary!.totalPositionInitialMargin,
+              totalOpenOrderInitialMargin:
+                  _accountSummary!.totalOpenOrderInitialMargin,
+              canTrade: _accountSummary!.canTrade,
+              canDeposit: _accountSummary!.canDeposit,
+              canWithdraw: _accountSummary!.canWithdraw,
+            );
+          }
+        });
+      }
+    } catch (e) {
+      print('❌ Error loading positions: $e');
+      setState(() {
+        _recentPositions = [];
+        // Update account summary with 0 positions count
+        if (_accountSummary != null) {
+          _accountSummary = FutureAccountSummary(
+            totalWalletBalance: _accountSummary!.totalWalletBalance,
+            futuresBalance: _accountSummary!.futuresBalance,
+            unrealizedPnl: _accountSummary!.unrealizedPnl,
+            totalRealizedProfit: _accountSummary!.totalRealizedProfit,
+            openPositionsCount: 0, // ← Reset to 0 on error
+            todayPnl: _accountSummary!.todayPnl,
+            currentLeverage: _accountSummary!.currentLeverage,
+            availableBalance: _accountSummary!.availableBalance,
+            marginBalance: _accountSummary!.marginBalance,
+            maxWithdrawAmount: _accountSummary!.maxWithdrawAmount,
+            totalPositionInitialMargin:
+                _accountSummary!.totalPositionInitialMargin,
+            totalOpenOrderInitialMargin:
+                _accountSummary!.totalOpenOrderInitialMargin,
+            canTrade: _accountSummary!.canTrade,
+            canDeposit: _accountSummary!.canDeposit,
+            canWithdraw: _accountSummary!.canWithdraw,
+          );
+        }
+      });
     }
   }
 
@@ -356,7 +454,9 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
                     animation: _rotationAnimation,
                     builder: (context, child) {
                       return Transform.rotate(
-                        angle: _isRefreshing ? _rotationAnimation.value * 2 * 3.14159 : 0,
+                        angle: _isRefreshing
+                            ? _rotationAnimation.value * 2 * 3.14159
+                            : 0,
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
@@ -379,134 +479,135 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
                   ),
                 ],
               ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: _buildSummaryItem(
-                  'Total Wallet Balance',
-                  '\$${_accountSummary!.totalWalletBalance.toStringAsFixed(2)}',
-                  TradingTheme.primaryAccent,
-                  Icons.account_balance_wallet,
-                ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildSummaryItem(
+                      'Total Wallet Balance',
+                      '\$${_accountSummary!.totalWalletBalance.toStringAsFixed(2)}',
+                      TradingTheme.primaryAccent,
+                      Icons.account_balance_wallet,
+                    ),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 50,
+                    color: TradingTheme.primaryBorder,
+                  ),
+                  Expanded(
+                    child: _buildSummaryItem(
+                      'Available Balance',
+                      '\$${_accountSummary!.availableBalance.toStringAsFixed(2)}',
+                      TradingTheme.successColor,
+                      Icons.account_balance,
+                    ),
+                  ),
+                ],
               ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildSummaryItem(
+                      'Margin Balance',
+                      '\$${_accountSummary!.marginBalance.toStringAsFixed(2)}',
+                      TradingTheme.primaryAccent,
+                      Icons.pie_chart,
+                    ),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 50,
+                    color: TradingTheme.primaryBorder,
+                  ),
+                  Expanded(
+                    child: _buildSummaryItem(
+                      'Unrealized PnL',
+                      '\$${_accountSummary!.unrealizedPnl.toStringAsFixed(2)}',
+                      _accountSummary!.unrealizedPnl >= 0
+                          ? TradingTheme.successColor
+                          : TradingTheme.errorColor,
+                      _accountSummary!.unrealizedPnl >= 0
+                          ? Icons.trending_up
+                          : Icons.trending_down,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // Additional Balance Details
               Container(
-                width: 1,
-                height: 50,
-                color: TradingTheme.primaryBorder,
-              ),
-              Expanded(
-                child: _buildSummaryItem(
-                  'Available Balance',
-                  '\$${_accountSummary!.availableBalance.toStringAsFixed(2)}',
-                  TradingTheme.successColor,
-                  Icons.account_balance,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: TradingTheme.surfaceBackground.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                      color: TradingTheme.primaryBorder.withOpacity(0.3)),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Max Withdraw Amount',
+                          style: TradingTypography.bodySmall.copyWith(
+                            color: TradingTheme.secondaryText,
+                          ),
+                        ),
+                        Text(
+                          '\$${_accountSummary!.maxWithdrawAmount.toStringAsFixed(2)}',
+                          style: TradingTypography.bodyMedium.copyWith(
+                            color: TradingTheme.primaryText,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Position Initial Margin',
+                          style: TradingTypography.bodySmall.copyWith(
+                            color: TradingTheme.secondaryText,
+                          ),
+                        ),
+                        Text(
+                          '\$${_accountSummary!.totalPositionInitialMargin.toStringAsFixed(2)}',
+                          style: TradingTypography.bodyMedium.copyWith(
+                            color: TradingTheme.primaryText,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Open Order Initial Margin',
+                          style: TradingTypography.bodySmall.copyWith(
+                            color: TradingTheme.secondaryText,
+                          ),
+                        ),
+                        Text(
+                          '\$${_accountSummary!.totalOpenOrderInitialMargin.toStringAsFixed(2)}',
+                          style: TradingTypography.bodyMedium.copyWith(
+                            color: TradingTheme.primaryText,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildSummaryItem(
-                  'Margin Balance',
-                  '\$${_accountSummary!.marginBalance.toStringAsFixed(2)}',
-                  TradingTheme.primaryAccent,
-                  Icons.pie_chart,
-                ),
-              ),
-              Container(
-                width: 1,
-                height: 50,
-                color: TradingTheme.primaryBorder,
-              ),
-              Expanded(
-                child: _buildSummaryItem(
-                  'Unrealized PnL',
-                  '\$${_accountSummary!.unrealizedPnl.toStringAsFixed(2)}',
-                  _accountSummary!.unrealizedPnl >= 0
-                      ? TradingTheme.successColor
-                      : TradingTheme.errorColor,
-                  _accountSummary!.unrealizedPnl >= 0
-                      ? Icons.trending_up
-                      : Icons.trending_down,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Additional Balance Details
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: TradingTheme.surfaceBackground.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: TradingTheme.primaryBorder.withOpacity(0.3)),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Max Withdraw Amount',
-                      style: TradingTypography.bodySmall.copyWith(
-                        color: TradingTheme.secondaryText,
-                      ),
-                    ),
-                    Text(
-                      '\$${_accountSummary!.maxWithdrawAmount.toStringAsFixed(2)}',
-                      style: TradingTypography.bodyMedium.copyWith(
-                        color: TradingTheme.primaryText,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Position Initial Margin',
-                      style: TradingTypography.bodySmall.copyWith(
-                        color: TradingTheme.secondaryText,
-                      ),
-                    ),
-                    Text(
-                      '\$${_accountSummary!.totalPositionInitialMargin.toStringAsFixed(2)}',
-                      style: TradingTypography.bodyMedium.copyWith(
-                        color: TradingTheme.primaryText,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Open Order Initial Margin',
-                      style: TradingTypography.bodySmall.copyWith(
-                        color: TradingTheme.secondaryText,
-                      ),
-                    ),
-                    Text(
-                      '\$${_accountSummary!.totalOpenOrderInitialMargin.toStringAsFixed(2)}',
-                      style: TradingTypography.bodyMedium.copyWith(
-                        color: TradingTheme.primaryText,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
         ),
       ),
     );
@@ -558,7 +659,7 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
             valueColor: _accountSummary!.totalRealizedProfit >= 0
                 ? TradingTheme.successColor
                 : TradingTheme.errorColor,
-            showTrend: true,
+            // showTrend: true,
             isPositiveTrend: _accountSummary!.totalRealizedProfit >= 0,
           ),
         ),

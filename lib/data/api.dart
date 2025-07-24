@@ -126,3 +126,8 @@ const String getIncomesPost = "${url}get_incomes";
 
 // Future Trading API endpoints
 const String dualSideAccountBalance = "${url}dual_side_account_balance";
+const String dualSideInit = "${url}dual_side_init";
+const String dualSideTradeHistory = "${url}dual_side_trade_history";
+const String dualSideTradingReport = "${url}dual_side_trading_report";
+const String dualSideOpenPositions = "${url}dual_side_open_positions";
+const String dualSidePerformance = "${url}dual_side_performance";

@@ -151,6 +151,116 @@ class FutureSymbol {
   }
 }
 
+// Dual Side Open Positions Response Models
+class DualSideOpenPositionsResponse {
+  final String status;
+  final String message;
+  final String responsecode;
+  final List<DualSideOpenPosition>? data;
+
+  DualSideOpenPositionsResponse({
+    required this.status,
+    required this.message,
+    required this.responsecode,
+    this.data,
+  });
+
+  factory DualSideOpenPositionsResponse.fromJson(Map<String, dynamic> json) {
+    return DualSideOpenPositionsResponse(
+      status: json['status'] ?? '',
+      message: json['message'] ?? '',
+      responsecode: json['responsecode'] ?? '',
+      data: json['data'] != null
+          ? List<DualSideOpenPosition>.from(
+              json['data'].map((x) => DualSideOpenPosition.fromJson(x)))
+          : null,
+    );
+  }
+
+  bool get isSuccess => status == 'success';
+}
+
+class DualSideOpenPosition {
+  final int id;
+  final String symbol;
+  final String side; // 'BUY' or 'SELL'
+  final String positionSide; // 'LONG' or 'SHORT'
+  final double quantity;
+  final double entryPrice;
+  final double currentPrice;
+  final double unrealizedPnl;
+  final double pnlPercentage;
+  final double? tpPrice;
+  final double? slPrice;
+  final String status;
+  final String strategyId;
+  final int leverage;
+  final double marginUsed;
+
+  DualSideOpenPosition({
+    required this.id,
+    required this.symbol,
+    required this.side,
+    required this.positionSide,
+    required this.quantity,
+    required this.entryPrice,
+    required this.currentPrice,
+    required this.unrealizedPnl,
+    required this.pnlPercentage,
+    this.tpPrice,
+    this.slPrice,
+    required this.status,
+    required this.strategyId,
+    required this.leverage,
+    required this.marginUsed,
+  });
+
+  factory DualSideOpenPosition.fromJson(Map<String, dynamic> json) {
+    return DualSideOpenPosition(
+      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      symbol: json['symbol'] ?? '',
+      side: json['side'] ?? '',
+      positionSide: json['side'] ?? '', // API doesn't have positionSide, use side
+      quantity: double.tryParse(json['quantity']?.toString() ?? '0') ?? 0.0,
+      entryPrice: double.tryParse(json['entry_price']?.toString() ?? '0') ?? 0.0,
+      currentPrice: double.tryParse(json['current_price']?.toString() ?? '0') ?? 0.0,
+      unrealizedPnl: double.tryParse(json['unrealized_pnl']?.toString() ?? '0') ?? 0.0,
+      pnlPercentage: double.tryParse(json['pnl_percentage']?.toString() ?? '0') ?? 0.0,
+      tpPrice: json['tp_price'] != null ? double.tryParse(json['tp_price']?.toString() ?? '0') : null,
+      slPrice: json['sl_price'] != null ? double.tryParse(json['sl_price']?.toString() ?? '0') : null,
+      status: json['status'] ?? '',
+      strategyId: json['pair_id'] ?? '', // Use pair_id as strategy_id
+      leverage: int.tryParse(json['leverage']?.toString() ?? '1') ?? 1,
+      marginUsed: double.tryParse(json['margin_used']?.toString() ?? '0') ?? 0.0,
+    );
+  }
+
+  // Convert to FuturePosition for compatibility with existing UI
+  FuturePosition toFuturePosition() {
+    // Convert BUY/SELL to LONG/SHORT for UI display
+    String uiSide = side == 'BUY' ? 'LONG' : 'SHORT';
+
+    return FuturePosition(
+      id: id.toString(),
+      symbol: symbol,
+      side: uiSide, // Convert BUY -> LONG, SELL -> SHORT
+      entryPrice: entryPrice,
+      currentPrice: currentPrice,
+      quantity: quantity,
+      leverage: leverage.toDouble(),
+      unrealizedPnl: unrealizedPnl,
+      realizedPnl: 0.0, // Not provided in API
+      profitPercent: pnlPercentage,
+      marginUsed: marginUsed,
+      liquidationPrice: 0.0, // Not provided in API, could be calculated
+      openTime: DateTime.now(), // Not provided in API
+      status: status,
+      takeProfitPrice: tpPrice,
+      stopLossPrice: slPrice,
+    );
+  }
+}
+
 // Future Trading Position Model
 class FuturePosition {
   final String id;
@@ -814,6 +924,398 @@ class AssetBalance {
           double.tryParse(json['availableBalance']?.toString() ?? '0') ?? 0.0,
       marginAvailable: json['marginAvailable'] ?? true,
       updateTime: int.tryParse(json['updateTime']?.toString() ?? '0') ?? 0,
+    );
+  }
+}
+
+// Dual Side Init Response Models
+class DualSideInitResponse {
+  final String status;
+  final String message;
+  final String responsecode;
+  final DualSideInitData? data;
+
+  DualSideInitResponse({
+    required this.status,
+    required this.message,
+    required this.responsecode,
+    this.data,
+  });
+
+  factory DualSideInitResponse.fromJson(Map<String, dynamic> json) {
+    return DualSideInitResponse(
+      status: json['status'] ?? '',
+      message: json['message'] ?? '',
+      responsecode: json['responsecode'] ?? '',
+      data: json['data'] != null ? DualSideInitData.fromJson(json['data']) : null,
+    );
+  }
+
+  bool get isSuccess => status == 'success';
+}
+
+class DualSideInitData {
+  final String pairId;
+  final double entryPrice;
+  final double longTp;
+  final double shortTp;
+  final int longPositionId;
+  final int shortPositionId;
+  final int strategyId;
+
+  DualSideInitData({
+    required this.pairId,
+    required this.entryPrice,
+    required this.longTp,
+    required this.shortTp,
+    required this.longPositionId,
+    required this.shortPositionId,
+    required this.strategyId,
+  });
+
+  factory DualSideInitData.fromJson(Map<String, dynamic> json) {
+    return DualSideInitData(
+      pairId: json['pair_id'] ?? '',
+      entryPrice: (json['entry_price'] ?? 0.0).toDouble(),
+      longTp: (json['long_tp'] ?? 0.0).toDouble(),
+      shortTp: (json['short_tp'] ?? 0.0).toDouble(),
+      longPositionId: json['long_position_id'] ?? 0,
+      shortPositionId: json['short_position_id'] ?? 0,
+      strategyId: json['strategy_id'] ?? 0,
+    );
+  }
+}
+
+// Dual Side Trade History Response Models
+class DualSideTradeHistoryResponse {
+  final String status;
+  final String message;
+  final String responsecode;
+  final DualSideTradeHistoryData? data;
+
+  DualSideTradeHistoryResponse({
+    required this.status,
+    required this.message,
+    required this.responsecode,
+    this.data,
+  });
+
+  factory DualSideTradeHistoryResponse.fromJson(Map<String, dynamic> json) {
+    return DualSideTradeHistoryResponse(
+      status: json['status'] ?? '',
+      message: json['message'] ?? '',
+      responsecode: json['responsecode'] ?? '',
+      data: json['data'] != null ? DualSideTradeHistoryData.fromJson(json['data']) : null,
+    );
+  }
+
+  bool get isSuccess => status == 'success';
+}
+
+class DualSideTradeHistoryData {
+  final List<DualSideTradeRecord> trades;
+  final int totalCount;
+  final bool hasMore;
+
+  DualSideTradeHistoryData({
+    required this.trades,
+    required this.totalCount,
+    required this.hasMore,
+  });
+
+  factory DualSideTradeHistoryData.fromJson(Map<String, dynamic> json) {
+    return DualSideTradeHistoryData(
+      trades: json['trades'] != null
+          ? List<DualSideTradeRecord>.from(json['trades'].map((x) => DualSideTradeRecord.fromJson(x)))
+          : [],
+      totalCount: json['total_count'] ?? 0,
+      hasMore: json['has_more'] ?? false,
+    );
+  }
+}
+
+class DualSideTradeRecord {
+  final int id;
+  final String symbol;
+  final String side;
+  final double quantity;
+  final double entryPrice;
+  final double? exitPrice; // Can be null for open positions
+  final double realizedPnl;
+  final double unrealizedPnl;
+  final double commission;
+  final double netPnl;
+  final DateTime entryTime;
+  final DateTime? exitTime; // Can be null for open positions
+  final String strategyId;
+  final String status;
+  final String pairId;
+
+  DualSideTradeRecord({
+    required this.id,
+    required this.symbol,
+    required this.side,
+    required this.quantity,
+    required this.entryPrice,
+    this.exitPrice,
+    required this.realizedPnl,
+    required this.unrealizedPnl,
+    required this.commission,
+    required this.netPnl,
+    required this.entryTime,
+    this.exitTime,
+    required this.strategyId,
+    required this.status,
+    required this.pairId,
+  });
+
+  factory DualSideTradeRecord.fromJson(Map<String, dynamic> json) {
+    return DualSideTradeRecord(
+      id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      symbol: json['symbol']?.toString() ?? '',
+      side: json['side']?.toString() ?? 'BUY',
+      quantity: double.tryParse(json['quantity']?.toString() ?? '0') ?? 0.0,
+      entryPrice: double.tryParse(json['entry_price']?.toString() ?? '0') ?? 0.0,
+      exitPrice: json['exit_price'] != null
+          ? double.tryParse(json['exit_price'].toString())
+          : null,
+      realizedPnl: double.tryParse(json['pnl']?.toString() ?? '0') ?? 0.0,
+      unrealizedPnl: double.tryParse(json['unrealized_pnl']?.toString() ?? '0') ?? 0.0,
+      commission: double.tryParse(json['commission']?.toString() ?? '0') ?? 0.0,
+      netPnl: double.tryParse(json['net_pnl']?.toString() ?? '0') ?? 0.0,
+      entryTime: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
+      exitTime: json['closed_at'] != null
+          ? DateTime.tryParse(json['closed_at'].toString())
+          : null,
+      strategyId: json['pair_id']?.toString() ?? '',
+      status: json['status']?.toString() ?? 'UNKNOWN',
+      pairId: json['pair_id']?.toString() ?? '',
+    );
+  }
+
+  // Convert to FutureTradeHistory for UI compatibility
+  FutureTradeHistory toFutureTradeHistory() {
+    // Handle nullable exitTime and exitPrice for open positions
+    final closeTime = exitTime ?? DateTime.now();
+    final duration = closeTime.difference(entryTime);
+    final actualExitPrice = exitPrice ?? entryPrice; // Use entry price if no exit price
+    final profitPercent = entryPrice > 0 ? ((actualExitPrice - entryPrice) / entryPrice) * 100 : 0.0;
+
+    // Determine close reason based on status
+    String closeReason = 'MANUAL';
+    if (status == 'OPEN') {
+      closeReason = 'OPEN';
+    } else if (unrealizedPnl > 0) {
+      closeReason = 'TP'; // Take profit
+    } else if (unrealizedPnl < 0) {
+      closeReason = 'SL'; // Stop loss
+    }
+
+    return FutureTradeHistory(
+      id: id.toString(),
+      symbol: symbol,
+      side: side == 'BUY' ? 'LONG' : 'SHORT',
+      entryPrice: entryPrice,
+      exitPrice: actualExitPrice,
+      quantity: quantity,
+      leverage: 1.0, // Default leverage, can be enhanced later
+      realizedPnl: status == 'OPEN' ? unrealizedPnl : realizedPnl,
+      profitPercent: profitPercent,
+      tradeDuration: duration,
+      openTime: entryTime,
+      closeTime: closeTime,
+      closeReason: closeReason,
+      fees: commission,
+    );
+  }
+
+  bool get isProfit => (status == 'OPEN' ? unrealizedPnl : realizedPnl) > 0;
+  bool get isLong => side == 'BUY';
+  bool get isShort => side == 'SELL';
+  bool get isOpen => status == 'OPEN';
+  bool get isClosed => status == 'CLOSED';
+}
+
+// Dual Side Trading Report Response Models
+class DualSideTradingReportResponse {
+  final String status;
+  final String message;
+  final String responsecode;
+  final DualSideTradingReportData? data;
+
+  DualSideTradingReportResponse({
+    required this.status,
+    required this.message,
+    required this.responsecode,
+    this.data,
+  });
+
+  factory DualSideTradingReportResponse.fromJson(Map<String, dynamic> json) {
+    return DualSideTradingReportResponse(
+      status: json['status'] ?? '',
+      message: json['message'] ?? '',
+      responsecode: json['responsecode'] ?? '',
+      data: json['data'] != null ? DualSideTradingReportData.fromJson(json['data']) : null,
+    );
+  }
+
+  bool get isSuccess => status == 'success';
+}
+
+class DualSideTradingReportData {
+  final ReportPeriod period;
+  final TradingOverview overview;
+  final PositionAnalysis positionAnalysis;
+  final List<SymbolBreakdown> symbolBreakdown;
+  final RiskMetrics riskMetrics;
+
+  DualSideTradingReportData({
+    required this.period,
+    required this.overview,
+    required this.positionAnalysis,
+    required this.symbolBreakdown,
+    required this.riskMetrics,
+  });
+
+  factory DualSideTradingReportData.fromJson(Map<String, dynamic> json) {
+    return DualSideTradingReportData(
+      period: ReportPeriod.fromJson(json['period'] ?? {}),
+      overview: TradingOverview.fromJson(json['overview'] ?? {}),
+      positionAnalysis: PositionAnalysis.fromJson(json['position_analysis'] ?? {}),
+      symbolBreakdown: json['symbol_breakdown'] != null
+          ? List<SymbolBreakdown>.from(json['symbol_breakdown'].map((x) => SymbolBreakdown.fromJson(x)))
+          : [],
+      riskMetrics: RiskMetrics.fromJson(json['risk_metrics'] ?? {}),
+    );
+  }
+}
+
+class ReportPeriod {
+  final String from;
+  final String to;
+
+  ReportPeriod({required this.from, required this.to});
+
+  factory ReportPeriod.fromJson(Map<String, dynamic> json) {
+    return ReportPeriod(
+      from: json['from'] ?? '',
+      to: json['to'] ?? '',
+    );
+  }
+}
+
+class TradingOverview {
+  final int totalTrades;
+  final int winningTrades;
+  final int losingTrades;
+  final double winRate;
+  final double totalPnl;
+  final double unrealizedPnl;
+  final double totalVolume;
+  final double bestTrade;
+  final double worstTrade;
+  final double avgTradePnl;
+  final double profitFactor;
+
+  TradingOverview({
+    required this.totalTrades,
+    required this.winningTrades,
+    required this.losingTrades,
+    required this.winRate,
+    required this.totalPnl,
+    required this.unrealizedPnl,
+    required this.totalVolume,
+    required this.bestTrade,
+    required this.worstTrade,
+    required this.avgTradePnl,
+    required this.profitFactor,
+  });
+
+  factory TradingOverview.fromJson(Map<String, dynamic> json) {
+    return TradingOverview(
+      totalTrades: json['total_trades'] ?? 0,
+      winningTrades: json['winning_trades'] ?? 0,
+      losingTrades: json['losing_trades'] ?? 0,
+      winRate: (json['win_rate'] ?? 0.0).toDouble(),
+      totalPnl: (json['total_pnl'] ?? 0.0).toDouble(),
+      unrealizedPnl: (json['unrealized_pnl'] ?? 0.0).toDouble(),
+      totalVolume: (json['total_volume'] ?? 0.0).toDouble(),
+      bestTrade: (json['best_trade'] ?? 0.0).toDouble(),
+      worstTrade: (json['worst_trade'] ?? 0.0).toDouble(),
+      avgTradePnl: (json['avg_trade_pnl'] ?? 0.0).toDouble(),
+      profitFactor: (json['profit_factor'] ?? 0.0).toDouble(),
+    );
+  }
+}
+
+class PositionAnalysis {
+  final int longTrades;
+  final int shortTrades;
+  final double longPnl;
+  final double shortPnl;
+  final double longWinRate;
+  final double shortWinRate;
+
+  PositionAnalysis({
+    required this.longTrades,
+    required this.shortTrades,
+    required this.longPnl,
+    required this.shortPnl,
+    required this.longWinRate,
+    required this.shortWinRate,
+  });
+
+  factory PositionAnalysis.fromJson(Map<String, dynamic> json) {
+    return PositionAnalysis(
+      longTrades: json['long_trades'] ?? 0,
+      shortTrades: json['short_trades'] ?? 0,
+      longPnl: (json['long_pnl'] ?? 0.0).toDouble(),
+      shortPnl: (json['short_pnl'] ?? 0.0).toDouble(),
+      longWinRate: (json['long_win_rate'] ?? 0.0).toDouble(),
+      shortWinRate: (json['short_win_rate'] ?? 0.0).toDouble(),
+    );
+  }
+}
+
+class SymbolBreakdown {
+  final String symbol;
+  final int trades;
+  final double pnl;
+  final double winRate;
+
+  SymbolBreakdown({
+    required this.symbol,
+    required this.trades,
+    required this.pnl,
+    required this.winRate,
+  });
+
+  factory SymbolBreakdown.fromJson(Map<String, dynamic> json) {
+    return SymbolBreakdown(
+      symbol: json['symbol'] ?? '',
+      trades: json['trades'] ?? 0,
+      pnl: (json['pnl'] ?? 0.0).toDouble(),
+      winRate: (json['win_rate'] ?? 0.0).toDouble(),
+    );
+  }
+}
+
+class RiskMetrics {
+  final double maxDrawdown;
+  final double sharpeRatio;
+  final double volatility;
+
+  RiskMetrics({
+    required this.maxDrawdown,
+    required this.sharpeRatio,
+    required this.volatility,
+  });
+
+  factory RiskMetrics.fromJson(Map<String, dynamic> json) {
+    return RiskMetrics(
+      maxDrawdown: (json['max_drawdown'] ?? 0.0).toDouble(),
+      sharpeRatio: (json['sharpe_ratio'] ?? 0.0).toDouble(),
+      volatility: (json['volatility'] ?? 0.0).toDouble(),
     );
   }
 }
