@@ -239,16 +239,9 @@ class FutureTradingBackgroundService {
         }
 
         if (tpslData.executedTpSl > 0) {
-          print('✅ TP/SL monitoring completed - Executions detected');
-        } else {
-          print('✅ TP/SL monitoring completed - No executions');
-        }
-      } else {
-        print('⚠️ TP/SL monitoring failed - No data received');
-      }
-    } catch (e) {
-      print('❌ TP/SL monitoring error: $e');
-    }
+        } else {}
+      } else {}
+    } catch (e) {}
   }
 
   /// Get count of open positions

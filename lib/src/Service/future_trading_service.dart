@@ -762,6 +762,65 @@ class FutureTradingService {
     }
   }
 
+  /// Set TP/SL levels for a position
+  static Future<DualSideSetTpSlResponse?> setDualSideTpSl({
+    required String userId,
+    required int positionId,
+    double? tpPrice,
+    double? slPrice,
+  }) async {
+    try {
+      final requestBody = <String, dynamic>{
+        'user_id': userId,
+        'position_id': positionId,
+      };
+
+      // Add optional TP/SL prices
+      if (tpPrice != null) {
+        requestBody['tp_price'] = tpPrice;
+      }
+      if (slPrice != null) {
+        requestBody['sl_price'] = slPrice;
+      }
+
+      final response = await http
+          .post(
+            Uri.parse(dualSideSetTpSl),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode(requestBody),
+          )
+          .timeout(_timeout);
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final apiResponse = DualSideSetTpSlResponse.fromJson(responseData);
+
+        if (apiResponse.isSuccess) {
+          return apiResponse;
+        } else {
+          return apiResponse;
+        }
+      } else {
+        return DualSideSetTpSlResponse(
+          status: 'error',
+          message: 'Server error: ${response.statusCode}',
+          responsecode: response.statusCode.toString(),
+          data: null,
+        );
+      }
+    } catch (e) {
+      return DualSideSetTpSlResponse(
+        status: 'error',
+        message: 'Network error: $e',
+        responsecode: '0',
+        data: null,
+      );
+    }
+  }
+
   /// Test API connectivity
   static Future<bool> testApiConnectivity() async {
     try {

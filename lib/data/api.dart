@@ -138,6 +138,9 @@ const String dualSideMonitor = "${url}dual_side_monitor";
 const String dualSideMonitorTpSl = "${url}dual_side_monitor_tp_sl";
 const String dualSideEmergencyStop = "${url}dual_side_emergency_stop";
 
+// TP/SL Management API endpoints
+const String dualSideSetTpSl = "${url}dual_side_set_tp_sl";
+
 // System Health API endpoint
 const String dualSideSystemHealth = "${url}dual_side_system_health";
 

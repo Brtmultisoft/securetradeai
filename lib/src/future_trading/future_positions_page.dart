@@ -443,7 +443,6 @@ class _FuturePositionsPageState extends State<FuturePositionsPage>
                   height: 40,
                 ),
               ),
-
             ],
           ),
 
@@ -559,8 +558,6 @@ class _FuturePositionsPageState extends State<FuturePositionsPage>
       builder: (context) => _TpSlEditDialog(position: position),
     );
   }
-
-
 }
 
 // TP/SL Edit Dialog
@@ -597,6 +594,96 @@ class _TpSlEditDialogState extends State<_TpSlEditDialog> {
     _tpController.dispose();
     _slController.dispose();
     super.dispose();
+  }
+
+  Future<void> _updateTpSl() async {
+    print(
+        '🎯 UPDATE TP/SL - Starting update for position ${widget.position.id}...');
+
+    // Parse position ID from string to int
+    final positionId = int.tryParse(widget.position.id);
+    if (positionId == null) {
+      print('❌ UPDATE TP/SL - Invalid position ID: ${widget.position.id}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Invalid position ID',
+            style: TradingTypography.bodyMedium.copyWith(color: Colors.white),
+          ),
+          backgroundColor: TradingTheme.errorColor,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    // Get TP/SL values
+    final tpPrice = _enableTp && _tpController.text.isNotEmpty
+        ? double.tryParse(_tpController.text)
+        : null;
+    final slPrice = _enableSl && _slController.text.isNotEmpty
+        ? double.tryParse(_slController.text)
+        : null;
+
+    if (!_enableTp && !_enableSl) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please enable at least one of TP or SL',
+            style: TradingTypography.bodyMedium.copyWith(color: Colors.white),
+          ),
+          backgroundColor: TradingTheme.warningColor,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final response = await FutureTradingService.setDualSideTpSl(
+        userId: commonuserId,
+        positionId: positionId,
+        tpPrice: tpPrice,
+        slPrice: slPrice,
+      );
+
+      if (response != null && response.isSuccess) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'TP/SL updated successfully!\nTP: ${response.data?.tpPrice ?? 'Not set'}\nSL: ${response.data?.slPrice ?? 'Not set'}',
+              style: TradingTypography.bodyMedium.copyWith(color: Colors.white),
+            ),
+            backgroundColor: TradingTheme.successColor,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              response?.message ?? 'Failed to update TP/SL',
+              style: TradingTypography.bodyMedium.copyWith(color: Colors.white),
+            ),
+            backgroundColor: TradingTheme.errorColor,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Network error: $e',
+            style: TradingTypography.bodyMedium.copyWith(color: Colors.white),
+          ),
+          backgroundColor: TradingTheme.errorColor,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override
@@ -692,21 +779,7 @@ class _TpSlEditDialogState extends State<_TpSlEditDialog> {
         ),
         TradingButton(
           text: 'Update',
-          onPressed: () {
-            // Simulate API call to update TP/SL
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'TP/SL updated successfully!',
-                  style: TradingTypography.bodyMedium
-                      .copyWith(color: Colors.white),
-                ),
-                backgroundColor: TradingTheme.successColor,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          },
+          onPressed: () => _updateTpSl(),
           backgroundColor: TradingTheme.primaryAccent,
           textColor: Colors.black,
           width: 80,
@@ -716,5 +789,3 @@ class _TpSlEditDialogState extends State<_TpSlEditDialog> {
     );
   }
 }
-
-

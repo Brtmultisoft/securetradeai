@@ -1911,3 +1911,151 @@ class RiskMetrics {
     );
   }
 }
+
+// Dual Side Set TP/SL Response Model
+class DualSideSetTpSlResponse {
+  final String status;
+  final String message;
+  final String responsecode;
+  final SetTpSlData? data;
+
+  DualSideSetTpSlResponse({
+    required this.status,
+    required this.message,
+    required this.responsecode,
+    this.data,
+  });
+
+  factory DualSideSetTpSlResponse.fromJson(Map<String, dynamic> json) {
+    return DualSideSetTpSlResponse(
+      status: json['status'] ?? '',
+      message: json['message'] ?? '',
+      responsecode: json['responsecode'] ?? '',
+      data: json['data'] != null && json['data'] is Map<String, dynamic>
+          ? SetTpSlData.fromJson(json['data'])
+          : null,
+    );
+  }
+
+  bool get isSuccess => status == 'success';
+}
+
+// Set TP/SL Data Model
+class SetTpSlData {
+  final int positionId;
+  final double? tpPrice;
+  final double? slPrice;
+  final String updatedAt;
+
+  SetTpSlData({
+    required this.positionId,
+    this.tpPrice,
+    this.slPrice,
+    required this.updatedAt,
+  });
+
+  factory SetTpSlData.fromJson(Map<String, dynamic> json) {
+    return SetTpSlData(
+      positionId: int.tryParse(json['position_id']?.toString() ?? '0') ?? 0,
+      tpPrice: json['tp_price'] != null
+          ? double.tryParse(json['tp_price']?.toString() ?? '0')
+          : null,
+      slPrice: json['sl_price'] != null
+          ? double.tryParse(json['sl_price']?.toString() ?? '0')
+          : null,
+      updatedAt: json['updated_at']?.toString() ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'position_id': positionId,
+      'tp_price': tpPrice,
+      'sl_price': slPrice,
+      'updated_at': updatedAt,
+    };
+  }
+}
+
+// Enhanced Monitor TP/SL Data Model (matching API specification)
+class EnhancedMonitorTpSlData {
+  final int executedTpSl;
+  final int totalPositionsChecked;
+  final List<TpSlExecutionDetail> executedDetails;
+
+  EnhancedMonitorTpSlData({
+    required this.executedTpSl,
+    required this.totalPositionsChecked,
+    required this.executedDetails,
+  });
+
+  factory EnhancedMonitorTpSlData.fromJson(Map<String, dynamic> json) {
+    return EnhancedMonitorTpSlData(
+      executedTpSl: json['executed_tp_sl'] ?? 0,
+      totalPositionsChecked: json['total_positions_checked'] ?? 0,
+      executedDetails: json['executed_details'] != null && json['executed_details'] is List
+          ? List<TpSlExecutionDetail>.from(
+              json['executed_details'].map((x) => TpSlExecutionDetail.fromJson(x)))
+          : [],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'executed_tp_sl': executedTpSl,
+      'total_positions_checked': totalPositionsChecked,
+      'executed_details': executedDetails.map((x) => x.toJson()).toList(),
+    };
+  }
+
+  bool get hasExecutions => executedTpSl > 0;
+}
+
+// TP/SL Execution Detail Model
+class TpSlExecutionDetail {
+  final int positionId;
+  final String symbol;
+  final String side;
+  final String executionType; // 'TP' or 'SL'
+  final double executionPrice;
+  final double pnl;
+  final String executedAt;
+
+  TpSlExecutionDetail({
+    required this.positionId,
+    required this.symbol,
+    required this.side,
+    required this.executionType,
+    required this.executionPrice,
+    required this.pnl,
+    required this.executedAt,
+  });
+
+  factory TpSlExecutionDetail.fromJson(Map<String, dynamic> json) {
+    return TpSlExecutionDetail(
+      positionId: int.tryParse(json['position_id']?.toString() ?? '0') ?? 0,
+      symbol: json['symbol']?.toString() ?? '',
+      side: json['side']?.toString() ?? '',
+      executionType: json['execution_type']?.toString() ?? '',
+      executionPrice: double.tryParse(json['execution_price']?.toString() ?? '0') ?? 0.0,
+      pnl: double.tryParse(json['pnl']?.toString() ?? '0') ?? 0.0,
+      executedAt: json['executed_at']?.toString() ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'position_id': positionId,
+      'symbol': symbol,
+      'side': side,
+      'execution_type': executionType,
+      'execution_price': executionPrice,
+      'pnl': pnl,
+      'executed_at': executedAt,
+    };
+  }
+
+  bool get isProfit => pnl > 0;
+  bool get isTakeProfit => executionType.toUpperCase() == 'TP';
+  bool get isStopLoss => executionType.toUpperCase() == 'SL';
+}

@@ -77,7 +77,7 @@ class _EmergencyStopPopupState extends State<EmergencyStopPopup> {
           ),
           const SizedBox(width: 12),
           Text(
-            'Emergency Stop',
+            'Stop',
             style: TradingTypography.heading3.copyWith(
               color: TradingTheme.errorColor,
             ),

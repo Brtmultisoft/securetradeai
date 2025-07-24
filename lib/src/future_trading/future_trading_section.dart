@@ -15,6 +15,8 @@ import 'package:securetradeai/src/future_trading/strategy_monitor_popup.dart';
 import 'package:securetradeai/src/future_trading/tpsl_monitor_popup.dart';
 import 'package:securetradeai/src/future_trading/emergency_stop_popup.dart';
 import 'package:securetradeai/src/future_trading/system_health_popup.dart';
+import 'package:securetradeai/src/future_trading/set_tpsl_popup.dart';
+import 'package:securetradeai/src/future_trading/monitor_tpsl_popup.dart';
 import 'package:securetradeai/src/widget/trading_widgets.dart';
 
 class FutureTradingSection extends StatefulWidget {
@@ -397,6 +399,22 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
     showDialog(
       context: context,
       builder: (context) => const SystemHealthPopup(),
+    );
+  }
+
+  // Show set TP/SL popup
+  void _showSetTpSlPopup() {
+    showDialog(
+      context: context,
+      builder: (context) => const SetTpSlPopup(),
+    );
+  }
+
+  // Show monitor TP/SL popup (enhanced version)
+  void _showMonitorTpSlPopup() {
+    showDialog(
+      context: context,
+      builder: (context) => const MonitorTpSlPopup(),
     );
   }
 
@@ -993,6 +1011,43 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
                 ],
               ),
               const SizedBox(height: 12),
+              // TP/SL Management Section
+              Text(
+                'TP/SL Management',
+                style: TradingTypography.bodyMedium.copyWith(
+                  color: TradingTheme.secondaryText,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildAnimatedActionButton(
+                      'Set TP/SL',
+                      () {
+                        _showSetTpSlPopup();
+                      },
+                      TradingTheme.secondaryBackground,
+                      TradingTheme.warningColor,
+                      375,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildAnimatedActionButton(
+                      'Monitor TP/SL',
+                      () {
+                        _showMonitorTpSlPopup();
+                      },
+                      TradingTheme.secondaryBackground,
+                      TradingTheme.primaryAccent,
+                      400,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
               // System Health Button
               SizedBox(
                 width: double.infinity,
@@ -1003,7 +1058,7 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
                   },
                   TradingTheme.secondaryBackground,
                   TradingTheme.successColor,
-                  350,
+                  425,
                 ),
               ),
               const SizedBox(height: 12),
@@ -1017,7 +1072,7 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
                   },
                   TradingTheme.errorColor.withOpacity(0.1),
                   TradingTheme.errorColor,
-                  400,
+                  450,
                 ),
               ),
             ],
