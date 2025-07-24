@@ -92,7 +92,7 @@ class _StrategyMonitorPopupState extends State<StrategyMonitorPopup> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 16),
+      padding: const EdgeInsets.only(left: 15, right: 15, top: 15, bottom: 15),
       decoration: BoxDecoration(
         color: TradingTheme.secondaryBackground,
         borderRadius: const BorderRadius.only(
@@ -102,31 +102,31 @@ class _StrategyMonitorPopupState extends State<StrategyMonitorPopup> {
       ),
       child: Row(
         children: [
-          // Container(
-          //   padding: const EdgeInsets.all(8),
-          //   decoration: BoxDecoration(
-          //     color: TradingTheme.primaryAccent.withOpacity(0.2),
-          //     borderRadius: BorderRadius.circular(8),
-          //   ),
-          //   child: const Icon(
-          //     Icons.monitor_heart,
-          //     color: TradingTheme.primaryAccent,
-          //     size: 20,
-          //   ),
-          // ),
-          // const SizedBox(width: 10),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: TradingTheme.primaryAccent.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.monitor_heart,
+              color: TradingTheme.primaryAccent,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
           Text(
             'Strategy Monitor',
             style: TradingTypography.heading3,
           ),
           const Spacer(),
-          IconButton(
-            onPressed: _loadMonitorData,
-            icon: const Icon(
-              Icons.refresh,
-              color: TradingTheme.primaryAccent,
-            ),
-          ),
+          // IconButton(
+          //   onPressed: _loadMonitorData,
+          //   icon: const Icon(
+          //     Icons.refresh,
+          //     color: TradingTheme.primaryAccent,
+          //   ),
+          // ),
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(

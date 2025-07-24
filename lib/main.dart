@@ -8,6 +8,7 @@ import 'package:securetradeai/method/cycleMethod.dart';
 import 'package:securetradeai/method/homepageProvider.dart';
 import 'package:securetradeai/method/tradeSettingSubbinprovider.dart';
 import 'package:securetradeai/src/Service/background_service.dart';
+import 'package:securetradeai/src/Service/future_trading_background_service.dart';
 import 'package:securetradeai/src/Service/notification_service.dart';
 import 'package:securetradeai/src/language/string.dart';
 
@@ -23,6 +24,9 @@ void main() async {
 
   // Initialize the background service
   await initializeBackgroundService();
+
+  // Initialize the future trading background monitoring
+  await FutureTradingBackgroundService.initializeFutureTradingMonitoring();
 
   // Initialize the notification service
   await NotificationService().initialize();

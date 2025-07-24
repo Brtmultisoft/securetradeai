@@ -190,7 +190,7 @@ class _EmergencyStopPopupState extends State<EmergencyStopPopup> {
                     ),
                   ),
                   child: const Text(
-                    'STOP',
+                    'EMERGENCY STOP',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

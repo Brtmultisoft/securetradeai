@@ -57,7 +57,7 @@ class _RiskSettingsPageState extends State<RiskSettingsPage> {
 
     try {
       print('🔄 Loading risk settings...');
-      
+
       final response = await FutureTradingService.getDualSideRiskSettings(
         userId: commonuserId,
       );
@@ -95,13 +95,17 @@ class _RiskSettingsPageState extends State<RiskSettingsPage> {
   void _populateFormFields() {
     if (_riskSettings == null) return;
 
-    _maxOpenPositionsController.text = _riskSettings!.maxOpenPositions.toString();
+    _maxOpenPositionsController.text =
+        _riskSettings!.maxOpenPositions.toString();
     _maxDailyLossController.text = _riskSettings!.maxDailyLoss.toString();
     _maxPositionSizeController.text = _riskSettings!.maxPositionSize.toString();
-    _defaultTpPercentageController.text = _riskSettings!.defaultTpPercentage.toString();
-    _defaultSlPercentageController.text = _riskSettings!.defaultSlPercentage.toString();
+    _defaultTpPercentageController.text =
+        _riskSettings!.defaultTpPercentage.toString();
+    _defaultSlPercentageController.text =
+        _riskSettings!.defaultSlPercentage.toString();
     _maxLeverageController.text = _riskSettings!.maxLeverage.toString();
-    _emergencyStopLossPercentageController.text = _riskSettings!.emergencyStopLossPercentage.toString();
+    _emergencyStopLossPercentageController.text =
+        _riskSettings!.emergencyStopLossPercentage.toString();
 
     _autoTpSlEnabled = _riskSettings!.autoTpSlEnabled;
     _duplicatePositionCheck = _riskSettings!.duplicatePositionCheck;
@@ -434,7 +438,7 @@ class _RiskSettingsPageState extends State<RiskSettingsPage> {
 
           // Emergency Stop Enabled
           _buildSwitchSetting(
-            'Emergency Stop',
+            'Stop',
             'Enable emergency stop functionality',
             _emergencyStopEnabled,
             (value) => setState(() => _emergencyStopEnabled = value),
@@ -671,10 +675,13 @@ class _RiskSettingsPageState extends State<RiskSettingsPage> {
       final maxOpenPositions = int.tryParse(_maxOpenPositionsController.text);
       final maxDailyLoss = double.tryParse(_maxDailyLossController.text);
       final maxPositionSize = double.tryParse(_maxPositionSizeController.text);
-      final defaultTpPercentage = double.tryParse(_defaultTpPercentageController.text);
-      final defaultSlPercentage = double.tryParse(_defaultSlPercentageController.text);
+      final defaultTpPercentage =
+          double.tryParse(_defaultTpPercentageController.text);
+      final defaultSlPercentage =
+          double.tryParse(_defaultSlPercentageController.text);
       final maxLeverage = int.tryParse(_maxLeverageController.text);
-      final emergencyStopLossPercentage = double.tryParse(_emergencyStopLossPercentageController.text);
+      final emergencyStopLossPercentage =
+          double.tryParse(_emergencyStopLossPercentageController.text);
 
       if (maxOpenPositions == null || maxOpenPositions <= 0) {
         throw Exception('Max Open Positions must be a positive number');
@@ -694,8 +701,11 @@ class _RiskSettingsPageState extends State<RiskSettingsPage> {
       if (maxLeverage == null || maxLeverage <= 0) {
         throw Exception('Max Leverage must be a positive number');
       }
-      if (_emergencyStopEnabled && (emergencyStopLossPercentage == null || emergencyStopLossPercentage <= 0)) {
-        throw Exception('Emergency Stop Loss Percentage must be a positive number');
+      if (_emergencyStopEnabled &&
+          (emergencyStopLossPercentage == null ||
+              emergencyStopLossPercentage <= 0)) {
+        throw Exception(
+            'Emergency Stop Loss Percentage must be a positive number');
       }
 
       final response = await FutureTradingService.updateDualSideRiskSettings(
@@ -709,7 +719,8 @@ class _RiskSettingsPageState extends State<RiskSettingsPage> {
         autoTpSlEnabled: _autoTpSlEnabled,
         duplicatePositionCheck: _duplicatePositionCheck,
         emergencyStopEnabled: _emergencyStopEnabled,
-        emergencyStopLossPercentage: _emergencyStopEnabled ? emergencyStopLossPercentage : null,
+        emergencyStopLossPercentage:
+            _emergencyStopEnabled ? emergencyStopLossPercentage : null,
       );
 
       if (response != null && response.isSuccess) {

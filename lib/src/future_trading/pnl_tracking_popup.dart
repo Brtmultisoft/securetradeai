@@ -105,7 +105,7 @@ class _PnlTrackingPopupState extends State<PnlTrackingPopup> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 16),
+      padding: const EdgeInsets.only(left: 15, right: 15, top: 15, bottom: 15),
       decoration: BoxDecoration(
         color: TradingTheme.secondaryBackground,
         borderRadius: const BorderRadius.only(

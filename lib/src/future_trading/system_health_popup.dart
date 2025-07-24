@@ -101,10 +101,10 @@ class _SystemHealthPopupState extends State<SystemHealthPopup> {
     }
 
     return Container(
-      padding: const EdgeInsets.only(left: 15, right: 15, top: 20),
-      decoration: const BoxDecoration(
+      padding: const EdgeInsets.only(left: 15, right: 15, top: 15, bottom: 15),
+      decoration: BoxDecoration(
         color: TradingTheme.secondaryBackground,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),
@@ -112,7 +112,7 @@ class _SystemHealthPopupState extends State<SystemHealthPopup> {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: headerColor.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
@@ -123,13 +123,12 @@ class _SystemHealthPopupState extends State<SystemHealthPopup> {
               size: 20,
             ),
           ),
-          const SizedBox(
-            width: 15,
-          ),
-          const Text(
+          const SizedBox(width: 12),
+          Text(
             'System Health',
             style: TradingTypography.heading3,
           ),
+          const Spacer(),
           // IconButton(
           //   onPressed: _loadHealthData,
           //   icon: const Icon(
@@ -154,11 +153,11 @@ class _SystemHealthPopupState extends State<SystemHealthPopup> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(
+          CircularProgressIndicator(
             color: TradingTheme.primaryAccent,
           ),
-          const SizedBox(height: 16),
-          const Text(
+          SizedBox(height: 16),
+          Text(
             'Loading system health data...',
             style: TradingTypography.bodyMedium,
           ),
@@ -178,7 +177,7 @@ class _SystemHealthPopupState extends State<SystemHealthPopup> {
             size: 64,
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Error Loading Health Data',
             style: TradingTypography.heading3,
           ),
@@ -286,7 +285,7 @@ class _SystemHealthPopupState extends State<SystemHealthPopup> {
           const SizedBox(height: 12),
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.access_time,
                 color: TradingTheme.secondaryText,
                 size: 16,
@@ -307,7 +306,7 @@ class _SystemHealthPopupState extends State<SystemHealthPopup> {
 
   Widget _buildSystemMetrics() {
     return Container(
-      padding: const EdgeInsets.only(left: 15, right: 15, top: 20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: TradingTheme.cardBackground,
         borderRadius: BorderRadius.circular(12),
@@ -316,7 +315,7 @@ class _SystemHealthPopupState extends State<SystemHealthPopup> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'System Metrics',
             style: TradingTypography.heading3,
           ),
@@ -363,7 +362,7 @@ class _SystemHealthPopupState extends State<SystemHealthPopup> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Service Status',
             style: TradingTypography.heading3,
           ),
@@ -395,7 +394,7 @@ class _SystemHealthPopupState extends State<SystemHealthPopup> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Trading Activity',
             style: TradingTypography.heading3,
           ),

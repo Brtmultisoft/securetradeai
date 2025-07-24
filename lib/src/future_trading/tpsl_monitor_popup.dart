@@ -93,10 +93,10 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 16),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.only(left: 15, right: 15, top: 15, bottom: 15),
+      decoration: const BoxDecoration(
         color: TradingTheme.secondaryBackground,
-        borderRadius: const BorderRadius.only(
+        borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),
@@ -116,18 +116,18 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
             ),
           ),
           const SizedBox(width: 12),
-          Text(
+          const Text(
             'TP/SL Monitor',
             style: TradingTypography.heading3,
           ),
           const Spacer(),
-          IconButton(
-            onPressed: _loadMonitorData,
-            icon: const Icon(
-              Icons.refresh,
-              color: TradingTheme.primaryAccent,
-            ),
-          ),
+          // IconButton(
+          //   onPressed: _loadMonitorData,
+          //   icon: const Icon(
+          //     Icons.refresh,
+          //     color: TradingTheme.primaryAccent,
+          //   ),
+          // ),
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(
@@ -145,11 +145,11 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
+          const CircularProgressIndicator(
             color: TradingTheme.primaryAccent,
           ),
-          SizedBox(height: 16),
-          Text(
+          const SizedBox(height: 16),
+          const Text(
             'Loading TP/SL monitoring data...',
             style: TradingTypography.bodyMedium,
           ),
@@ -169,7 +169,7 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
             size: 64,
           ),
           const SizedBox(height: 16),
-          Text(
+          const Text(
             'Error Loading TP/SL Monitor Data',
             style: TradingTypography.heading3,
           ),
@@ -230,8 +230,6 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
         ),
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
@@ -254,7 +252,6 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const Spacer(),
             ],
           ),
           Text(
@@ -279,7 +276,7 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'TP/SL Monitoring Overview',
             style: TradingTypography.heading3,
           ),
@@ -344,7 +341,7 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
         ),
         child: Column(
           children: [
-            Icon(
+            const Icon(
               Icons.check_circle_outline,
               color: TradingTheme.successColor,
               size: 48,
@@ -378,7 +375,7 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Executed Positions',
             style: TradingTypography.heading3,
           ),
@@ -395,7 +392,7 @@ class _TpSlMonitorPopupState extends State<TpSlMonitorPopup> {
                 ),
                 child: Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.gps_fixed,
                       color: TradingTheme.warningColor,
                       size: 16,
