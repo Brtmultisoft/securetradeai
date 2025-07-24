@@ -1310,6 +1310,8 @@ class PnlTrackingRecord {
   final double bestTrade;
   final double worstTrade;
   final double totalVolume;
+  final double cumulativePnl;
+  final double winRate;
 
   PnlTrackingRecord({
     required this.period,
@@ -1321,19 +1323,23 @@ class PnlTrackingRecord {
     required this.bestTrade,
     required this.worstTrade,
     required this.totalVolume,
+    required this.cumulativePnl,
+    required this.winRate,
   });
 
   factory PnlTrackingRecord.fromJson(Map<String, dynamic> json) {
     return PnlTrackingRecord(
-      period: json['period'] ?? '',
-      tradeCount: json['trade_count'] ?? 0,
-      winningTrades: json['winning_trades'] ?? 0,
-      losingTrades: json['losing_trades'] ?? 0,
+      period: json['period']?.toString() ?? '',
+      tradeCount: int.tryParse(json['trade_count']?.toString() ?? '0') ?? 0,
+      winningTrades: int.tryParse(json['winning_trades']?.toString() ?? '0') ?? 0,
+      losingTrades: int.tryParse(json['losing_trades']?.toString() ?? '0') ?? 0,
       totalPnl: double.tryParse(json['total_pnl']?.toString() ?? '0') ?? 0.0,
       avgPnl: double.tryParse(json['avg_pnl']?.toString() ?? '0') ?? 0.0,
       bestTrade: double.tryParse(json['best_trade']?.toString() ?? '0') ?? 0.0,
       worstTrade: double.tryParse(json['worst_trade']?.toString() ?? '0') ?? 0.0,
       totalVolume: double.tryParse(json['total_volume']?.toString() ?? '0') ?? 0.0,
+      cumulativePnl: double.tryParse(json['cumulative_pnl']?.toString() ?? '0') ?? 0.0,
+      winRate: double.tryParse(json['win_rate']?.toString() ?? '0') ?? 0.0,
     );
   }
 
@@ -1348,12 +1354,13 @@ class PnlTrackingRecord {
       'best_trade': bestTrade,
       'worst_trade': worstTrade,
       'total_volume': totalVolume,
+      'cumulative_pnl': cumulativePnl,
+      'win_rate': winRate,
     };
   }
 
   // Helper getters
   bool get isProfit => totalPnl > 0;
-  double get winRate => tradeCount > 0 ? (winningTrades / tradeCount) * 100 : 0.0;
   bool get hasPositiveBestTrade => bestTrade > 0;
   bool get hasNegativeWorstTrade => worstTrade < 0;
 }
