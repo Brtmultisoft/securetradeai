@@ -132,3 +132,11 @@ const String dualSideTradingReport = "${url}dual_side_trading_report";
 const String dualSideOpenPositions = "${url}dual_side_open_positions";
 const String dualSidePerformance = "${url}dual_side_performance";
 const String dualSidePnlTracking = "${url}dual_side_pnl_tracking";
+
+// Critical Monitoring API endpoints
+const String dualSideMonitor = "${url}dual_side_monitor";
+const String dualSideMonitorTpSl = "${url}dual_side_monitor_tp_sl";
+const String dualSideEmergencyStop = "${url}dual_side_emergency_stop";
+
+// Risk Settings API endpoint
+const String dualSideRiskSettings = "${url}dual_side_risk_settings";

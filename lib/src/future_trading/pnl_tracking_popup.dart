@@ -62,8 +62,7 @@ class _PnlTrackingPopupState extends State<PnlTrackingPopup> {
         }
       } else {
         setState(() {
-          _errorMessage =
-              response?.message ?? 'Failed to load PnL tracking data';
+          _errorMessage = response?.message ?? 'Failed to load PnL tracking data';
           _isLoading = false;
         });
       }
@@ -105,10 +104,10 @@ class _PnlTrackingPopupState extends State<PnlTrackingPopup> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 16),
-      decoration: const BoxDecoration(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
         color: TradingTheme.secondaryBackground,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),
@@ -128,7 +127,7 @@ class _PnlTrackingPopupState extends State<PnlTrackingPopup> {
             ),
           ),
           const SizedBox(width: 12),
-          const Text(
+          Text(
             'PnL Tracking',
             style: TradingTypography.heading3,
           ),
@@ -157,11 +156,11 @@ class _PnlTrackingPopupState extends State<PnlTrackingPopup> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(
+          CircularProgressIndicator(
             color: TradingTheme.primaryAccent,
           ),
-          const SizedBox(height: 16),
-          const Text(
+          SizedBox(height: 16),
+          Text(
             'Loading PnL tracking data...',
             style: TradingTypography.bodyMedium,
           ),
@@ -181,7 +180,7 @@ class _PnlTrackingPopupState extends State<PnlTrackingPopup> {
             size: 64,
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Error Loading PnL Data',
             style: TradingTypography.heading3,
           ),
@@ -237,7 +236,7 @@ class _PnlTrackingPopupState extends State<PnlTrackingPopup> {
       ),
       child: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.schedule,
             color: TradingTheme.primaryAccent,
             size: 16,
@@ -269,25 +268,19 @@ class _PnlTrackingPopupState extends State<PnlTrackingPopup> {
 
     // Calculate overview statistics from PnL records
     final records = _pnlData!.pnlTracking;
-    final totalPnl =
-        records.fold<double>(0, (sum, record) => sum + record.totalPnl);
-    final totalTrades =
-        records.fold<int>(0, (sum, record) => sum + record.tradeCount);
-    final totalWinningTrades =
-        records.fold<int>(0, (sum, record) => sum + record.winningTrades);
+    final totalPnl = records.fold<double>(0, (sum, record) => sum + record.totalPnl);
+    final totalTrades = records.fold<int>(0, (sum, record) => sum + record.tradeCount);
+    final totalWinningTrades = records.fold<int>(0, (sum, record) => sum + record.winningTrades);
     final avgPnl = records.isNotEmpty
-        ? records.fold<double>(0, (sum, record) => sum + record.avgPnl) /
-            records.length
+        ? records.fold<double>(0, (sum, record) => sum + record.avgPnl) / records.length
         : 0.0;
-    final bestTrade = records.fold<double>(
-        0, (max, record) => record.bestTrade > max ? record.bestTrade : max);
-    final worstTrade = records.fold<double>(
-        0, (min, record) => record.worstTrade < min ? record.worstTrade : min);
-    final totalVolume =
-        records.fold<double>(0, (sum, record) => sum + record.totalVolume);
+    final bestTrade = records.fold<double>(0, (max, record) =>
+        record.bestTrade > max ? record.bestTrade : max);
+    final worstTrade = records.fold<double>(0, (min, record) =>
+        record.worstTrade < min ? record.worstTrade : min);
+    final totalVolume = records.fold<double>(0, (sum, record) => sum + record.totalVolume);
     final avgWinRate = records.isNotEmpty
-        ? records.fold<double>(0, (sum, record) => sum + record.winRate) /
-            records.length
+        ? records.fold<double>(0, (sum, record) => sum + record.winRate) / records.length
         : 0.0;
 
     return Container(
@@ -300,7 +293,7 @@ class _PnlTrackingPopupState extends State<PnlTrackingPopup> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'PnL Overview',
             style: TradingTypography.heading3,
           ),
@@ -311,9 +304,7 @@ class _PnlTrackingPopupState extends State<PnlTrackingPopup> {
                 child: _buildStatItem(
                   'Total PnL',
                   '\$${totalPnl.toStringAsFixed(2)}',
-                  totalPnl >= 0
-                      ? TradingTheme.successColor
-                      : TradingTheme.errorColor,
+                  totalPnl >= 0 ? TradingTheme.successColor : TradingTheme.errorColor,
                 ),
               ),
               Expanded(
@@ -332,18 +323,14 @@ class _PnlTrackingPopupState extends State<PnlTrackingPopup> {
                 child: _buildStatItem(
                   'Win Rate',
                   '${avgWinRate.toStringAsFixed(1)}%',
-                  avgWinRate >= 50
-                      ? TradingTheme.successColor
-                      : TradingTheme.errorColor,
+                  avgWinRate >= 50 ? TradingTheme.successColor : TradingTheme.errorColor,
                 ),
               ),
               Expanded(
                 child: _buildStatItem(
                   'Avg PnL',
                   '\$${avgPnl.toStringAsFixed(2)}',
-                  avgPnl >= 0
-                      ? TradingTheme.successColor
-                      : TradingTheme.errorColor,
+                  avgPnl >= 0 ? TradingTheme.successColor : TradingTheme.errorColor,
                 ),
               ),
             ],
@@ -596,7 +583,7 @@ class _PnlTrackingPopupState extends State<PnlTrackingPopup> {
               // Header
               Row(
                 children: [
-                  const Text(
+                  Text(
                     'Select Period',
                     style: TradingTypography.heading3,
                   ),
@@ -621,66 +608,65 @@ class _PnlTrackingPopupState extends State<PnlTrackingPopup> {
 
               // Period Options
               ...(_periodOptions.map((option) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: GestureDetector(
-                      onTap: () {
-                        setModalState(() {
-                          _selectedPeriod = option['value'];
-                          _selectedLimit = option['limit'];
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: _selectedPeriod == option['value']
-                              ? TradingTheme.primaryAccent.withOpacity(0.2)
-                              : TradingTheme.primaryBackground,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: _selectedPeriod == option['value']
-                                ? TradingTheme.primaryAccent
-                                : TradingTheme.primaryBorder.withOpacity(0.3),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              _selectedPeriod == option['value']
-                                  ? Icons.radio_button_checked
-                                  : Icons.radio_button_unchecked,
-                              color: _selectedPeriod == option['value']
-                                  ? TradingTheme.primaryAccent
-                                  : TradingTheme.secondaryText,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    option['label'],
-                                    style:
-                                        TradingTypography.bodyMedium.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: _selectedPeriod == option['value']
-                                          ? TradingTheme.primaryAccent
-                                          : TradingTheme.primaryText,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Last ${option['limit']} records',
-                                    style: TradingTypography.bodySmall.copyWith(
-                                      color: TradingTheme.secondaryText,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                padding: const EdgeInsets.only(bottom: 12),
+                child: GestureDetector(
+                  onTap: () {
+                    setModalState(() {
+                      _selectedPeriod = option['value'];
+                      _selectedLimit = option['limit'];
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: _selectedPeriod == option['value']
+                          ? TradingTheme.primaryAccent.withOpacity(0.2)
+                          : TradingTheme.primaryBackground,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: _selectedPeriod == option['value']
+                            ? TradingTheme.primaryAccent
+                            : TradingTheme.primaryBorder.withOpacity(0.3),
                       ),
                     ),
-                  ))).toList(),
+                    child: Row(
+                      children: [
+                        Icon(
+                          _selectedPeriod == option['value']
+                              ? Icons.radio_button_checked
+                              : Icons.radio_button_unchecked,
+                          color: _selectedPeriod == option['value']
+                              ? TradingTheme.primaryAccent
+                              : TradingTheme.secondaryText,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                option['label'],
+                                style: TradingTypography.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: _selectedPeriod == option['value']
+                                      ? TradingTheme.primaryAccent
+                                      : TradingTheme.primaryText,
+                                ),
+                              ),
+                              Text(
+                                'Last ${option['limit']} records',
+                                style: TradingTypography.bodySmall.copyWith(
+                                  color: TradingTheme.secondaryText,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ))).toList(),
 
               const SizedBox(height: 24),
 

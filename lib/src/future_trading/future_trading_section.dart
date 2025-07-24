@@ -7,10 +7,13 @@ import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/Service/future_trading_service.dart';
 import 'package:securetradeai/src/future_trading/future_history_page.dart';
 import 'package:securetradeai/src/future_trading/future_positions_page.dart';
-import 'package:securetradeai/src/future_trading/future_settings_page.dart';
+import 'package:securetradeai/src/future_trading/risk_settings_page.dart';
 import 'package:securetradeai/src/future_trading/future_trade_page.dart';
 import 'package:securetradeai/src/future_trading/performance_popup.dart';
 import 'package:securetradeai/src/future_trading/pnl_tracking_popup.dart';
+import 'package:securetradeai/src/future_trading/strategy_monitor_popup.dart';
+import 'package:securetradeai/src/future_trading/tpsl_monitor_popup.dart';
+import 'package:securetradeai/src/future_trading/emergency_stop_popup.dart';
 import 'package:securetradeai/src/widget/trading_widgets.dart';
 
 class FutureTradingSection extends StatefulWidget {
@@ -363,6 +366,31 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
     );
   }
 
+  // Show strategy monitor popup
+  void _showStrategyMonitorPopup() {
+    showDialog(
+      context: context,
+      builder: (context) => const StrategyMonitorPopup(),
+    );
+  }
+
+  // Show TP/SL monitor popup
+  void _showTpSlMonitorPopup() {
+    showDialog(
+      context: context,
+      builder: (context) => const TpSlMonitorPopup(),
+    );
+  }
+
+  // Show emergency stop popup
+  void _showEmergencyStopPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissing by tapping outside
+      builder: (context) => const EmergencyStopPopup(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -407,7 +435,7 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const FutureSettingsPage(),
+                builder: (context) => const RiskSettingsPage(),
               ),
             );
           },
@@ -916,6 +944,57 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
                   TradingTheme.secondaryBackground,
                   TradingTheme.successColor,
                   250,
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Critical Monitoring Section
+              Text(
+                'Critical Monitoring',
+                style: TradingTypography.bodyMedium.copyWith(
+                  color: TradingTheme.secondaryText,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildAnimatedActionButton(
+                      'Strategy Monitor',
+                      () {
+                        _showStrategyMonitorPopup();
+                      },
+                      TradingTheme.secondaryBackground,
+                      TradingTheme.primaryAccent,
+                      300,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildAnimatedActionButton(
+                      'TP/SL Monitor',
+                      () {
+                        _showTpSlMonitorPopup();
+                      },
+                      TradingTheme.secondaryBackground,
+                      TradingTheme.warningColor,
+                      350,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Emergency Stop Button
+              SizedBox(
+                width: double.infinity,
+                child: _buildAnimatedActionButton(
+                  '🚨 EMERGENCY STOP',
+                  () {
+                    _showEmergencyStopPopup();
+                  },
+                  TradingTheme.errorColor.withOpacity(0.1),
+                  TradingTheme.errorColor,
+                  400,
                 ),
               ),
             ],

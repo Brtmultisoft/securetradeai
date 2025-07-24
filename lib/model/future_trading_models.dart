@@ -1358,6 +1358,281 @@ class PnlTrackingRecord {
   bool get hasNegativeWorstTrade => worstTrade < 0;
 }
 
+// Dual Side Monitor Response Model
+class DualSideMonitorResponse {
+  final String status;
+  final String message;
+  final String responsecode;
+  final MonitorData? data;
+
+  DualSideMonitorResponse({
+    required this.status,
+    required this.message,
+    required this.responsecode,
+    this.data,
+  });
+
+  factory DualSideMonitorResponse.fromJson(Map<String, dynamic> json) {
+    return DualSideMonitorResponse(
+      status: json['status'] ?? '',
+      message: json['message'] ?? '',
+      responsecode: json['responsecode'] ?? '',
+      data: json['data'] != null && json['data'] is Map<String, dynamic>
+          ? MonitorData.fromJson(json['data'])
+          : null,
+    );
+  }
+
+  bool get isSuccess => status == 'success';
+}
+
+// Monitor Data Model
+class MonitorData {
+  final int tpHits;
+  final int strategiesChecked;
+  final List<String> strategiesUpdated;
+  final String lastCheck;
+
+  MonitorData({
+    required this.tpHits,
+    required this.strategiesChecked,
+    required this.strategiesUpdated,
+    required this.lastCheck,
+  });
+
+  factory MonitorData.fromJson(Map<String, dynamic> json) {
+    return MonitorData(
+      tpHits: json['tp_hits'] ?? 0,
+      strategiesChecked: json['strategies_checked'] ?? 0,
+      strategiesUpdated: json['strategies_updated'] != null && json['strategies_updated'] is List
+          ? List<String>.from(json['strategies_updated'])
+          : [],
+      lastCheck: json['last_check'] ?? '',
+    );
+  }
+
+  bool get hasActivity => tpHits > 0 || strategiesUpdated.isNotEmpty;
+}
+
+// Dual Side Monitor TP/SL Response Model
+class DualSideMonitorTpSlResponse {
+  final String status;
+  final String message;
+  final String responsecode;
+  final MonitorTpSlData? data;
+
+  DualSideMonitorTpSlResponse({
+    required this.status,
+    required this.message,
+    required this.responsecode,
+    this.data,
+  });
+
+  factory DualSideMonitorTpSlResponse.fromJson(Map<String, dynamic> json) {
+    return DualSideMonitorTpSlResponse(
+      status: json['status'] ?? '',
+      message: json['message'] ?? '',
+      responsecode: json['responsecode'] ?? '',
+      data: json['data'] != null && json['data'] is Map<String, dynamic>
+          ? MonitorTpSlData.fromJson(json['data'])
+          : null,
+    );
+  }
+
+  bool get isSuccess => status == 'success';
+}
+
+// Monitor TP/SL Data Model
+class MonitorTpSlData {
+  final int executedTpSl;
+  final int positionsChecked;
+  final List<String> executedPositions;
+  final String lastCheck;
+
+  MonitorTpSlData({
+    required this.executedTpSl,
+    required this.positionsChecked,
+    required this.executedPositions,
+    required this.lastCheck,
+  });
+
+  factory MonitorTpSlData.fromJson(Map<String, dynamic> json) {
+    return MonitorTpSlData(
+      executedTpSl: json['executed_tp_sl'] ?? 0,
+      positionsChecked: json['positions_checked'] ?? 0,
+      executedPositions: json['executed_positions'] != null && json['executed_positions'] is List
+          ? List<String>.from(json['executed_positions'])
+          : [],
+      lastCheck: json['last_check'] ?? '',
+    );
+  }
+
+  bool get hasExecutions => executedTpSl > 0;
+}
+
+// Dual Side Emergency Stop Response Model
+class DualSideEmergencyStopResponse {
+  final String status;
+  final String message;
+  final String responsecode;
+  final EmergencyStopData? data;
+
+  DualSideEmergencyStopResponse({
+    required this.status,
+    required this.message,
+    required this.responsecode,
+    this.data,
+  });
+
+  factory DualSideEmergencyStopResponse.fromJson(Map<String, dynamic> json) {
+    return DualSideEmergencyStopResponse(
+      status: json['status'] ?? '',
+      message: json['message'] ?? '',
+      responsecode: json['responsecode'] ?? '',
+      data: json['data'] != null && json['data'] is Map<String, dynamic>
+          ? EmergencyStopData.fromJson(json['data'])
+          : null,
+    );
+  }
+
+  bool get isSuccess => status == 'success';
+}
+
+// Emergency Stop Data Model
+class EmergencyStopData {
+  final int stoppedStrategies;
+  final int totalStrategies;
+  final List<String> errors;
+
+  EmergencyStopData({
+    required this.stoppedStrategies,
+    required this.totalStrategies,
+    required this.errors,
+  });
+
+  factory EmergencyStopData.fromJson(Map<String, dynamic> json) {
+    return EmergencyStopData(
+      stoppedStrategies: json['stopped_strategies'] ?? 0,
+      totalStrategies: json['total_strategies'] ?? 0,
+      errors: json['errors'] != null && json['errors'] is List
+          ? List<String>.from(json['errors'])
+          : [],
+    );
+  }
+
+  bool get hasStoppedItems => stoppedStrategies > 0;
+  bool get hasErrors => errors.isNotEmpty;
+  String get stopSummary => 'Stopped $stoppedStrategies of $totalStrategies strategies';
+}
+
+// Dual Side Risk Settings Response Model
+class DualSideRiskSettingsResponse {
+  final String status;
+  final String message;
+  final String responsecode;
+  final RiskSettingsData? data;
+
+  DualSideRiskSettingsResponse({
+    required this.status,
+    required this.message,
+    required this.responsecode,
+    this.data,
+  });
+
+  factory DualSideRiskSettingsResponse.fromJson(Map<String, dynamic> json) {
+    return DualSideRiskSettingsResponse(
+      status: json['status'] ?? '',
+      message: json['message'] ?? '',
+      responsecode: json['responsecode'] ?? '',
+      data: json['data'] != null && json['data'] is Map<String, dynamic>
+          ? RiskSettingsData.fromJson(json['data'])
+          : null,
+    );
+  }
+
+  bool get isSuccess => status == 'success';
+}
+
+// Risk Settings Data Model
+class RiskSettingsData {
+  final String id;
+  final String userId;
+  final int maxOpenPositions;
+  final double maxDailyLoss;
+  final double maxPositionSize;
+  final double defaultTpPercentage;
+  final double defaultSlPercentage;
+  final int maxLeverage;
+  final bool autoTpSlEnabled;
+  final bool duplicatePositionCheck;
+  final bool emergencyStopEnabled;
+  final double emergencyStopLossPercentage;
+  final String createdAt;
+  final String updatedAt;
+
+  RiskSettingsData({
+    required this.id,
+    required this.userId,
+    required this.maxOpenPositions,
+    required this.maxDailyLoss,
+    required this.maxPositionSize,
+    required this.defaultTpPercentage,
+    required this.defaultSlPercentage,
+    required this.maxLeverage,
+    required this.autoTpSlEnabled,
+    required this.duplicatePositionCheck,
+    required this.emergencyStopEnabled,
+    required this.emergencyStopLossPercentage,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory RiskSettingsData.fromJson(Map<String, dynamic> json) {
+    return RiskSettingsData(
+      id: json['id']?.toString() ?? '',
+      userId: json['user_id']?.toString() ?? '',
+      maxOpenPositions: int.tryParse(json['max_open_positions']?.toString() ?? '0') ?? 0,
+      maxDailyLoss: double.tryParse(json['max_daily_loss']?.toString() ?? '0') ?? 0.0,
+      maxPositionSize: double.tryParse(json['max_position_size']?.toString() ?? '0') ?? 0.0,
+      defaultTpPercentage: double.tryParse(json['default_tp_percentage']?.toString() ?? '0') ?? 0.0,
+      defaultSlPercentage: double.tryParse(json['default_sl_percentage']?.toString() ?? '0') ?? 0.0,
+      maxLeverage: int.tryParse(json['max_leverage']?.toString() ?? '0') ?? 0,
+      autoTpSlEnabled: json['auto_tp_sl_enabled']?.toString() == '1',
+      duplicatePositionCheck: json['duplicate_position_check']?.toString() == '1',
+      emergencyStopEnabled: json['emergency_stop_enabled']?.toString() == '1',
+      emergencyStopLossPercentage: double.tryParse(json['emergency_stop_loss_percentage']?.toString() ?? '0') ?? 0.0,
+      createdAt: json['created_at']?.toString() ?? '',
+      updatedAt: json['updated_at']?.toString() ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'user_id': userId,
+      'max_open_positions': maxOpenPositions,
+      'max_daily_loss': maxDailyLoss,
+      'max_position_size': maxPositionSize,
+      'default_tp_percentage': defaultTpPercentage,
+      'default_sl_percentage': defaultSlPercentage,
+      'max_leverage': maxLeverage,
+      'auto_tp_sl_enabled': autoTpSlEnabled ? '1' : '0',
+      'duplicate_position_check': duplicatePositionCheck ? '1' : '0',
+      'emergency_stop_enabled': emergencyStopEnabled ? '1' : '0',
+      'emergency_stop_loss_percentage': emergencyStopLossPercentage,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
+    };
+  }
+
+  // Helper getters
+  String get formattedMaxDailyLoss => '\$${maxDailyLoss.toStringAsFixed(2)}';
+  String get formattedMaxPositionSize => maxPositionSize.toStringAsFixed(8);
+  String get formattedTpPercentage => '${defaultTpPercentage.toStringAsFixed(2)}%';
+  String get formattedSlPercentage => '${defaultSlPercentage.toStringAsFixed(2)}%';
+  String get formattedEmergencyStopPercentage => '${emergencyStopLossPercentage.toStringAsFixed(2)}%';
+}
+
 // Dual Side Trading Report Response Models
 class DualSideTradingReportResponse {
   final String status;

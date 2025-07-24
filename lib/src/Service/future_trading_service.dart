@@ -532,6 +532,347 @@ class FutureTradingService {
     }
   }
 
+  /// Get dual-side strategy monitoring data
+  static Future<DualSideMonitorResponse?> getDualSideMonitor({
+    required String userId,
+  }) async {
+    try {
+      print('🔍 Fetching dual-side strategy monitoring...');
+      print('👤 User ID: $userId');
+
+      final requestBody = <String, dynamic>{
+        'user_id': userId,
+      };
+
+      print('📤 Request Body: ${jsonEncode(requestBody)}');
+
+      final response = await http
+          .post(
+            Uri.parse(dualSideMonitor),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode(requestBody),
+          )
+          .timeout(_timeout);
+
+      print('📥 Response Status: ${response.statusCode}');
+      print('📥 Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final apiResponse = DualSideMonitorResponse.fromJson(responseData);
+
+        if (apiResponse.isSuccess) {
+          print('✅ Strategy monitoring data retrieved successfully');
+          print('🎯 TP Hits: ${apiResponse.data?.tpHits ?? 0}');
+          print('📊 Strategies Checked: ${apiResponse.data?.strategiesChecked ?? 0}');
+          print('🔄 Strategies Updated: ${apiResponse.data?.strategiesUpdated.length ?? 0}');
+          return apiResponse;
+        } else {
+          print('❌ API Error: ${apiResponse.message}');
+          return apiResponse;
+        }
+      } else {
+        print('❌ HTTP Error: ${response.statusCode} - ${response.body}');
+        return DualSideMonitorResponse(
+          status: 'error',
+          message: 'Server error: ${response.statusCode}',
+          responsecode: response.statusCode.toString(),
+          data: null,
+        );
+      }
+    } catch (e) {
+      print('❌ Network Error: $e');
+      return DualSideMonitorResponse(
+        status: 'error',
+        message: 'Network error: $e',
+        responsecode: '0',
+        data: null,
+      );
+    }
+  }
+
+  /// Get dual-side TP/SL monitoring data
+  static Future<DualSideMonitorTpSlResponse?> getDualSideMonitorTpSl({
+    required String userId,
+  }) async {
+    try {
+      print('🎯 Fetching dual-side TP/SL monitoring...');
+      print('👤 User ID: $userId');
+
+      final requestBody = <String, dynamic>{
+        'user_id': userId,
+      };
+
+      print('📤 Request Body: ${jsonEncode(requestBody)}');
+
+      final response = await http
+          .post(
+            Uri.parse(dualSideMonitorTpSl),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode(requestBody),
+          )
+          .timeout(_timeout);
+
+      print('📥 Response Status: ${response.statusCode}');
+      print('📥 Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final apiResponse = DualSideMonitorTpSlResponse.fromJson(responseData);
+
+        if (apiResponse.isSuccess) {
+          print('✅ TP/SL monitoring data retrieved successfully');
+          print('🎯 Executed TP/SL: ${apiResponse.data?.executedTpSl ?? 0}');
+          print('📊 Positions Checked: ${apiResponse.data?.positionsChecked ?? 0}');
+          print('🔄 Executed Positions: ${apiResponse.data?.executedPositions.length ?? 0}');
+          return apiResponse;
+        } else {
+          print('❌ API Error: ${apiResponse.message}');
+          return apiResponse;
+        }
+      } else {
+        print('❌ HTTP Error: ${response.statusCode} - ${response.body}');
+        return DualSideMonitorTpSlResponse(
+          status: 'error',
+          message: 'Server error: ${response.statusCode}',
+          responsecode: response.statusCode.toString(),
+          data: null,
+        );
+      }
+    } catch (e) {
+      print('❌ Network Error: $e');
+      return DualSideMonitorTpSlResponse(
+        status: 'error',
+        message: 'Network error: $e',
+        responsecode: '0',
+        data: null,
+      );
+    }
+  }
+
+  /// Execute emergency stop for all strategies
+  static Future<DualSideEmergencyStopResponse?> getDualSideEmergencyStop({
+    required String userId,
+  }) async {
+    print('🔥 EMERGENCY STOP SERVICE METHOD CALLED!');
+    print('🔥 This log should appear if the method is reached');
+
+    try {
+      print('🚨 Executing dual-side emergency stop...');
+      print('👤 User ID: $userId');
+
+      final requestBody = <String, dynamic>{
+        'user_id': userId,
+      };
+
+      print('📤 Request Body: ${jsonEncode(requestBody)}');
+
+      final response = await http
+          .post(
+            Uri.parse(dualSideEmergencyStop),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode(requestBody),
+          )
+          .timeout(_timeout);
+
+      print('📥 Response Status: ${response.statusCode}');
+      print('📥 Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final apiResponse = DualSideEmergencyStopResponse.fromJson(responseData);
+
+        if (apiResponse.isSuccess) {
+          print('✅ Emergency stop executed successfully');
+          print('🛑 Strategies Stopped: ${apiResponse.data?.stoppedStrategies ?? 0}');
+          print('📊 Total Strategies: ${apiResponse.data?.totalStrategies ?? 0}');
+          print('❌ Errors: ${apiResponse.data?.errors.length ?? 0}');
+          return apiResponse;
+        } else {
+          print('❌ API Error: ${apiResponse.message}');
+          return apiResponse;
+        }
+      } else {
+        print('❌ HTTP Error: ${response.statusCode} - ${response.body}');
+        return DualSideEmergencyStopResponse(
+          status: 'error',
+          message: 'Server error: ${response.statusCode}',
+          responsecode: response.statusCode.toString(),
+          data: null,
+        );
+      }
+    } catch (e) {
+      print('❌ Network Error: $e');
+      return DualSideEmergencyStopResponse(
+        status: 'error',
+        message: 'Network error: $e',
+        responsecode: '0',
+        data: null,
+      );
+    }
+  }
+
+  /// Get dual-side risk settings
+  static Future<DualSideRiskSettingsResponse?> getDualSideRiskSettings({
+    required String userId,
+  }) async {
+    try {
+      print('⚙️ Fetching dual-side risk settings...');
+      print('👤 User ID: $userId');
+
+      final requestBody = <String, dynamic>{
+        'user_id': userId,
+      };
+
+      print('📤 Request Body: ${jsonEncode(requestBody)}');
+
+      final response = await http
+          .post(
+            Uri.parse(dualSideRiskSettings),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode(requestBody),
+          )
+          .timeout(_timeout);
+
+      print('📥 Response Status: ${response.statusCode}');
+      print('📥 Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final apiResponse = DualSideRiskSettingsResponse.fromJson(responseData);
+
+        if (apiResponse.isSuccess) {
+          print('✅ Risk settings retrieved successfully');
+          print('⚙️ Max Open Positions: ${apiResponse.data?.maxOpenPositions ?? 0}');
+          print('💰 Max Daily Loss: \$${apiResponse.data?.maxDailyLoss ?? 0}');
+          print('📊 Max Position Size: ${apiResponse.data?.maxPositionSize ?? 0}');
+          return apiResponse;
+        } else {
+          print('❌ API Error: ${apiResponse.message}');
+          return apiResponse;
+        }
+      } else {
+        print('❌ HTTP Error: ${response.statusCode} - ${response.body}');
+        return DualSideRiskSettingsResponse(
+          status: 'error',
+          message: 'Server error: ${response.statusCode}',
+          responsecode: response.statusCode.toString(),
+          data: null,
+        );
+      }
+    } catch (e) {
+      print('❌ Network Error: $e');
+      return DualSideRiskSettingsResponse(
+        status: 'error',
+        message: 'Network error: $e',
+        responsecode: '0',
+        data: null,
+      );
+    }
+  }
+
+  /// Update dual-side risk settings
+  static Future<DualSideRiskSettingsResponse?> updateDualSideRiskSettings({
+    required String userId,
+    required int maxOpenPositions,
+    required double maxDailyLoss,
+    required double maxPositionSize,
+    required double defaultTpPercentage,
+    required double defaultSlPercentage,
+    required int maxLeverage,
+    bool? autoTpSlEnabled,
+    bool? duplicatePositionCheck,
+    bool? emergencyStopEnabled,
+    double? emergencyStopLossPercentage,
+  }) async {
+    try {
+      print('⚙️ Updating dual-side risk settings...');
+      print('👤 User ID: $userId');
+
+      final requestBody = <String, dynamic>{
+        'user_id': userId,
+        'max_open_positions': maxOpenPositions,
+        'max_daily_loss': maxDailyLoss,
+        'max_position_size': maxPositionSize,
+        'default_tp_percentage': defaultTpPercentage,
+        'default_sl_percentage': defaultSlPercentage,
+        'max_leverage': maxLeverage,
+      };
+
+      // Add optional parameters if provided
+      if (autoTpSlEnabled != null) {
+        requestBody['auto_tp_sl_enabled'] = autoTpSlEnabled ? 1 : 0;
+      }
+      if (duplicatePositionCheck != null) {
+        requestBody['duplicate_position_check'] = duplicatePositionCheck ? 1 : 0;
+      }
+      if (emergencyStopEnabled != null) {
+        requestBody['emergency_stop_enabled'] = emergencyStopEnabled ? 1 : 0;
+      }
+      if (emergencyStopLossPercentage != null) {
+        requestBody['emergency_stop_loss_percentage'] = emergencyStopLossPercentage;
+      }
+
+      print('📤 Request Body: ${jsonEncode(requestBody)}');
+
+      final response = await http
+          .post(
+            Uri.parse(dualSideRiskSettings),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode(requestBody),
+          )
+          .timeout(_timeout);
+
+      print('📥 Response Status: ${response.statusCode}');
+      print('📥 Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final apiResponse = DualSideRiskSettingsResponse.fromJson(responseData);
+
+        if (apiResponse.isSuccess) {
+          print('✅ Risk settings updated successfully');
+          print('⚙️ Updated settings applied');
+          return apiResponse;
+        } else {
+          print('❌ API Error: ${apiResponse.message}');
+          return apiResponse;
+        }
+      } else {
+        print('❌ HTTP Error: ${response.statusCode} - ${response.body}');
+        return DualSideRiskSettingsResponse(
+          status: 'error',
+          message: 'Server error: ${response.statusCode}',
+          responsecode: response.statusCode.toString(),
+          data: null,
+        );
+      }
+    } catch (e) {
+      print('❌ Network Error: $e');
+      return DualSideRiskSettingsResponse(
+        status: 'error',
+        message: 'Network error: $e',
+        responsecode: '0',
+        data: null,
+      );
+    }
+  }
+
   /// Test API connectivity
   static Future<bool> testApiConnectivity() async {
     try {
