@@ -48,25 +48,74 @@ class _UserGuideState extends State<UserGuide> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor:
+          const Color(0xFF1A2234), // Dark background to match app theme
       appBar: AppBar(
-        backgroundColor: bg,
-        iconTheme: IconThemeData(color: Colors.black),
+        backgroundColor:
+            const Color(0xFF161A1E), // Dark AppBar to match app theme
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white), // White icons
         title: Text(
           "user_guide".tr,
           style: const TextStyle(
-              fontFamily: fontFamily, fontSize: 20, color: Colors.black),
+              fontFamily: fontFamily,
+              fontSize: 20,
+              color: Colors.white), // White text
         ),
       ),
       body: isAPIcalled
-          ? Center(
-              child: CircularProgressIndicator(color: bg),
+          ? const Center(
+              child: CircularProgressIndicator(
+                  color: Color(0xFFF0B90B)), // Binance yellow
             )
           : SingleChildScrollView(
               child: Container(
-                  margin: EdgeInsets.only(left: 10, right: 10),
-                  child: Html(
-                    data: finaldata,
-                  )),
+                margin: const EdgeInsets.only(left: 10, right: 10),
+                child: Html(
+                  data: finaldata,
+                  style: {
+                    // Style the HTML content to match dark theme
+                    "body": Style(
+                      color: Colors.white,
+                      backgroundColor: const Color(0xFF1A2234),
+                    ),
+                    "p": Style(
+                      color: Colors.white,
+                      fontSize: FontSize(16),
+                    ),
+                    "h1": Style(
+                      color: const Color(
+                          0xFFF0B90B), // Binance yellow for headings
+                      fontSize: FontSize(24),
+                      fontWeight: FontWeight.bold,
+                    ),
+                    "h2": Style(
+                      color: const Color(
+                          0xFFF0B90B), // Binance yellow for headings
+                      fontSize: FontSize(20),
+                      fontWeight: FontWeight.bold,
+                    ),
+                    "h3": Style(
+                      color: const Color(
+                          0xFFF0B90B), // Binance yellow for headings
+                      fontSize: FontSize(18),
+                      fontWeight: FontWeight.bold,
+                    ),
+                    "a": Style(
+                      color: const Color(0xFF4A90E2), // Blue for links
+                    ),
+                    "li": Style(
+                      color: Colors.white,
+                    ),
+                    "ul": Style(
+                      color: Colors.white,
+                    ),
+                    "ol": Style(
+                      color: Colors.white,
+                    ),
+                  },
+                ),
+              ),
             ),
     );
   }

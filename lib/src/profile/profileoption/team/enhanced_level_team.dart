@@ -1005,10 +1005,25 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
     data.clear();
     for (var element in teamData) {
       if (element['level'] == "Level $level") {
+        // Pass all available member data instead of just 3 fields
         data.add({
           "image": element['image'],
           "name": element['name'],
-          "days": element['days_bal']
+          "days": element['days_bal'],
+          "days_bal": element['days_bal'], // Alternative key name
+          "user_id": element['user_id'],
+          "email": element['email'],
+          "mobile": element['mobile'],
+          "gender": element['gender'],
+          "rank": element['rank'],
+          "level": element['level'],
+          "verify": element['verify'],
+          "country": element['country'],
+          "referral_code": element['referral_code'],
+          "balance": element['balance'],
+          "income_balance": element['income_balance'],
+          "gas_balance": element['gas_balance'],
+          "doa": element['doa'], // Date of activation
         });
       }
     }

@@ -1592,7 +1592,7 @@ class _HomepageState extends State<Homepage> {
             ),
           ),
 
-          // Trading Tools card with improved grid layout
+          /// Trading Tools card with improved grid layout
           Container(
             margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
@@ -1852,16 +1852,6 @@ class _HomepageState extends State<Homepage> {
                         MaterialPageRoute(
                             builder: (context) =>
                                 Sharescreen(reffral: widget.reffral))),
-                  ),
-
-                  // Gas Wallet
-                  _buildGridOptionItem(
-                    icon: "assets/img/make_money.png",
-                    label: "Gas Wallet",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const AutoDeposit())),
                   ),
                 ],
               ),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:securetradeai/method/methods.dart';
 import 'package:securetradeai/model/TradeHistoryModel.dart' as trade;
 import 'package:securetradeai/model/incomeManagementModel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AllIncome extends StatefulWidget {
   final int initialTabIndex;
@@ -13,15 +13,16 @@ class AllIncome extends StatefulWidget {
   _AllIncomeState createState() => _AllIncomeState();
 }
 
-class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMixin {
+class _AllIncomeState extends State<AllIncome>
+    with SingleTickerProviderStateMixin {
   // Binance theme colors
   final Color backgroundColor = const Color(0xFF1E2329);
-  final Color cardColor =  const Color(0xFF2B3139);
+  final Color cardColor = const Color(0xFF2B3139);
   final Color primaryColor = const Color(0xFFF0B90B);
   final Color successColor = const Color(0xFF2EBD85);
   final Color dangerColor = const Color(0xFFF6465D);
   final Color textColor = Colors.white;
-  final Color secondaryTextColor =const  Color(0xFF848E9C);
+  final Color secondaryTextColor = const Color(0xFF848E9C);
   final Color borderColor = const Color(0xFF373C3F);
 
   late TabController _tabController;
@@ -84,13 +85,15 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 12, vsync: this, initialIndex: widget.initialTabIndex);
+    _tabController = TabController(
+        length: 4, vsync: this, initialIndex: widget.initialTabIndex);
     _tabController.addListener(() {
       setState(() {
         _currentIndex = _tabController.index;
       });
       // Load trading history data when trading tab is selected
-      if (_currentIndex == 7) { // Trading tab index
+      if (_currentIndex == 7) {
+        // Trading tab index
         _loadTradeHistoryData();
       }
     });
@@ -118,7 +121,7 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
         _loadLevelIncome(),
         _loadClubIncome(),
         _loadTradeIncome(),
-        _loadProfitSharing(),
+        // _loadProfitSharing(),
         _loadRoyalty(),
         _loadPoolIncome(),
         _loadDirectIncome(),
@@ -127,7 +130,8 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
       ]);
 
       // Load trading history data if we're on the trading tab
-      if (_currentIndex == 7) { // Trading tab index
+      if (_currentIndex == 7) {
+        // Trading tab index
         await _loadTradeHistoryData();
       }
     } catch (e) {
@@ -187,21 +191,21 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
     }
   }
 
-  Future<void> _loadProfitSharing() async {
-    try {
-      final res = await CommonMethod().getprofitSharing();
-      if (res.status == "success") {
-        setState(() {
-          profitSharingData = res;
-          profitSharingToday =  res.data.profitToday;
-          profitSharingCumulative = res.data.cumulativeProfit;
-          profitSharingDetails = res.data.details2;
-        });
-      }
-    } catch (e) {
-      print('Error loading profit sharing: $e');
-    }
-  }
+  // Future<void> _loadProfitSharing() async {
+  //   try {
+  //     final res = await CommonMethod().getprofitSharing();
+  //     if (res.status == "success") {
+  //       setState(() {
+  //         profitSharingData = res;
+  //         profitSharingToday =  res.data.profitToday;
+  //         profitSharingCumulative = res.data.cumulativeProfit;
+  //         profitSharingDetails = res.data.details2;
+  //       });
+  //     }
+  //   } catch (e) {
+  //     print('Error loading profit sharing: $e');
+  //   }
+  // }
 
   Future<void> _loadRoyalty() async {
     try {
@@ -289,7 +293,7 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 12,
+      length: 4,
       child: Scaffold(
         backgroundColor: backgroundColor,
         appBar: AppBar(
@@ -326,52 +330,52 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
                   fontWeight: FontWeight.normal,
                   fontSize: 14,
                 ),
-                tabs: [
-                  const Tab(
+                tabs: const [
+                  Tab(
                     icon: Icon(Icons.dashboard, size: 20),
                     text: 'All',
                   ),
-                  const Tab(
-                    icon: Icon(Icons.attach_money, size: 20),
-                    text: 'Profit Sharing',
-                  ),
-                  const Tab(
-                    icon: Icon(Icons.card_giftcard, size: 20),
-                    text: 'Rewards',
-                  ),
-                  const Tab(
-                    icon: Icon(Icons.workspace_premium, size: 20),
-                    text: 'Royalty',
-                  ),
-                  const Tab(
-                    icon: Icon(Icons.people, size: 20),
-                    text: 'Club',
-                  ),
-                  const Tab(
-                    icon: Icon(Icons.star, size: 20),
-                    text: 'Level',
-                  ),
-                  const Tab(
-                    icon: Icon(Icons.group_add, size: 20),
-                    text: 'Referral',
-                  ),
-                  const Tab(
-                    icon: Icon(Icons.trending_up, size: 20),
-                    text: 'Trading',
-                  ),
-                  const Tab(
-                    icon: Icon(Icons.water_drop, size: 20),
-                    text: 'Pool',
-                  ),
-                  const Tab(
+                  // Tab(
+                  //   icon: Icon(Icons.attach_money, size: 20),
+                  //   text: 'Profit Sharing',
+                  // ),
+                  // Tab(
+                  //   icon: Icon(Icons.card_giftcard, size: 20),
+                  //   text: 'Rewards',
+                  // ),
+                  // Tab(
+                  //   icon: Icon(Icons.workspace_premium, size: 20),
+                  //   text: 'Royalty',
+                  // ),
+                  // Tab(
+                  //   icon: Icon(Icons.people, size: 20),
+                  //   text: 'Club',
+                  // ),
+                  // Tab(
+                  //   icon: Icon(Icons.star, size: 20),
+                  //   text: 'Level',
+                  // ),
+                  // Tab(
+                  //   icon: Icon(Icons.group_add, size: 20),
+                  //   text: 'Referral',
+                  // ),
+                  // Tab(
+                  //   icon: Icon(Icons.trending_up, size: 20),
+                  //   text: 'Trading',
+                  // ),
+                  // Tab(
+                  //   icon: Icon(Icons.water_drop, size: 20),
+                  //   text: 'Pool',
+                  // ),
+                  Tab(
                     icon: Icon(Icons.person_add, size: 20),
                     text: 'Direct',
                   ),
-                  const Tab(
+                  Tab(
                     icon: Icon(Icons.layers, size: 20),
                     text: 'Level ROI',
                   ),
-                  const Tab(
+                  Tab(
                     icon: Icon(Icons.account_balance_wallet, size: 20),
                     text: 'Salary',
                   ),
@@ -390,14 +394,14 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
                 controller: _tabController,
                 children: [
                   _buildAllIncomeView(),
-                  _buildProfitSharingView(),
-                  _buildRewardView(),
-                  _buildRoyaltyView(),
-                  _buildClubView(),
-                  _buildLevelIncomeView(),
-                  _buildReferralIncomeView(),
-                  _buildTradingIncomeView(),
-                  _buildPoolIncomeView(),
+                  // _buildProfitSharingView(),
+                  // _buildRewardView(),
+                  // _buildRoyaltyView(),
+                  // _buildClubView(),
+                  // _buildLevelIncomeView(),
+                  // _buildReferralIncomeView(),
+                  // _buildTradingIncomeView(),
+                  // _buildPoolIncomeView(),
                   _buildDirectIncomeView(),
                   _buildLevelROIIncomeView(),
                   _buildSalaryIncomeView(),
@@ -408,12 +412,24 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
   }
 
   Widget _buildAllIncomeView() {
-    double totalToday = levelTotalToday + clubTotalToday + tradeTotalToday +
-                       profitSharingToday + royaltyToday + poolTotalToday +
-                       directTotalIncome + levelROITotalIncome + salaryTotalIncome;
-    double totalCumulative = levelCumulative + clubCumulative + tradeCumulative +
-                           profitSharingCumulative + royaltyCumulative + poolCumulative +
-                           directTotalIncome + levelROITotalIncome + salaryTotalIncome;
+    double totalToday = levelTotalToday +
+        clubTotalToday +
+        tradeTotalToday +
+        profitSharingToday +
+        royaltyToday +
+        poolTotalToday +
+        directTotalIncome +
+        levelROITotalIncome +
+        salaryTotalIncome;
+    double totalCumulative = levelCumulative +
+        clubCumulative +
+        tradeCumulative +
+        profitSharingCumulative +
+        royaltyCumulative +
+        poolCumulative +
+        directTotalIncome +
+        levelROITotalIncome +
+        salaryTotalIncome;
 
     return RefreshIndicator(
       color: primaryColor,
@@ -511,12 +527,24 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
 
     switch (_currentIndex) {
       case 0: // All
-        todayIncome = levelTotalToday + clubTotalToday + tradeTotalToday +
-                     profitSharingToday + royaltyToday + poolTotalToday +
-                     directTotalIncome + levelROITotalIncome + salaryTotalIncome;
-        totalIncome = levelCumulative + clubCumulative + tradeCumulative +
-                     profitSharingCumulative + royaltyCumulative + poolCumulative +
-                     directTotalIncome + levelROITotalIncome + salaryTotalIncome;
+        todayIncome = levelTotalToday +
+            clubTotalToday +
+            tradeTotalToday +
+            profitSharingToday +
+            royaltyToday +
+            poolTotalToday +
+            directTotalIncome +
+            levelROITotalIncome +
+            salaryTotalIncome;
+        totalIncome = levelCumulative +
+            clubCumulative +
+            tradeCumulative +
+            profitSharingCumulative +
+            royaltyCumulative +
+            poolCumulative +
+            directTotalIncome +
+            levelROITotalIncome +
+            salaryTotalIncome;
         break;
       case 1: // Profit Sharing
         todayIncome = profitSharingToday;
@@ -610,10 +638,9 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
                 Text(
                   title,
                   style: TextStyle(
-                    color: secondaryTextColor,
-                    fontSize: 14,
-                    overflow: TextOverflow.ellipsis
-                  ),
+                      color: secondaryTextColor,
+                      fontSize: 14,
+                      overflow: TextOverflow.ellipsis),
                 ),
               ],
             ),
@@ -663,97 +690,104 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
             ),
           ),
         ),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: details.length,
-          itemBuilder: (context, index) {
-            final detail = details[index];
-            double amount;
-            DateTime? date;
-            String type;
-
-            if (_currentIndex == 0) { // All tab
-              final item = detail as Map<String, dynamic>;
-              type = item['type'];
-              if (item['detail'] != null) {
-                amount = double.tryParse(item['detail'].totalbal?.toString() ?? '0') ?? 0.0;
-                date = item['detail'].createdDate;
-              } else if (item['detail'] != null) {
-                amount = double.tryParse(item['detail'].totalbal?.toString() ?? '0') ?? 0.0;
-                date = item['detail'].createdDate;
-              } else {
-                amount = 0.0;
-                date = null;
-              }
-            } else if (_currentIndex == 1) { // Profit Sharing
-              if (detail is trade.Detail) {
-                amount = double.tryParse(detail.totalbal) ?? 0.0;
-                date = detail.createdDate;
-                type = 'Profit Sharing';
-              } else {
-                amount = 0.0;
-                date = null;
-                type = 'Invalid Data';
-              }
-            } else {
-              if (detail != null) {
-                amount = double.tryParse(detail.totalbal?.toString() ?? '0') ?? 0.0;
-                date = detail.createdDate;
-                type = _getTransactionType();
-              } else {
-                amount = 0.0;
-                date = null;
-                type = 'Invalid Data';
-              }
-            }
-
-            return Container(
-              margin:const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: cardColor,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderColor),
-              ),
-              child: ListTile(
-                contentPadding: const EdgeInsets.all(16),
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      type,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Text(
-                      '${(amount * totalCurrency).toStringAsFixed(2)} $currentCurrency',
-                      style: TextStyle(
-                        color: successColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                subtitle: Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    date != null
-                      ? DateFormat('MMM dd, yyyy HH:mm').format(date)
-                      : 'Invalid Date',
-                    style: TextStyle(
-                      color: secondaryTextColor,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
+        // ListView.builder(
+        //   shrinkWrap: true,
+        //   physics: const NeverScrollableScrollPhysics(),
+        //   itemCount: details.length,
+        //   itemBuilder: (context, index) {
+        //     final detail = details[index];
+        //     double amount;
+        //     DateTime? date;
+        //     String type;
+        //
+        //     if (_currentIndex == 0) {
+        //       // All tab
+        //       final item = detail as Map<String, dynamic>;
+        //       type = item['type'];
+        //       if (item['detail'] != null) {
+        //         amount = double.tryParse(
+        //                 item['detail'].totalbal?.toString() ?? '0') ??
+        //             0.0;
+        //         date = item['detail'].createdDate;
+        //       } else if (item['detail'] != null) {
+        //         amount = double.tryParse(
+        //                 item['detail'].totalbal?.toString() ?? '0') ??
+        //             0.0;
+        //         date = item['detail'].createdDate;
+        //       } else {
+        //         amount = 0.0;
+        //         date = null;
+        //       }
+        //     } else if (_currentIndex == 1) {
+        //       // Profit Sharing
+        //       if (detail is trade.Detail) {
+        //         amount = double.tryParse(detail.totalbal) ?? 0.0;
+        //         date = detail.createdDate;
+        //         type = 'Profit Sharing';
+        //       } else {
+        //         amount = 0.0;
+        //         date = null;
+        //         type = 'Invalid Data';
+        //       }
+        //     } else {
+        //       if (detail != null) {
+        //         amount =
+        //             double.tryParse(detail.totalbal?.toString() ?? '0') ?? 0.0;
+        //         date = detail.createdDate;
+        //         type = _getTransactionType();
+        //       } else {
+        //         amount = 0.0;
+        //         date = null;
+        //         type = 'Invalid Data';
+        //       }
+        //     }
+        //
+        //     return Container(
+        //       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        //       decoration: BoxDecoration(
+        //         color: cardColor,
+        //         borderRadius: BorderRadius.circular(12),
+        //         border: Border.all(color: borderColor),
+        //       ),
+        //       child: ListTile(
+        //         contentPadding: const EdgeInsets.all(16),
+        //         title: Row(
+        //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //           children: [
+        //             Text(
+        //               type,
+        //               style: TextStyle(
+        //                 color: textColor,
+        //                 fontSize: 16,
+        //                 fontWeight: FontWeight.w500,
+        //               ),
+        //             ),
+        //             Text(
+        //               '${(amount * totalCurrency).toStringAsFixed(2)} $currentCurrency',
+        //               style: TextStyle(
+        //                 color: successColor,
+        //                 fontSize: 16,
+        //                 fontWeight: FontWeight.bold,
+        //               ),
+        //             ),
+        //           ],
+        //         ),
+        //         subtitle: Padding(
+        //           padding: const EdgeInsets.only(top: 8),
+        //           child: Text(
+        //             date != null
+        //                 ? DateFormat('MMM dd, yyyy HH:mm').format(date)
+        //                 : 'Invalid Date',
+        //             style: TextStyle(
+        //               color: secondaryTextColor,
+        //               fontSize: 14,
+        //             ),
+        //           ),
+        //         ),
+        //       ),
+        //     );
+        //   },
+        // ),
       ],
     );
   }
@@ -763,21 +797,62 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
       case 0: // All
         List<dynamic> allDetails = [];
         // Add all transactions from different income types
-        allDetails.addAll(levelDetails.map((d) => {'type': 'Level', 'detail': d}));
-        allDetails.addAll(clubDetails.map((d) => {'type': 'Club', 'detail': d}));
-        allDetails.addAll(tradeDetails.map((d) => {'type': 'Trading', 'detail': d}));
-        allDetails.addAll(royaltyDetails.map((d) => {'type': 'Royalty', 'detail': d}));
-        allDetails.addAll(profitSharingDetails.map((d) => {'type': 'Profit Sharing', 'detail': d}));
-        allDetails.addAll(poolDetails.map((d) => {'type': 'Pool', 'detail': d}));
+        allDetails
+            .addAll(levelDetails.map((d) => {'type': 'Level', 'detail': d}));
+        allDetails
+            .addAll(clubDetails.map((d) => {'type': 'Club', 'detail': d}));
+        allDetails
+            .addAll(tradeDetails.map((d) => {'type': 'Trading', 'detail': d}));
+        allDetails.addAll(
+            royaltyDetails.map((d) => {'type': 'Royalty', 'detail': d}));
+        allDetails.addAll(profitSharingDetails
+            .map((d) => {'type': 'Profit Sharing', 'detail': d}));
+        allDetails
+            .addAll(poolDetails.map((d) => {'type': 'Pool', 'detail': d}));
         // Add new income types
-        allDetails.addAll(directIncomeHistory.map((d) => {'type': 'Direct Income', 'detail': d}));
-        allDetails.addAll(levelROIIncomeHistory.map((d) => {'type': 'Level ROI Income', 'detail': d}));
-        allDetails.addAll(salaryIncomeHistory.map((d) => {'type': 'Salary Income', 'detail': d}));
+        allDetails.addAll(directIncomeHistory
+            .map((d) => {'type': 'Direct Income', 'detail': d}));
+        allDetails.addAll(levelROIIncomeHistory
+            .map((d) => {'type': 'Level ROI Income', 'detail': d}));
+        allDetails.addAll(salaryIncomeHistory
+            .map((d) => {'type': 'Salary Income', 'detail': d}));
 
         // Sort by date in descending order
         allDetails.sort((a, b) {
-          DateTime? dateA = a['detail'] != null ? a['detail'].createdDate : null;
-          DateTime? dateB = b['detail'] != null ? b['detail'].createdDate : null;
+          DateTime? dateA;
+          DateTime? dateB;
+
+          // Handle different date property names safely
+          if (a['detail'] != null) {
+            var detail = a['detail'];
+            try {
+              // Try createdDate first (for trading details)
+              dateA = detail.createdDate;
+            } catch (e) {
+              try {
+                // Try createdAt (for income history objects)
+                dateA = detail.createdAt;
+              } catch (e) {
+                dateA = null;
+              }
+            }
+          }
+
+          if (b['detail'] != null) {
+            var detail = b['detail'];
+            try {
+              // Try createdDate first (for trading details)
+              dateB = detail.createdDate;
+            } catch (e) {
+              try {
+                // Try createdAt (for income history objects)
+                dateB = detail.createdAt;
+              } catch (e) {
+                dateB = null;
+              }
+            }
+          }
+
           if (dateA == null || dateB == null) return 0;
           return dateB.compareTo(dateA);
         });
@@ -812,59 +887,73 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
 
   String _getTransactionType() {
     switch (_currentIndex) {
-      case 0: return 'All Income';
-      case 1: return 'Profit Sharing';
-      case 2: return 'Rewards';
-      case 3: return 'Royalty';
-      case 4: return 'Club';
-      case 5: return 'Level';
-      case 6: return 'Referral';
-      case 7: return 'Trading';
-      case 8: return 'Pool';
-      case 9: return 'Direct Income';
-      case 10: return 'Level ROI Income';
-      case 11: return 'Salary Income';
-      default: return 'Unknown';
+      case 0:
+        return 'All Income';
+      case 1:
+        return 'Profit Sharing';
+      case 2:
+        return 'Rewards';
+      case 3:
+        return 'Royalty';
+      case 4:
+        return 'Club';
+      case 5:
+        return 'Level';
+      case 6:
+        return 'Referral';
+      case 7:
+        return 'Trading';
+      case 8:
+        return 'Pool';
+      case 9:
+        return 'Direct Income';
+      case 10:
+        return 'Level ROI Income';
+      case 11:
+        return 'Salary Income';
+      default:
+        return 'Unknown';
     }
   }
 
-  Widget _buildLevelIncomeView() {
-    return RefreshIndicator(
-      color: primaryColor,
-      backgroundColor: cardColor,
-      onRefresh: _loadLevelIncome,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            _buildIncomeOverview(levelTotalToday, levelCumulative),
-            _buildIncomeStats(),
-            _buildIncomeHistory(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildReferralIncomeView() {
-    return RefreshIndicator(
-      color: primaryColor,
-      backgroundColor: cardColor,
-      onRefresh: _loadLevelIncome,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            _buildIncomeOverview(levelTotalToday, levelCumulative),
-            _buildIncomeStats(),
-            _buildIncomeHistory(),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildLevelIncomeView() {
+  //   return RefreshIndicator(
+  //     color: primaryColor,
+  //     backgroundColor: cardColor,
+  //     onRefresh: _loadLevelIncome,
+  //     child: SingleChildScrollView(
+  //       physics: const AlwaysScrollableScrollPhysics(),
+  //       child: Column(
+  //         children: [
+  //           _buildIncomeOverview(levelTotalToday, levelCumulative),
+  //           _buildIncomeStats(),
+  //           _buildIncomeHistory(),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+  //
+  // Widget _buildReferralIncomeView() {
+  //   return RefreshIndicator(
+  //     color: primaryColor,
+  //     backgroundColor: cardColor,
+  //     onRefresh: _loadLevelIncome,
+  //     child: SingleChildScrollView(
+  //       physics: const AlwaysScrollableScrollPhysics(),
+  //       child: Column(
+  //         children: [
+  //           _buildIncomeOverview(levelTotalToday, levelCumulative),
+  //           _buildIncomeStats(),
+  //           _buildIncomeHistory(),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   // Trading data specific variables
+
   List<Map<String, dynamic>> tradeHistoryData = [];
   bool isLoadingTradeHistory = false;
   double totalBuyAmount = 0.0;
@@ -937,450 +1026,452 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
     }
   }
 
-  Widget _buildTradingIncomeView() {
-    return RefreshIndicator(
-      color: primaryColor,
-      backgroundColor: cardColor,
-      onRefresh: () async {
-        await _loadTradeIncome();
-        await _loadTradeHistoryData();
-      },
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            _buildIncomeOverview(tradeTotalToday, tradeCumulative),
-            _buildTradeStats(),
-            _buildTradeHistory(),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildTradingIncomeView() {
+  //   return RefreshIndicator(
+  //     color: primaryColor,
+  //     backgroundColor: cardColor,
+  //     onRefresh: () async {
+  //       await _loadTradeIncome();
+  //       await _loadTradeHistoryData();
+  //     },
+  //     child: SingleChildScrollView(
+  //       physics: const AlwaysScrollableScrollPhysics(),
+  //       child: Column(
+  //         children: [
+  //           _buildIncomeOverview(tradeTotalToday, tradeCumulative),
+  //           _buildTradeStats(),
+  //           _buildTradeHistory(),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+  // Widget _buildTradeStats() {
+  //   return Container(
+  //     margin: const EdgeInsets.all(16),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Text(
+  //           'Trading Summary',
+  //           style: TextStyle(
+  //             color: textColor,
+  //             fontSize: 18,
+  //             fontWeight: FontWeight.bold,
+  //           ),
+  //         ),
+  //         const SizedBox(height: 16),
+  //         Row(
+  //           children: [
+  //             _buildTradeStatCard(
+  //               'Buy Amount',
+  //               totalBuyAmount * totalCurrency,
+  //               Icons.arrow_downward,
+  //               dangerColor,
+  //             ),
+  //             const SizedBox(width: 10),
+  //             _buildTradeStatCard(
+  //               'Sell Amount',
+  //               totalSellAmount * totalCurrency,
+  //               Icons.arrow_upward,
+  //               successColor,
+  //             ),
+  //           ],
+  //         ),
+  //         const SizedBox(height: 10),
+  //         Row(
+  //           children: [
+  //             _buildTradeStatCard(
+  //               'Profit',
+  //               totalProfitAmount * totalCurrency,
+  //               Icons.trending_up,
+  //               successColor,
+  //             ),
+  //             const SizedBox(width: 10),
+  //             _buildTradeStatCard(
+  //               'Today\'s Income',
+  //               tradeTotalToday * totalCurrency,
+  //               Icons.today,
+  //               primaryColor,
+  //             ),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget _buildTradeStats() {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Trading Summary',
-            style: TextStyle(
-              color: textColor,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildTradeStatCard(
-                'Buy Amount',
-                totalBuyAmount * totalCurrency,
-                Icons.arrow_downward,
-                dangerColor,
-              ),
-              const SizedBox(width: 10),
-              _buildTradeStatCard(
-                'Sell Amount',
-                totalSellAmount * totalCurrency,
-                Icons.arrow_upward,
-                successColor,
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              _buildTradeStatCard(
-                'Profit',
-                totalProfitAmount * totalCurrency,
-                Icons.trending_up,
-                successColor,
-              ),
-              const SizedBox(width: 10),
-              _buildTradeStatCard(
-                'Today\'s Income',
-                tradeTotalToday * totalCurrency,
-                Icons.today,
-                primaryColor,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildTradeStatCard(
+  //     String title, double amount, IconData icon, Color iconColor) {
+  //   return Expanded(
+  //     child: Container(
+  //       padding: const EdgeInsets.all(16),
+  //       decoration: BoxDecoration(
+  //         color: cardColor,
+  //         borderRadius: BorderRadius.circular(12),
+  //         border: Border.all(color: borderColor),
+  //       ),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Row(
+  //             children: [
+  //               Icon(
+  //                 icon,
+  //                 color: iconColor,
+  //                 size: 20,
+  //               ),
+  //               const SizedBox(width: 8),
+  //               Text(
+  //                 title,
+  //                 style: TextStyle(
+  //                   color: secondaryTextColor,
+  //                   fontSize: 14,
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //           const SizedBox(height: 8),
+  //           Text(
+  //             '${amount.toStringAsFixed(2)} $currentCurrency',
+  //             style: TextStyle(
+  //               color: textColor,
+  //               fontSize: 18,
+  //               fontWeight: FontWeight.bold,
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+  //
+  // Widget _buildTradeHistory() {
+  //   if (isLoadingTradeHistory) {
+  //     return Center(
+  //       child: CircularProgressIndicator(
+  //         valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+  //       ),
+  //     );
+  //   }
+  //
+  //   if (tradeHistoryData.isEmpty) {
+  //     return Padding(
+  //       padding: const EdgeInsets.all(16),
+  //       child: Center(
+  //         child: Text(
+  //           'No trading history found',
+  //           style: TextStyle(
+  //             color: secondaryTextColor,
+  //             fontSize: 16,
+  //           ),
+  //         ),
+  //       ),
+  //     );
+  //   }
 
-  Widget _buildTradeStatCard(String title, double amount, IconData icon, Color iconColor) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: borderColor),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  icon,
-                  color: iconColor,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: secondaryTextColor,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${amount.toStringAsFixed(2)} $currentCurrency',
-              style: TextStyle(
-                color: textColor,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Padding(
+  //         padding: const EdgeInsets.all(16),
+  //         child: Text(
+  //           'Trading History',
+  //           style: TextStyle(
+  //             color: textColor,
+  //             fontSize: 20,
+  //             fontWeight: FontWeight.bold,
+  //           ),
+  //         ),
+  //       ),
+  //       ListView.builder(
+  //         shrinkWrap: true,
+  //         physics: const NeverScrollableScrollPhysics(),
+  //         itemCount: tradeHistoryData.length,
+  //         itemBuilder: (context, index) {
+  //           final trade = tradeHistoryData[index];
+  //           final bool isBuy = trade['type'].toString().toLowerCase() == 'buy';
+  //           final Color typeColor = isBuy ? dangerColor : successColor;
+  //           final IconData typeIcon =
+  //               isBuy ? Icons.arrow_downward : Icons.arrow_upward;
+  //
+  //           return Container(
+  //             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  //             decoration: BoxDecoration(
+  //               color: cardColor,
+  //               borderRadius: BorderRadius.circular(12),
+  //               border: Border.all(color: borderColor),
+  //             ),
+  //             child: ListTile(
+  //               contentPadding: const EdgeInsets.all(16),
+  //               leading: Container(
+  //                 padding: const EdgeInsets.all(8),
+  //                 decoration: BoxDecoration(
+  //                   color: typeColor.withOpacity(0.1),
+  //                   borderRadius: BorderRadius.circular(8),
+  //                 ),
+  //                 child: Icon(
+  //                   typeIcon,
+  //                   color: typeColor,
+  //                 ),
+  //               ),
+  //               title: Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   Text(
+  //                     '${trade['cryptoPair']} ${isBuy ? 'Buy' : 'Sell'}',
+  //                     style: TextStyle(
+  //                       color: textColor,
+  //                       fontSize: 16,
+  //                       fontWeight: FontWeight.w500,
+  //                     ),
+  //                   ),
+  //                   Text(
+  //                     '${(trade['amount'] * totalCurrency).toStringAsFixed(2)} $currentCurrency',
+  //                     style: TextStyle(
+  //                       color: textColor,
+  //                       fontSize: 16,
+  //                       fontWeight: FontWeight.bold,
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //               subtitle: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   const SizedBox(height: 8),
+  //                   Row(
+  //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                     children: [
+  //                       Text(
+  //                         DateFormat('MMM dd, yyyy HH:mm')
+  //                             .format(trade['date']),
+  //                         style: TextStyle(
+  //                           color: secondaryTextColor,
+  //                           fontSize: 14,
+  //                         ),
+  //                       ),
+  //                       Text(
+  //                         'Profit: ${(trade['profit'] * totalCurrency).toStringAsFixed(2)} $currentCurrency',
+  //                         style: TextStyle(
+  //                           color: successColor,
+  //                           fontSize: 14,
+  //                           fontWeight: FontWeight.w500,
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           );
+  //         },
+  //       ),
+  //     ],
+  //   );
+  // }
 
-  Widget _buildTradeHistory() {
-    if (isLoadingTradeHistory) {
-      return Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
-        ),
-      );
-    }
+  // Widget _buildPoolIncomeView() {
+  //   return RefreshIndicator(
+  //     color: primaryColor,
+  //     backgroundColor: cardColor,
+  //     onRefresh: _loadPoolIncome,
+  //     child: SingleChildScrollView(
+  //       physics: const AlwaysScrollableScrollPhysics(),
+  //       child: Column(
+  //         children: [
+  //           _buildIncomeOverview(poolTotalToday, poolCumulative),
+  //           _buildIncomeStats(),
+  //           if (poolDetails.isNotEmpty) _buildIncomeHistory(),
+  //           if (poolDetails.isEmpty)
+  //             Padding(
+  //               padding: const EdgeInsets.all(16),
+  //               child: Center(
+  //                 child: Text(
+  //                   'No pool income transactions found',
+  //                   style: TextStyle(
+  //                     color: secondaryTextColor,
+  //                     fontSize: 16,
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
-    if (tradeHistoryData.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(16),
-        child: Center(
-          child: Text(
-            'No trading history found',
-            style: TextStyle(
-              color: secondaryTextColor,
-              fontSize: 16,
-            ),
-          ),
-        ),
-      );
-    }
+  // Widget _buildProfitSharingView() {
+  //   return RefreshIndicator(
+  //     color: primaryColor,
+  //     backgroundColor: cardColor,
+  //     onRefresh: _loadProfitSharing,
+  //     child: SingleChildScrollView(
+  //       physics: const AlwaysScrollableScrollPhysics(),
+  //       child: Column(
+  //         children: [
+  //           Container(
+  //             margin: const EdgeInsets.all(16),
+  //             padding: const EdgeInsets.all(20),
+  //             decoration: BoxDecoration(
+  //               color: cardColor,
+  //               borderRadius: BorderRadius.circular(12),
+  //               border: Border.all(color: borderColor),
+  //             ),
+  //             child: Column(
+  //               children: [
+  //                 Row(
+  //                   children: [
+  //                     Container(
+  //                       padding: const EdgeInsets.all(12),
+  //                       decoration: BoxDecoration(
+  //                         color: primaryColor.withOpacity(0.1),
+  //                         borderRadius: BorderRadius.circular(12),
+  //                       ),
+  //                       child: Icon(
+  //                         Icons.attach_money,
+  //                         color: primaryColor,
+  //                         size: 24,
+  //                       ),
+  //                     ),
+  //                     const SizedBox(width: 16),
+  //                     Expanded(
+  //                       child: Column(
+  //                         crossAxisAlignment: CrossAxisAlignment.start,
+  //                         children: [
+  //                           Text(
+  //                             'Total Profit Sharing',
+  //                             style: TextStyle(
+  //                               color: secondaryTextColor,
+  //                               fontSize: 14,
+  //                             ),
+  //                           ),
+  //                           const SizedBox(height: 4),
+  //                           Text(
+  //                             '${(profitSharingCumulative * totalCurrency).toStringAsFixed(2)} $currentCurrency',
+  //                             style: TextStyle(
+  //                               color: textColor,
+  //                               fontSize: 24,
+  //                               fontWeight: FontWeight.bold,
+  //                             ),
+  //                           ),
+  //                           Row(
+  //                             children: [
+  //                               Icon(
+  //                                 Icons.arrow_upward,
+  //                                 color: successColor,
+  //                                 size: 16,
+  //                               ),
+  //                               const SizedBox(width: 4),
+  //                               Text(
+  //                                 '${(profitSharingToday * totalCurrency).toStringAsFixed(2)} $currentCurrency Today',
+  //                                 style: TextStyle(
+  //                                   color: successColor,
+  //                                   fontSize: 14,
+  //                                 ),
+  //                               ),
+  //                             ],
+  //                           ),
+  //                         ],
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //           Container(
+  //             margin: const EdgeInsets.symmetric(horizontal: 16),
+  //             child: Row(
+  //               children: [
+  //                 _buildStatCard(
+  //                   'Today\'s Income',
+  //                   profitSharingToday * totalCurrency,
+  //                   Icons.today,
+  //                 ),
+  //                 const SizedBox(width: 12),
+  //                 _buildStatCard(
+  //                   'Total Income',
+  //                   profitSharingCumulative * totalCurrency,
+  //                   Icons.account_balance_wallet,
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //           if (profitSharingDetails.isNotEmpty) _buildIncomeHistory(),
+  //           if (profitSharingDetails.isEmpty)
+  //             Padding(
+  //               padding: const EdgeInsets.all(16),
+  //               child: Center(
+  //                 child: Text(
+  //                   'No transactions found',
+  //                   style: TextStyle(
+  //                     color: secondaryTextColor,
+  //                     fontSize: 16,
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            'Trading History',
-            style: TextStyle(
-              color: textColor,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: tradeHistoryData.length,
-          itemBuilder: (context, index) {
-            final trade = tradeHistoryData[index];
-            final bool isBuy = trade['type'].toString().toLowerCase() == 'buy';
-            final Color typeColor = isBuy ? dangerColor : successColor;
-            final IconData typeIcon = isBuy ? Icons.arrow_downward : Icons.arrow_upward;
+  // Widget _buildRewardView() {
+  //   return RefreshIndicator(
+  //     color: primaryColor,
+  //     backgroundColor: cardColor,
+  //     onRefresh: _loadLevelIncome,
+  //     child: SingleChildScrollView(
+  //       physics: const AlwaysScrollableScrollPhysics(),
+  //       child: Column(
+  //         children: [
+  //           _buildIncomeOverview(levelTotalToday, levelCumulative),
+  //           _buildIncomeStats(),
+  //           _buildIncomeHistory(),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
-            return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: cardColor,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderColor),
-              ),
-              child: ListTile(
-                contentPadding: const EdgeInsets.all(16),
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: typeColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    typeIcon,
-                    color: typeColor,
-                  ),
-                ),
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '${trade['cryptoPair']} ${isBuy ? 'Buy' : 'Sell'}',
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Text(
-                      '${(trade['amount'] * totalCurrency).toStringAsFixed(2)} $currentCurrency',
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          DateFormat('MMM dd, yyyy HH:mm').format(trade['date']),
-                          style: TextStyle(
-                            color: secondaryTextColor,
-                            fontSize: 14,
-                          ),
-                        ),
-                        Text(
-                          'Profit: ${(trade['profit'] * totalCurrency).toStringAsFixed(2)} $currentCurrency',
-                          style: TextStyle(
-                            color: successColor,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
+  // Widget _buildRoyaltyView() {
+  //   return RefreshIndicator(
+  //     color: primaryColor,
+  //     backgroundColor: cardColor,
+  //     onRefresh: _loadRoyalty,
+  //     child: SingleChildScrollView(
+  //       physics: const AlwaysScrollableScrollPhysics(),
+  //       child: Column(
+  //         children: [
+  //           _buildIncomeOverview(royaltyToday, royaltyCumulative),
+  //           _buildIncomeStats(),
+  //           _buildIncomeHistory(),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
-  Widget _buildPoolIncomeView() {
-    return RefreshIndicator(
-      color: primaryColor,
-      backgroundColor: cardColor,
-      onRefresh: _loadPoolIncome,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            _buildIncomeOverview(poolTotalToday, poolCumulative),
-            _buildIncomeStats(),
-            if (poolDetails.isNotEmpty) _buildIncomeHistory(),
-            if (poolDetails.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Center(
-                  child: Text(
-                    'No pool income transactions found',
-                    style: TextStyle(
-                      color: secondaryTextColor,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfitSharingView() {
-    return RefreshIndicator(
-      color: primaryColor,
-      backgroundColor: cardColor,
-      onRefresh: _loadProfitSharing,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: cardColor,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderColor),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: primaryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          Icons.attach_money,
-                          color: primaryColor,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Total Profit Sharing',
-                              style: TextStyle(
-                                color: secondaryTextColor,
-                                fontSize: 14,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${(profitSharingCumulative * totalCurrency).toStringAsFixed(2)} $currentCurrency',
-                              style: TextStyle(
-                                color: textColor,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.arrow_upward,
-                                  color: successColor,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${(profitSharingToday * totalCurrency).toStringAsFixed(2)} $currentCurrency Today',
-                                  style: TextStyle(
-                                    color: successColor,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  _buildStatCard(
-                    'Today\'s Income',
-                    profitSharingToday * totalCurrency,
-                    Icons.today,
-                  ),
-                  const SizedBox(width: 12),
-                  _buildStatCard(
-                    'Total Income',
-                    profitSharingCumulative * totalCurrency,
-                    Icons.account_balance_wallet,
-                  ),
-                ],
-              ),
-            ),
-            if (profitSharingDetails.isNotEmpty) _buildIncomeHistory(),
-            if (profitSharingDetails.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Center(
-                  child: Text(
-                    'No transactions found',
-                    style: TextStyle(
-                      color: secondaryTextColor,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRewardView() {
-    return RefreshIndicator(
-      color: primaryColor,
-      backgroundColor: cardColor,
-      onRefresh: _loadLevelIncome,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            _buildIncomeOverview(levelTotalToday, levelCumulative),
-            _buildIncomeStats(),
-            _buildIncomeHistory(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRoyaltyView() {
-    return RefreshIndicator(
-      color: primaryColor,
-      backgroundColor: cardColor,
-      onRefresh: _loadRoyalty,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            _buildIncomeOverview(royaltyToday, royaltyCumulative),
-            _buildIncomeStats(),
-            _buildIncomeHistory(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildClubView() {
-    return RefreshIndicator(
-      color: primaryColor,
-      backgroundColor: cardColor,
-      onRefresh: _loadClubIncome,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            _buildIncomeOverview(clubTotalToday, clubCumulative),
-            _buildIncomeStats(),
-            _buildIncomeHistory(),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildClubView() {
+  //   return RefreshIndicator(
+  //     color: primaryColor,
+  //     backgroundColor: cardColor,
+  //     onRefresh: _loadClubIncome,
+  //     child: SingleChildScrollView(
+  //       physics: const AlwaysScrollableScrollPhysics(),
+  //       child: Column(
+  //         children: [
+  //           _buildIncomeOverview(clubTotalToday, clubCumulative),
+  //           _buildIncomeStats(),
+  //           _buildIncomeHistory(),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildDirectIncomeView() {
     return RefreshIndicator(
@@ -1486,7 +1577,8 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
           _buildStatCard(
             'Average Amount',
             directIncomeHistory.isNotEmpty
-                ? (directTotalIncome / directIncomeHistory.length) * totalCurrency
+                ? (directTotalIncome / directIncomeHistory.length) *
+                    totalCurrency
                 : 0.0,
             Icons.trending_up,
           ),
@@ -1583,22 +1675,28 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          DateFormat('MMM dd, yyyy HH:mm').format(income.createdAt),
+                          DateFormat('MMM dd, yyyy HH:mm')
+                              .format(income.createdAt),
                           style: TextStyle(
                             color: secondaryTextColor,
                             fontSize: 12,
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: income.status == 'CREDITED' ? successColor.withOpacity(0.1) : dangerColor.withOpacity(0.1),
+                            color: income.status == 'CREDITED'
+                                ? successColor.withOpacity(0.1)
+                                : dangerColor.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             income.status,
                             style: TextStyle(
-                              color: income.status == 'CREDITED' ? successColor : dangerColor,
+                              color: income.status == 'CREDITED'
+                                  ? successColor
+                                  : dangerColor,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
@@ -1720,7 +1818,8 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
           _buildStatCard(
             'Average Amount',
             levelROIIncomeHistory.isNotEmpty
-                ? (levelROITotalIncome / levelROIIncomeHistory.length) * totalCurrency
+                ? (levelROITotalIncome / levelROIIncomeHistory.length) *
+                    totalCurrency
                 : 0.0,
             Icons.trending_up,
           ),
@@ -1817,22 +1916,28 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          DateFormat('MMM dd, yyyy HH:mm').format(income.createdAt),
+                          DateFormat('MMM dd, yyyy HH:mm')
+                              .format(income.createdAt),
                           style: TextStyle(
                             color: secondaryTextColor,
                             fontSize: 12,
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: income.status == 'CREDITED' ? successColor.withOpacity(0.1) : dangerColor.withOpacity(0.1),
+                            color: income.status == 'CREDITED'
+                                ? successColor.withOpacity(0.1)
+                                : dangerColor.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             income.status,
                             style: TextStyle(
-                              color: income.status == 'CREDITED' ? successColor : dangerColor,
+                              color: income.status == 'CREDITED'
+                                  ? successColor
+                                  : dangerColor,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
@@ -1954,7 +2059,8 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
           _buildStatCard(
             'Average Amount',
             salaryIncomeHistory.isNotEmpty
-                ? (salaryTotalIncome / salaryIncomeHistory.length) * totalCurrency
+                ? (salaryTotalIncome / salaryIncomeHistory.length) *
+                    totalCurrency
                 : 0.0,
             Icons.trending_up,
           ),
@@ -2051,22 +2157,28 @@ class _AllIncomeState extends State<AllIncome> with SingleTickerProviderStateMix
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          DateFormat('MMM dd, yyyy HH:mm').format(income.createdAt),
+                          DateFormat('MMM dd, yyyy HH:mm')
+                              .format(income.createdAt),
                           style: TextStyle(
                             color: secondaryTextColor,
                             fontSize: 12,
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: income.status == 'CREDITED' ? successColor.withOpacity(0.1) : dangerColor.withOpacity(0.1),
+                            color: income.status == 'CREDITED'
+                                ? successColor.withOpacity(0.1)
+                                : dangerColor.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             income.status,
                             style: TextStyle(
-                              color: income.status == 'CREDITED' ? successColor : dangerColor,
+                              color: income.status == 'CREDITED'
+                                  ? successColor
+                                  : dangerColor,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
