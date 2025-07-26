@@ -1459,227 +1459,6 @@ class _HomepageState extends State<Homepage> {
           // ),
 
           // Section title with yellow indicator
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
-            child: Row(
-              children: [
-                Container(
-                  width: 4,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: binanceYellow,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  "Trading Tools",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Trading Tools card with improved grid layout
-          Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF161D2B),
-                  Color(0xFF0F1923),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: cardBorder,
-                width: 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  spreadRadius: 0,
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              child: GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 1.3,
-                children: [
-                  // API Binding
-                  _buildGridOptionItem(
-                    icon: "assets/img/api.png",
-                    label: "API Binding",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ApiBinding())),
-                  ),
-                  // Trading Revenue
-                  _buildGridOptionItem(
-                    icon: "assets/img/cycle.png",
-                    label: "Trading Revenue",
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Revenue())),
-                  ),
-                  // Reward Details
-                  _buildGridOptionItem(
-                    icon: "assets/img/user.png",
-                    label: "Reward Details",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const AllIncome(initialTabIndex: 2))),
-                  ),
-                  // Gas Wallet
-                  _buildGridOptionItem(
-                    icon: "assets/img/make_money.png",
-                    label: "Gas Wallet",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const AutoDeposit())),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Section title with yellow indicator
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
-            child: Row(
-              children: [
-                Container(
-                  width: 4,
-                  height: 18,
-                  decoration: BoxDecoration(
-                    color: binanceYellow,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  "More Services",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // More Services card with improved grid layout
-          Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF161D2B),
-                  Color(0xFF0F1923),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: cardBorder,
-                width: 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  spreadRadius: 0,
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              child: GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 1.3,
-                children: [
-                  /// Arbitrade
-                  _buildGridOptionItem(
-                    icon: "assets/img/stock.png",
-                    label: "Arbitrade",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ArbiTradeSection())),
-                  ), // Transactions
-                  _buildGridOptionItem(
-                    icon: "assets/img/transaction.png",
-                    label: "Transactions",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const PaymentSection())),
-                  ),
-                  // Videos
-                  _buildGridOptionItem(
-                    icon: "assets/img/video.png",
-                    label: "Videos",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Quantitative())),
-                  ),
-                  // My Team
-                  _buildGridOptionItem(
-                    icon: "assets/img/team.png",
-                    label: "My Team",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Team(image: null))),
-                  ),
-                  // User Guide
-                  _buildGridOptionItem(
-                    icon: "assets/img/userguide.png",
-                    label: "User Guide",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const UserGuide())),
-                  ),
-                  // Invite Friends
-                  _buildGridOptionItem(
-                    icon: "assets/img/invitefriend.png",
-                    label: "Invite Friends",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                Sharescreen(reffral: widget.reffral))),
-                  ),
-                ],
-              ),
-            ),
-          ),
 
           /// trading
           Padding(
@@ -1743,6 +1522,16 @@ class _HomepageState extends State<Homepage> {
                 crossAxisSpacing: 10,
                 childAspectRatio: 1.3,
                 children: [
+                  /// Arbitrade
+                  _buildGridOptionItem(
+                    icon: "assets/img/stock.png",
+                    label: "Arbitrade Trading",
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ArbiTradeSection())),
+                  ),
+
                   /// Spot trading
                   _buildGridOptionItem(
                     icon: "assets/img/spot_trading.png",
@@ -1763,6 +1552,316 @@ class _HomepageState extends State<Homepage> {
                         MaterialPageRoute(
                             builder: (context) =>
                                 const FutureTradingSection())),
+                  ),
+
+                  ///  Api Binding
+                  _buildGridOptionItem(
+                    icon: "assets/img/api.png",
+                    label: "API Binding",
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ApiBinding())),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: binanceYellow,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  "Reports",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Trading Tools card with improved grid layout
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF161D2B),
+                  Color(0xFF0F1923),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: cardBorder,
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  spreadRadius: 0,
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                childAspectRatio: 1.3,
+                children: [
+                  /// Trading Revenue
+                  _buildGridOptionItem(
+                    icon: "assets/img/cycle.png",
+                    label: "Trading Revenue",
+                    onTap: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Revenue())),
+                  ),
+
+                  /// Reward Details
+                  _buildGridOptionItem(
+                    icon: "assets/img/user.png",
+                    label: "Reward Details",
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                const AllIncome(initialTabIndex: 2))),
+                  ),
+
+                  /// Transactions
+                  _buildGridOptionItem(
+                    icon: "assets/img/transaction.png",
+                    label: "Transactions",
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const PaymentSection())),
+                  ),
+
+                  /// My Team
+                  _buildGridOptionItem(
+                    icon: "assets/img/team.png",
+                    label: "My Team",
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Team(image: null))),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          /// Section title with yellow indicator
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: binanceYellow,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  "Fund Management",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          /// Fund Management card with improved grid layout
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF161D2B),
+                  Color(0xFF0F1923),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: cardBorder,
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  spreadRadius: 0,
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                childAspectRatio: 1.3,
+                children: [
+                  /// Gas Wallet
+                  _buildGridOptionItem(
+                    icon: "assets/img/make_money.png",
+                    label: "Gas Wallet",
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AutoDeposit(),
+                      ),
+                    ),
+                  ),
+
+                  /// Withdrawal Wallet
+                  _buildGridOptionItem(
+                    icon: "assets/img/money-withdrawal.png",
+                    label: "Withdrawal",
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AutoDeposit(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          /// Section title with yellow indicator
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: binanceYellow,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  "More Services",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          /// More Services card with improved grid layout
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF161D2B),
+                  Color(0xFF0F1923),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: cardBorder,
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  spreadRadius: 0,
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              child: GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                childAspectRatio: 1.3,
+                children: [
+                  /// User Guide
+                  _buildGridOptionItem(
+                    icon: "assets/img/userguide.png",
+                    label: "User Guide",
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const UserGuide())),
+                  ),
+
+                  /// Videos
+                  _buildGridOptionItem(
+                    icon: "assets/img/video.png",
+                    label: "Videos",
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const VideoScreen())),
+                  ),
+
+                  /// Invite Friends
+                  _buildGridOptionItem(
+                    icon: "assets/img/invitefriend.png",
+                    label: "Invite Friends",
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                Sharescreen(reffral: widget.reffral))),
+                  ),
+
+                  // Gas Wallet
+                  _buildGridOptionItem(
+                    icon: "assets/img/make_money.png",
+                    label: "Gas Wallet",
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const AutoDeposit())),
                   ),
                 ],
               ),

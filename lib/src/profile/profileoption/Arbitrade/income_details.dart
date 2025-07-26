@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/method/methods.dart';
+import 'package:securetradeai/model/dailyRoiHistoryModel.dart';
 import 'package:securetradeai/src/widget/animated_toast.dart';
 
 class IncomeDetailsPage extends StatefulWidget {
@@ -38,47 +39,139 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
 
       print('🔄 Loading ${widget.incomeType} data for user: $commonuserId');
 
-      // Use CommonMethod to get income data
-      final data = await CommonMethod().getIncomes(widget.incomeType);
+      List<Map<String, dynamic>> incomes = [];
+      double total = 0.0;
 
-      print('📤 Income API Request: getIncomes(${widget.incomeType})');
-      print('📥 Response: $data');
+      // Use new income management APIs based on income type
+      switch (widget.incomeType) {
+        case 'direct_income':
+          print('📤 Income API Request: getDirectIncome()');
+          final directRes = await CommonMethod().getDirectIncome();
+          print('📥 Response: ${directRes.status}');
 
-      if (data['status'] == true) {
-        List<Map<String, dynamic>> incomes = [];
-        double total = 0.0;
-
-        if (data['data'] != null && data['data'] is List) {
-          print('✅ Found ${data['data'].length} income records');
-          for (var income in data['data']) {
-            final amount =
-                double.tryParse(income['amount']?.toString() ?? '0') ?? 0.0;
-            total += amount;
-
-            incomes.add({
-              'id': income['id']?.toString() ?? '',
-              'amount': amount,
-              'investment_amount': income['investment_amount'],
-              'From_Users': income['From_Users']?.toString(),
-              'created_at': income['created_at']?.toString() ?? '',
-              'type': income['type']?.toString() ?? widget.incomeType,
-            });
+          if (directRes.status == "success") {
+            total = directRes.data.totalDirectIncome;
+            for (var income in directRes.data.incomeHistory) {
+              incomes.add({
+                'id': income.id.toString(),
+                'amount': income.amount,
+                'investment_amount': '',
+                'From_Users': income.referenceId.toString(),
+                'created_at': income.createdAt.toIso8601String(),
+                'type': 'Direct Income',
+                'description': income.description,
+                'status': income.status,
+                'percentage': income.percentage,
+              });
+            }
           }
-        } else {
-          print('ℹ️ No income data found or data is not a list');
-        }
+          break;
 
-        setState(() {
-          incomeData = incomes;
-          totalAmount = total;
-        });
+        case 'level_income':
+          print('📤 Income API Request: getLevelROIIncome()');
+          final levelRes = await CommonMethod().getLevelROIIncome();
+          print('📥 Response: ${levelRes.status}');
+
+          if (levelRes.status == "success") {
+            total = levelRes.data.totalLevelIncome;
+            for (var income in levelRes.data.incomeHistory) {
+              incomes.add({
+                'id': income.id.toString(),
+                'amount': income.amount,
+                'investment_amount': '',
+                'From_Users': income.referenceId.toString(),
+                'created_at': income.createdAt.toIso8601String(),
+                'type': 'Level ROI Income',
+                'description': income.description,
+                'status': income.status,
+                'level': income.level,
+                'percentage': income.percentage,
+              });
+            }
+          }
+          break;
+
+        case 'salary_income':
+          print('📤 Income API Request: getSalaryIncome()');
+          final salaryRes = await CommonMethod().getSalaryIncome();
+          print('📥 Response: ${salaryRes.status}');
+
+          if (salaryRes.status == "success") {
+            total = salaryRes.data.totalSalaryIncome;
+            for (var income in salaryRes.data.salaryHistory) {
+              incomes.add({
+                'id': income.id.toString(),
+                'amount': income.amount,
+                'investment_amount': '',
+                'From_Users': '',
+                'created_at': income.createdAt.toIso8601String(),
+                'type': 'Salary Income',
+                'description': income.description,
+                'status': income.status,
+              });
+            }
+          }
+          break;
+
+        case 'roi':
+          print('📤 Income API Request: getDailyRoiHistory()');
+          // Get the first active investment ID for ROI history
+          final investmentsRes = await CommonMethod().getUserInvestmentsNew();
+          if (investmentsRes.status == "success" &&
+              investmentsRes.data.arbitrageInvestments.isNotEmpty) {
+
+            final firstInvestment = investmentsRes.data.arbitrageInvestments.first;
+            final roiRes = await CommonMethod().getDailyRoiHistory(
+              investmentId: firstInvestment.id,
+              limit: 50, // Get more history
+            );
+            print('📥 Response: ${roiRes.status}');
+
+            if (roiRes.status == "success") {
+              total = roiRes.data.totalRoiEarned;
+              for (var roi in roiRes.data.roiHistory) {
+                incomes.add({
+                  'id': roi.id.toString(),
+                  'amount': roi.roiAmount,
+                  'investment_amount': firstInvestment.investmentAmount.toString(),
+                  'From_Users': 'Investment #${firstInvestment.id}',
+                  'created_at': roi.createdAt.toIso8601String(),
+                  'type': 'Daily ROI',
+                  'description': 'Daily ROI ${roi.roiPercentage}% from ${firstInvestment.packageType} package',
+                  'status': 'COMPLETED',
+                  'roi_date': roi.roiDate.toIso8601String(),
+                  'roi_percentage': roi.roiPercentage,
+                });
+              }
+            }
+          }
+          break;
+
+        default:
+          // Fallback for any other income types
+          print('⚠️ Unknown income type: ${widget.incomeType}');
+          //         'id': income['id']?.toString() ?? '',
+          //         'amount': amount,
+          //         'investment_amount': income['investment_amount'],
+          //         'From_Users': income['From_Users']?.toString(),
+          //         'created_at': income['created_at']?.toString() ?? '',
+          //         'type': income['type']?.toString() ?? widget.incomeType,
+          //       });
+          //     }
+          //   }
+          // }
+          break;
+      }
+
+      setState(() {
+        incomeData = incomes;
+        totalAmount = total;
+      });
+
+      if (incomes.isEmpty) {
+        print('ℹ️ No income data found');
       } else {
-        print('⚠️ API returned error: ${data['message'] ?? 'Unknown error'}');
-        _showErrorToast(data['message'] ?? 'Failed to load income data');
-        setState(() {
-          incomeData = [];
-          totalAmount = 0.0;
-        });
+        print('✅ Found ${incomes.length} income records');
       }
     } catch (e) {
       print('❌ Exception loading income data: $e');
@@ -395,6 +488,150 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
           ],
           const SizedBox(height: 8),
           const SizedBox(width: 8),
+          // Show description for new income management APIs
+          if (income['description'] != null &&
+              income['description'].isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(
+                  Icons.info_outline,
+                  color: Color(0xFF848E9C),
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    income['description'],
+                    style: const TextStyle(
+                      color: Color(0xFF848E9C),
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+
+          // Show ROI percentage and date for ROI income
+          if (income['roi_percentage'] != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(
+                  Icons.trending_up,
+                  color: Color(0xFF0ECB81),
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'ROI: ${income['roi_percentage'].toStringAsFixed(2)}%',
+                  style: const TextStyle(
+                    color: Color(0xFF0ECB81),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (income['roi_date'] != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(
+                  Icons.calendar_today,
+                  color: Color(0xFF848E9C),
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'ROI Date: ${_formatDate(income['roi_date'])}',
+                  style: const TextStyle(
+                    color: Color(0xFF848E9C),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ],
+
+          // Show percentage for direct and level income
+          if (income['percentage'] != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(
+                  Icons.percent,
+                  color: Color(0xFF848E9C),
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Percentage: ${income['percentage']}%',
+                  style: const TextStyle(
+                    color: Color(0xFF848E9C),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ],
+
+          // Show level for level income
+          if (income['level'] != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(
+                  Icons.layers,
+                  color: Color(0xFF848E9C),
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Level: ${income['level']}',
+                  style: const TextStyle(
+                    color: Color(0xFF848E9C),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ],
+
+          // Show status for new income management APIs
+          if (income['status'] != null && income['status'].isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(''),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: income['status'] == 'CREDITED'
+                        ? const Color(0xFF0ECB81).withOpacity(0.1)
+                        : const Color(0xFFE53935).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    income['status'],
+                    style: TextStyle(
+                      color: income['status'] == 'CREDITED'
+                          ? const Color(0xFF0ECB81)
+                          : const Color(0xFFE53935),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+
+          // Show investment amount for old API data
           if (income['investment_amount'] != null &&
               income['investment_amount'].isNotEmpty) ...[
             const SizedBox(height: 8),
@@ -407,7 +644,6 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                 ),
                 Text(
                   ' Investment Amount : \$${income['investment_amount']}',
-                  // 'Investment Amount : ${income['investment_amount']}',
                   style: const TextStyle(
                     color: Color(0xFF848E9C),
                     fontSize: 12,

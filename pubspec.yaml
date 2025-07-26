@@ -55,6 +55,7 @@ dependencies:
   webview_flutter: ^2.0.13  # Compatible version with flutter_html
   # social_share:
   url_launcher: ^6.0.20  # Downgraded to be compatible with Dart SDK 2.19.6
+  video_player: ^2.7.2  # Compatible with Dart SDK 2.19.6
   flutter_speed_dial: ^7.0.0
   # image_gallery_saver: ^1.7.1
   permission_handler: ^8.3.0  # Downgraded to be compatible with SDK
@@ -70,12 +71,14 @@ dependencies:
   slider_captcha: ^1.0.0
   equatable: ^2.0.3
   expansion_tile_card: ^3.0.0
-  youtube_player_flutter: ^8.1.2
+  youtube_player_flutter: ^8.1.0
+  chewie: ^1.5.0
   # upgrader:
   open_store: ^0.5.0
   flutter_plugin_android_lifecycle: ^2.0.16
   intl: ^0.17.0
   web_socket_channel : any
+  youtube_player_iframe: any
 
 dev_dependencies:
   flutter_test:

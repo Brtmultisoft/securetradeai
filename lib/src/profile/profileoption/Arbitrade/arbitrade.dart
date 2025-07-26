@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/method/methods.dart';
+import 'package:securetradeai/model/incomeManagementModel.dart';
+import 'package:securetradeai/model/incomeSummaryModel.dart';
+import 'package:securetradeai/model/userInvestmentsModel.dart';
+import 'package:securetradeai/model/userRankModel.dart';
 import 'package:securetradeai/src/profile/profileoption/Arbitrade/income_details.dart';
 import 'package:securetradeai/src/widget/animated_toast.dart';
 
@@ -32,8 +36,32 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   double totalROIIncome = 0.0;
   double totalDirectROIIncome = 0.0;
   double totalBusinessIncome = 0.0;
-  List<Map<String, dynamic>> myInvestments = [];
-  List<Map<String, dynamic>> incomeHistory = [];
+  // List<Map<String, dynamic>> myInvestments = [];
+  // List<Map<String, dynamic>> incomeHistory = [];
+
+  // New API data
+  UserInvestmentsModel? userInvestmentsData;
+  List<ArbitrageInvestment> arbitrageInvestments = [];
+  InvestmentSummary? investmentSummary;
+
+  // User rank data
+  UserRankModel? userRankData;
+
+  // Income summary data
+  IncomeSummaryModel? incomeSummaryData;
+
+  // New Income Management Data
+  DirectIncomeModel? directIncomeData;
+  double directTotalIncome = 0.0;
+  List<DirectIncomeHistory> directIncomeHistory = [];
+
+  LevelIncomeModel? levelROIIncomeData;
+  double levelROITotalIncome = 0.0;
+  List<LevelIncomeHistory> levelROIIncomeHistory = [];
+
+  SalaryIncomeModel? salaryIncomeData;
+  double salaryTotalIncome = 0.0;
+  List<SalaryIncomeHistory> salaryIncomeHistory = [];
 
   @override
   void initState() {
@@ -76,6 +104,15 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
 
       // Load investment data
       await _loadInvestmentData();
+
+      // Load new income management data
+      await Future.wait([
+        _loadDirectIncome(),
+        _loadLevelROIIncome(),
+        _loadSalaryIncome(),
+        _loadUserRank(),
+        _loadIncomeSummary(),
+      ]);
     } catch (e) {
       print('Error loading data: $e');
       _showErrorToast('Failed to load data. Please try again.');
@@ -90,58 +127,35 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     try {
       print('🔄 Loading investment data for user: $commonuserId');
 
-      final data = await CommonMethod().getUserInvestments();
+      final data = await CommonMethod().getUserInvestmentsNew();
 
-      print('📤 Investment API Request: getUserInvestments()');
-      print('📥 Response: $data');
+      print('📤 Investment API Request: getUserInvestmentsNew()');
+      print('📥 Response: ${data.status}');
 
-      if (data['status'] == 'success') {
-        List<Map<String, dynamic>> investments = [];
-
-        if (data['data'] != null && data['data'] is List) {
-          print('✅ Found ${data['data'].length} investments');
-          for (var investment in data['data']) {
-            investments.add({
-              'package': investment['package_name'] ?? 'Investment Package',
-              'amount':
-                  double.tryParse(investment['amount']?.toString() ?? '0') ??
-                      0.0,
-              'dailyROI':
-                  double.tryParse(investment['daily_roi']?.toString() ?? '0') ??
-                      0.0,
-              'startDate': investment['start_date'] != null
-                  ? DateTime.tryParse(investment['start_date']) ??
-                      DateTime.now()
-                  : DateTime.now(),
-              'endDate': investment['end_date'] != null
-                  ? DateTime.tryParse(investment['end_date']) ??
-                      DateTime.now().add(const Duration(days: 30))
-                  : DateTime.now().add(const Duration(days: 30)),
-              'totalEarned': double.tryParse(
-                      investment['total_earned']?.toString() ?? '0') ??
-                  0.0,
-              'status': investment['status'] ?? 'Active',
-            });
-          }
-        } else {
-          print('ℹ️ No investment data found or data is not a list');
-        }
-
+      if (data.status == 'success') {
         setState(() {
-          myInvestments = investments;
+          userInvestmentsData = data;
+          arbitrageInvestments = data.data.arbitrageInvestments;
+          investmentSummary = data.data.summary;
         });
+
+        print('✅ Found ${arbitrageInvestments.length} arbitrage investments');
         return; // Success, exit early
       }
 
-      // If both APIs fail, set empty list
-      print('⚠️ Both investment APIs failed, setting empty list');
+      // If API fails, set empty data
+      print('⚠️ Investment API failed, setting empty data');
       setState(() {
-        myInvestments = [];
+        userInvestmentsData = null;
+        arbitrageInvestments = [];
+        investmentSummary = null;
       });
     } catch (e) {
       print('❌ Exception loading investment data: $e');
       setState(() {
-        myInvestments = [];
+        userInvestmentsData = null;
+        arbitrageInvestments = [];
+        investmentSummary = null;
       });
     }
   }
@@ -162,6 +176,51 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
       message: message,
       status: "success",
     );
+  }
+
+  Future<void> _loadDirectIncome() async {
+    try {
+      final res = await CommonMethod().getDirectIncome();
+      if (res.status == "success") {
+        setState(() {
+          directIncomeData = res;
+          directTotalIncome = res.data.totalDirectIncome;
+          directIncomeHistory = res.data.incomeHistory;
+        });
+      }
+    } catch (e) {
+      print('Error loading direct income: $e');
+    }
+  }
+
+  Future<void> _loadLevelROIIncome() async {
+    try {
+      final res = await CommonMethod().getLevelROIIncome();
+      if (res.status == "success") {
+        setState(() {
+          levelROIIncomeData = res;
+          levelROITotalIncome = res.data.totalLevelIncome;
+          levelROIIncomeHistory = res.data.incomeHistory;
+        });
+      }
+    } catch (e) {
+      print('Error loading level ROI income: $e');
+    }
+  }
+
+  Future<void> _loadSalaryIncome() async {
+    try {
+      final res = await CommonMethod().getSalaryIncome();
+      if (res.status == "success") {
+        setState(() {
+          salaryIncomeData = res;
+          salaryTotalIncome = res.data.totalSalaryIncome;
+          salaryIncomeHistory = res.data.salaryHistory;
+        });
+      }
+    } catch (e) {
+      print('Error loading salary income: $e');
+    }
   }
 
   @override
@@ -196,39 +255,44 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                 color: Color(0xFFF0B90B),
               ),
             )
-          : Column(
-              children: [
-                // Balance Card
-                _buildBalanceCard(),
-                // Tab Bar
-                Container(
-                  color: const Color(0xFF161A1E),
-                  child: TabBar(
-                    controller: _tabController,
-                    labelColor: const Color(0xFFF0B90B),
-                    unselectedLabelColor: const Color(0xFF848E9C),
-                    indicatorColor: const Color(0xFFF0B90B),
-                    tabs: const [
-                      Tab(text: 'Investment'),
-                      Tab(text: 'My Investments'),
-                      Tab(text: 'Income'),
-                      Tab(text: 'Reports'),
-                    ],
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  // User Rank Banner
+                  if (userRankData != null) _buildUserRankBanner(),
+                  // Balance Card
+                  _buildBalanceCard(),
+                  // Tab Bar
+                  Container(
+                    color: const Color(0xFF161A1E),
+                    child: TabBar(
+                      controller: _tabController,
+                      labelColor: const Color(0xFFF0B90B),
+                      unselectedLabelColor: const Color(0xFF848E9C),
+                      indicatorColor: const Color(0xFFF0B90B),
+                      tabs: const [
+                        Tab(text: 'Investment'),
+                        Tab(text: 'My Investments'),
+                        Tab(text: 'Income'),
+                        Tab(text: 'Reports'),
+                      ],
+                    ),
                   ),
-                ),
-                // Tab Views
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _buildInvestmentTab(),
-                      _buildMyInvestmentsTab(),
-                      _buildIncomeTab(),
-                      _buildReportsTab(),
-                    ],
+                  // Tab Content with fixed height
+                  SizedBox(
+                    height: 600, // Fixed height for TabBarView
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        _buildInvestmentTab(),
+                        _buildMyInvestmentsTab(),
+                        _buildIncomeTab(),
+                        _buildReportsTab(),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
     );
   }
@@ -237,109 +301,414 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF0ECB81).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: const Color(0xFF0ECB81).withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          Padding(
+            padding:
+                const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Top-Up Balance',
+                        style: TextStyle(
+                          color: Colors.yellow,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '\$${gasBalance.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Earning Balance',
+                        style: TextStyle(
+                          color: Colors.yellow,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '\$${incomeSummaryData!.data.totalIncome.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider(
+            color: Colors.yellow,
+          ),
+          // Income Breakdown Section
+          if (incomeSummaryData != null) ...[
+            _buildIncomeBreakdownGrid(),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIncomeBreakdownGrid() {
+    if (incomeSummaryData == null) return const SizedBox.shrink();
+
+    final breakdown = incomeSummaryData!.data.incomeBreakdown;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 15),
+      child: Column(
+        children: [
+          // First row: Daily ROI and Direct Referral
+          Row(
+            children: [
+              Expanded(
+                child: _buildIncomeItem(
+                  'Daily ROI',
+                  breakdown.dailyRoi,
+                  Icons.trending_up,
+                  const Color(0xFF0ECB81),
+                ),
+              ),
+              const SizedBox(width: 18),
+              Expanded(
+                child: _buildIncomeItem(
+                  'Direct Referral',
+                  breakdown.directReferral,
+                  Icons.person_add,
+                  const Color(0xFF4A90E2),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // Second row: Level ROI and Gas Fee
+          Row(
+            children: [
+              Expanded(
+                child: _buildIncomeItem(
+                  'Level ROI',
+                  breakdown.levelRoi,
+                  Icons.layers,
+                  const Color(0xFFF0B90B),
+                ),
+              ),
+              const SizedBox(width: 18),
+              Expanded(
+                child: _buildIncomeItem(
+                  'Gas Fee',
+                  breakdown.gasFee,
+                  Icons.local_gas_station,
+                  const Color(0xFF848E9C),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          // Third row: Salary (full width)
+          _buildIncomeItem(
+            'Salary',
+            breakdown.salary,
+            Icons.account_balance_wallet,
+            const Color(0xFF9C27B0),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIncomeItem(
+      String label, double amount, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E2026),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF2A2D35), width: 1),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 16,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: Color(0xFF848E9C),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '\$${amount.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    color: amount > 0 ? color : const Color(0xFF848E9C),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserRankBanner() {
+    if (userRankData == null) return const SizedBox.shrink();
+
+    final rankData = userRankData!.data;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF1E2026), // Binance card dark
-            Color(0xFF12151C), // Binance card darker
+            Color(0xFFF0B90B), // Golden yellow
+            Color(0xFFFFD700), // Bright gold
+            Color(0xFFF0B90B), // Golden yellow
           ],
+          stops: [0.0, 0.5, 1.0],
         ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF2A2D35), width: 1),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFF0B90B).withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header with rank and crown icon
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Available Balance',
-                style: TextStyle(
-                  color: Color(0xFF848E9C),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.diamond,
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        rankData.currentRank.toUpperCase(),
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      Text(
+                        rankData.name,
+                        style: TextStyle(
+                          color: Colors.black.withOpacity(0.7),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0ECB81).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(4),
+                  color: Colors.black.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text(
-                  'Gas Wallet',
-                  style: TextStyle(
-                    color: Color(0xFF0ECB81),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                child: Text(
+                  '${rankData.progressPercentage.toStringAsFixed(1)}%',
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            '\$${totalBalance.toStringAsFixed(2)}',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+
           const SizedBox(height: 16),
-          Row(
+
+          // Progress to next rank
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Gas Balance',
-                      style: TextStyle(
-                        color: Color(0xFF848E9C),
-                        fontSize: 12,
-                      ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Progress to ${rankData.nextRank}',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '\$${gasBalance.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  ),
+                  Text(
+                    '\$${rankData.teamBusiness.toStringAsFixed(0)} / \$${rankData.nextRankRequirement.toStringAsFixed(0)}',
+                    style: TextStyle(
+                      color: Colors.black.withOpacity(0.7),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Earning Balance',
-                      style: TextStyle(
-                        color: Color(0xFF848E9C),
-                        fontSize: 12,
-                      ),
+              const SizedBox(height: 8),
+              Container(
+                height: 6,
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+                child: FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor:
+                      (rankData.progressPercentage / 100).clamp(0.0, 1.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(3),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '\$${bonusBalance.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Quick stats row
+          Row(
+            children: [
+              Expanded(
+                child: _buildQuickStat(
+                  'Team Business',
+                  '\$${rankData.teamBusiness.toStringAsFixed(0)}',
+                  Icons.business,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildQuickStat(
+                  'Team Members',
+                  '${rankData.teamMembers}',
+                  Icons.group,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildQuickStat(
+                  'Total Earnings',
+                  '\$${rankData.totalEarnings.toStringAsFixed(0)}',
+                  Icons.account_balance_wallet,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickStat(String label, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            icon,
+            color: Colors.black,
+            size: 16,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.black.withOpacity(0.7),
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -420,7 +789,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     const SizedBox(height: 24),
                     // Package Features
                     _buildFeatureRow(
-                        Icons.trending_up, 'Daily ROI', '3.5% - 4.5%'),
+                        Icons.trending_up, 'Daily ROI', '0.33% - 0.55%'),
                     const SizedBox(height: 12),
                     _buildFeatureRow(Icons.schedule, 'Duration', '30 Days'),
                     const SizedBox(height: 12),
@@ -443,7 +812,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Investment Amount',
+                      'Arbitrage Investment Amount',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -649,7 +1018,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Investment Package',
+                  'Arbitrage Package',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -663,7 +1032,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Daily ROI: 3.5% - 4.5%',
+                  'Daily ROI: 0.33% - 0.55%',
                   style: TextStyle(color: Colors.white),
                 ),
                 const SizedBox(height: 8),
@@ -709,13 +1078,12 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
 
         try {
           print(
-              '🛒 Purchasing package for user: $commonuserId, amount: $amount');
+              '🛒 Purchasing arbitrage package for user: $commonuserId, amount: $amount');
 
-          // Use CommonMethod to buy investment package
-          final data = await CommonMethod()
-              .buyInvestmentPackage(amount.toString(), 'investment_package');
+          // Use arbitrage package API
+          final data = await CommonMethod().buyArbitragePackage(amount);
 
-          print('📤 Purchase API Request: buyInvestmentPackage()');
+          print('📤 Purchase API Request: buyArbitragePackage()');
           print('📥 Response: $data');
 
           if (data['status'] == 'success') {
@@ -754,12 +1122,126 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     }
   }
 
+  Future<void> _loadUserRank() async {
+    try {
+      print('🔄 Loading user rank data for user: $commonuserId');
+
+      final data = await CommonMethod().getUserRank();
+      print('📤 User Rank API Request: getUserRank()');
+      print('📥 Response Status: ${data.status}');
+
+      // Print detailed rank data
+      print('🏆 ===== USER RANK DATA =====');
+      print('📊 Status: ${data.status}');
+
+      if (data.status == 'success') {
+        final rankData = data.data;
+        print('👤 User Name: ${rankData.name}');
+        print('🎖️ Current Rank: ${rankData.currentRank}');
+        print('⬆️ Next Rank: ${rankData.nextRank}');
+        print(
+            '💼 Team Business: \$${rankData.teamBusiness.toStringAsFixed(2)}');
+        print('👥 Team Members: ${rankData.teamMembers}');
+        print(
+            '💰 Total Earnings: \$${rankData.totalEarnings.toStringAsFixed(2)}');
+        print(
+            '📈 Progress Percentage: ${rankData.progressPercentage.toStringAsFixed(1)}%');
+        print(
+            '🎯 Next Rank Requirement: \$${rankData.nextRankRequirement.toStringAsFixed(2)}');
+        print('🏆 ===========================');
+
+        setState(() {
+          userRankData = data;
+        });
+
+        print('✅ User rank loaded successfully: ${data.data.currentRank}');
+        return; // Success, exit early
+      }
+
+      print('⚠️ User rank API failed with status: ${data.status}');
+      setState(() {
+        userRankData = null;
+      });
+    } catch (e) {
+      print('❌ Exception loading user rank data: $e');
+      print('❌ Exception type: ${e.runtimeType}');
+      setState(() {
+        userRankData = null;
+      });
+    }
+  }
+
+  Future<void> _loadIncomeSummary() async {
+    try {
+      print('🔄 Loading income summary data for user: $commonuserId');
+
+      final data = await CommonMethod().getIncomeSummary();
+      print('📤 Income Summary API Request: getIncomeSummary()');
+      print('📥 Response Status: ${data.status}');
+
+      // Print detailed income summary data
+      print('💰 ===== INCOME SUMMARY DATA =====');
+      print('📊 Status: ${data.status}');
+
+      if (data.status == 'success') {
+        final incomeData = data.data;
+        final breakdown = incomeData.incomeBreakdown;
+
+        print(
+            '💵 Total Income: \$${incomeData.totalIncome.toStringAsFixed(2)}');
+        print('📈 Income Breakdown:');
+        print('  📊 Daily ROI: \$${breakdown.dailyRoi.toStringAsFixed(2)}');
+        print(
+            '  👥 Direct Referral: \$${breakdown.directReferral.toStringAsFixed(2)}');
+        print('  🔗 Level ROI: \$${breakdown.levelRoi.toStringAsFixed(2)}');
+        print('  ⛽ Gas Fee: \$${breakdown.gasFee.toStringAsFixed(2)}');
+        print('  💼 Salary: \$${breakdown.salary.toStringAsFixed(2)}');
+        print('💰 ===============================');
+
+        setState(() {
+          incomeSummaryData = data;
+        });
+
+        print(
+            '✅ Income summary loaded successfully: Total \$${data.data.totalIncome.toStringAsFixed(2)}');
+        return; // Success, exit early
+      }
+
+      print('⚠️ Income summary API failed, setting empty data');
+      setState(() {
+        incomeSummaryData = null;
+      });
+    } catch (e) {
+      print('❌ Exception loading income summary data: $e');
+      setState(() {
+        incomeSummaryData = null;
+      });
+    }
+  }
+
+  /// Get Daily ROI value from income summary API data
+  double _getTotalROIFromIncomeSummary() {
+    if (incomeSummaryData == null) {
+      // Fallback to old data if income summary is not available
+      return totalROIIncome;
+    }
+
+    // Use the daily_roi from the API response (0.49)
+    final dailyROIValue = incomeSummaryData!.data.incomeBreakdown.dailyRoi;
+
+    print('🔢 Using Daily ROI from API:');
+    print('  📊 Daily ROI: \$${dailyROIValue.toStringAsFixed(2)}');
+    print('  🎯 This is the ROI income value from API');
+
+    return dailyROIValue;
+  }
+
   Widget _buildMyInvestmentsTab() {
     return RefreshIndicator(
       color: const Color(0xFFF0B90B),
       backgroundColor: const Color(0xFF161A1E),
       onRefresh: _loadData,
-      child: myInvestments.isEmpty
+      child: (arbitrageInvestments.isEmpty)
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -791,21 +1273,20 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: myInvestments.length,
+              itemCount: arbitrageInvestments.length,
               itemBuilder: (context, index) {
-                final investment = myInvestments[index];
-                return _buildInvestmentCard(investment);
+                return _buildArbitrageInvestmentCard(
+                    arbitrageInvestments[index]);
               },
             ),
     );
   }
 
-  Widget _buildInvestmentCard(Map<String, dynamic> investment) {
-    final DateTime startDate = investment['startDate'];
-    final DateTime endDate = investment['endDate'];
-    final int daysRemaining = endDate.difference(DateTime.now()).inDays;
-    final double progress =
-        (DateTime.now().difference(startDate).inDays / 30).clamp(0.0, 1.0);
+  Widget _buildArbitrageInvestmentCard(ArbitrageInvestment investment) {
+    final DateTime endDate = investment.startDate.add(const Duration(days: 30));
+    final int daysRemaining =
+        endDate.difference(DateTime.now()).inDays.clamp(0, 30);
+    final double progress = (investment.daysRunning / 30).clamp(0.0, 1.0);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -821,9 +1302,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                investment['package'],
-                style: const TextStyle(
+              const Text(
+                'Arbitrage Package',
+                style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -832,15 +1313,15 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: investment['status'] == 'Active'
+                  color: investment.status == 'ACTIVE'
                       ? const Color(0xFF0ECB81).withOpacity(0.1)
                       : const Color(0xFF848E9C).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  investment['status'],
+                  investment.status,
                   style: TextStyle(
-                    color: investment['status'] == 'Active'
+                    color: investment.status == 'ACTIVE'
                         ? const Color(0xFF0ECB81)
                         : const Color(0xFF848E9C),
                     fontSize: 12,
@@ -855,15 +1336,15 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
             children: [
               Expanded(
                 child: _buildInvestmentDetail('Investment',
-                    '\$${investment['amount'].toStringAsFixed(2)}'),
+                    '\$${investment.investmentAmount.toStringAsFixed(2)}'),
               ),
               Expanded(
                 child: _buildInvestmentDetail(
-                    'Daily ROI', '${investment['dailyROI']}%'),
+                    'Daily ROI', '${investment.dailyRoiPercentage}%'),
               ),
               Expanded(
                 child: _buildInvestmentDetail('Total Earned',
-                    '\$${investment['totalEarned'].toStringAsFixed(2)}'),
+                    '\$${investment.totalRoiEarned.toStringAsFixed(2)}'),
               ),
             ],
           ),
@@ -871,9 +1352,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Progress',
-                style: const TextStyle(
+                style: TextStyle(
                   color: Color(0xFF848E9C),
                   fontSize: 12,
                 ),
@@ -931,20 +1412,20 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Income Overview Cards
+            // Income Overview Cards - New Income Management APIs
             Row(
               children: [
                 Expanded(
-                  child: _buildIncomeCard('Total ROI Income', totalROIIncome,
-                      const Color(0xFF0ECB81), 'roi'),
+                  child: _buildIncomeCard('Direct Income', directTotalIncome,
+                      const Color(0xFF0ECB81), 'direct_income'),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildIncomeCard(
-                      'Direct ROI Income',
-                      totalDirectROIIncome,
+                      'Level ROI Income',
+                      levelROITotalIncome,
                       const Color(0xFFF0B90B),
-                      'direct_roi_income'),
+                      'level_income'),
                 ),
               ],
             ),
@@ -952,16 +1433,17 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
             Row(
               children: [
                 Expanded(
-                  child: _buildIncomeCard('Level Income', double.parse('0'),
-                      const Color(0xFF4A90E2), 'level_income'),
+                  child: _buildIncomeCard('Salary Income', salaryTotalIncome,
+                      const Color(0xFF4A90E2), 'salary_income'),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildIncomeCard(
-                      'Business Income',
-                      totalBusinessIncome,
-                      const Color(0xFFE53935),
-                      'business_income'),
+                    'Total ROI Income',
+                    _getTotalROIFromIncomeSummary(),
+                    const Color(0xFFE53935),
+                    'roi'
+                  ),
                 ),
               ],
             ),
@@ -987,8 +1469,26 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     ),
                   ),
                   const SizedBox(height: 16),
-                  ...incomeHistory
-                      .map((income) => _buildIncomeHistoryItem(income)),
+                  // Show new income management history
+                  ...directIncomeHistory.map((income) =>
+                      _buildNewIncomeHistoryItem('Direct Income', income.amount,
+                          income.createdAt, income.status, income.description)),
+                  ...levelROIIncomeHistory.map((income) =>
+                      _buildNewIncomeHistoryItem(
+                          'Level ROI Income',
+                          income.amount,
+                          income.createdAt,
+                          income.status,
+                          income.description)),
+                  ...salaryIncomeHistory.map((income) =>
+                      _buildNewIncomeHistoryItem('Salary Income', income.amount,
+                          income.createdAt, income.status, income.description)),
+                  // Show existing income history if no new data
+                  // if (directIncomeHistory.isEmpty &&
+                  //     levelROIIncomeHistory.isEmpty &&
+                  //     salaryIncomeHistory.isEmpty)
+                  //   ...incomeHistory
+                  //       .map((income) => _buildIncomeHistoryItem(income)),
                 ],
               ),
             ),
@@ -1127,6 +1627,87 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     );
   }
 
+  Widget _buildNewIncomeHistoryItem(String type, double amount, DateTime date,
+      String status, String description) {
+    final String formattedDate = '${date.day}/${date.month}/${date.year}';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF12151C),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF2A2D35), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                type,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                '\$${amount.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  color: Color(0xFF0ECB81),
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            description,
+            style: const TextStyle(
+              color: Color(0xFF848E9C),
+              fontSize: 12,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                formattedDate,
+                style: const TextStyle(
+                  color: Color(0xFF848E9C),
+                  fontSize: 12,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: status == 'CREDITED'
+                      ? const Color(0xFF0ECB81).withOpacity(0.1)
+                      : const Color(0xFFE53935).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  status,
+                  style: TextStyle(
+                    color: status == 'CREDITED'
+                        ? const Color(0xFF0ECB81)
+                        : const Color(0xFFE53935),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildReportsTab() {
     return RefreshIndicator(
       color: const Color(0xFFF0B90B),
@@ -1154,12 +1735,15 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   }
 
   Widget _buildReportSummaryCard() {
-    final double totalInvested =
-        myInvestments.fold(0.0, (sum, inv) => sum + inv['amount']);
-    final double totalEarned =
-        myInvestments.fold(0.0, (sum, inv) => sum + inv['totalEarned']);
-    final double totalIncome =
-        dailyROI + directIncome + levelIncome + businessIncome;
+    final double totalInvested = investmentSummary?.totalInvestment ?? 0.0;
+    final double totalEarned = investmentSummary?.totalRoiEarned ?? 0.0;
+    final double totalIncome = dailyROI +
+        directIncome +
+        levelIncome +
+        businessIncome +
+        directTotalIncome +
+        levelROITotalIncome +
+        salaryTotalIncome;
 
     return Container(
       width: double.infinity,
@@ -1199,7 +1783,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
               Expanded(
                 child: _buildSummaryItem(
                     'Total Earned',
-                    '\$${(totalDirectROIIncome + totalBusinessIncome + totalROIIncome).toStringAsFixed(2)}',
+                    '\$${(totalDirectROIIncome + totalBusinessIncome + totalROIIncome + directTotalIncome + levelROITotalIncome + salaryTotalIncome).toStringAsFixed(2)}',
                     const Color(0xFF0ECB81)),
               ),
             ],
@@ -1210,7 +1794,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
               Expanded(
                 child: _buildSummaryItem(
                     'Active Investments',
-                    '${myInvestments.where((inv) => inv['status'] == 'active ').length}',
+                    '${arbitrageInvestments.where((inv) => inv.status == 'ACTIVE').length}',
                     const Color(0xFF4A90E2)),
               ),
               Expanded(
@@ -1312,7 +1896,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
             ),
           ),
           const SizedBox(height: 16),
-          if (myInvestments.isEmpty)
+          if (arbitrageInvestments.isEmpty)
             const Center(
               child: Text(
                 'No investments to display',
@@ -1323,8 +1907,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
               ),
             )
           else
-            ...myInvestments
-                .map((investment) => _buildBreakdownItem(investment)),
+            ...arbitrageInvestments
+                .map((investment) => _buildArbitrageBreakdownItem(investment)),
         ],
       ),
     );
@@ -1364,6 +1948,51 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
           ),
           Text(
             '\$${investment['amount'].toStringAsFixed(2)}',
+            style: const TextStyle(
+              color: Color(0xFF0ECB81),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildArbitrageBreakdownItem(ArbitrageInvestment investment) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF12151C),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Arbitrage Package',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'ROI: ${investment.dailyRoiPercentage}%',
+                style: const TextStyle(
+                  color: Color(0xFF848E9C),
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          Text(
+            '\$${investment.investmentAmount.toStringAsFixed(2)}',
             style: const TextStyle(
               color: Color(0xFF0ECB81),
               fontSize: 16,

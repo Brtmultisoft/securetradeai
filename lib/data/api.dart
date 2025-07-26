@@ -120,9 +120,29 @@ const String getWalletInfoUrl = "${url}get_wallet_info";
 const String activateSubscriptionUrl = "${url}activate_subscription";
 
 // Investment Package API endpoints
-const String buyPackagePost = "${url}buy_package";
+const String buyPackagePost = "${url}buy_bot_trading_package";
 const String getUserInvestmentsPost = "${url}get_user_investments";
-const String getIncomesPost = "${url}get_incomes";
+// const String getIncomesPost = "${url}get_incomes";
+
+// Income Management API endpoints
+const String getDirectIncomeUrl = "${url}get_direct_income";
+const String getLevelIncomeUrl = "${url}get_level_income";
+const String getSalaryIncomeUrl = "${url}get_salary_income";
+
+// User Investments API endpoint
+const String getUserInvestmentsUrl = "${url}get_user_investments";
+
+// Package Purchase API endpoint
+const String buyArbitragePackageUrl = "${url}buy_arbitrage_package";
+
+// Daily ROI History API endpoint
+const String getDailyRoiHistoryUrl = "${url}get_daily_roi_history";
+
+// User Rank API endpoint
+const String getUserRankUrl = "${url}get_user_rank";
+
+// Income Summary API endpoint
+const String getIncomeSummaryUrl = "${url}get_income_summary";
 
 // Future Trading API endpoints
 const String dualSideAccountBalance = "${url}dual_side_account_balance";
