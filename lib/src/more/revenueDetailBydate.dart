@@ -1,10 +1,7 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 
 import '../../Data/Api.dart';
@@ -36,7 +33,16 @@ class _RevenueDetailByDateState extends State<RevenueDetailByDate> {
   var finaldata = [];
   _getRevenueData() async {
     try {
+      print("🔄 Loading revenue details for date: ${widget.date}");
+      print(
+          "🌐 API ENDPOINT: https://securetradeai.com/myrest/user/revenue_bydate");
+      print(
+          "📤 API REQUEST: POST with body: {\"user_id\": \"user_id\", \"date\": \"${widget.date}\"}");
+
       final data = await CommonMethod().getRevenueDetailByDate(widget.date);
+      print("📊 Revenue Details API Response Status: ${data.status}");
+      print("📊 Revenue Details API Response Message: ${data.message}");
+
       if (data.status == "success") {
         if (mounted) {
           setState(() {
@@ -112,183 +118,325 @@ class _RevenueDetailByDateState extends State<RevenueDetailByDate> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final double categoryHeight = size.height * 0.50;
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: GestureDetector(
-              onTap: () {
-                _getAssets();
-              },
-              child: Text(widget.date)),
-        ),
-        backgroundColor: bg,
-        body: Column(
+    return Scaffold(
+      backgroundColor:
+          const Color(0xFF0C0E12), // TradingTheme.primaryBackground
+      appBar: AppBar(
+        backgroundColor:
+            const Color(0xFF161A1E), // TradingTheme.secondaryBackground
+        elevation: 0,
+        title: Row(
           children: [
-            topHeader(widget.today, widget.cumulative),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFF0B90B), Color(0xFFE6A500)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.receipt_long, color: Colors.black, size: 16),
+                  SizedBox(width: 6),
+                  Text(
+                    'DETAILS',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
             Expanded(
-                child: getRevenueDetail.isEmpty
-                    ? Center(
-                        child: CircularProgressIndicator(
-                            color: securetradeaicolor),
-                      )
-                    :
-                    // dummyBuilder()
-                    ListView.builder(
-                        itemCount: finaldata.length,
-                        itemBuilder: (context, i) {
-                          print(finaldata);
-                          return Container(
-                              margin: const EdgeInsets.only(
-                                  left: 15, right: 15, top: 15),
-                              height: 150,
-                              decoration: BoxDecoration(
-                                color: securetradeaicolor.withOpacity(0.7),
-                                borderRadius: BorderRadius.circular(10.0),
+              child: Text(
+                "Revenue - ${widget.date}",
+                style: const TextStyle(
+                  color: Color(0xFFEAECEF), // TradingTheme.primaryText
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Color(0xFFEAECEF), // TradingTheme.primaryText
+          ),
+        ),
+      ),
+      body: Column(
+        children: [
+          topHeader(widget.today, widget.cumulative),
+          Expanded(
+              child: getRevenueDetail.isEmpty
+                  ? Center(
+                      child:
+                          CircularProgressIndicator(color: securetradeaicolor),
+                    )
+                  :
+                  // dummyBuilder()
+                  ListView.builder(
+                      itemCount: finaldata.length,
+                      padding: const EdgeInsets.all(16),
+                      itemBuilder: (context, i) {
+                        final item = finaldata[i];
+                        final profitStr = item['profit']?.toString() ?? '';
+                        final profit = double.tryParse(profitStr) ?? 0.0;
+                        final isProfit = profit >= 0;
+
+                        return Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [Color(0xFF1E2026), Color(0xFF12151C)],
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 15.0,
-                                          backgroundImage: NetworkImage(
-                                              finaldata[i]['image']),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: const Color(0xFF2A3A5A),
+                                width: 1,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Header Row
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          border: Border.all(
+                                            color: const Color(0xFFF0B90B),
+                                            width: 2,
+                                          ),
                                         ),
-                                        const SizedBox(
-                                          width: 10,
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(18),
+                                          child: Image.network(
+                                            item['image'] ?? '',
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Container(
+                                                color: const Color(0xFF2B3139),
+                                                child: const Icon(
+                                                  Icons.currency_bitcoin,
+                                                  color: Color(0xFFF0B90B),
+                                                  size: 20,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              item['cryptopair'] ??
+                                                  'Unknown Pair',
+                                              style: const TextStyle(
+                                                color: Color(0xFFEAECEF),
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              "Order #${item['orderno'] ?? 'N/A'}",
+                                              style: const TextStyle(
+                                                color: Color(0xFF848E9C),
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: isProfit
+                                              ? const Color(0xFF0ECB81)
+                                                  .withOpacity(0.1)
+                                              : const Color(0xFFEA4335)
+                                                  .withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                        ),
+                                        child: Text(
+                                          isProfit
+                                              ? '+${profit.toStringAsFixed(4)}'
+                                              : profit.toStringAsFixed(4),
+                                          style: TextStyle(
+                                            color: isProfit
+                                                ? const Color(0xFF0ECB81)
+                                                : const Color(0xFFEA4335),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  // Details Section
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                        left: 10, right: 10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          "Sell Currency",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
                                         ),
                                         Text(
-                                          "Order No : " +
-                                              finaldata[i]['orderno'],
+                                          finaldata[i]['cryptopair'],
                                           style: const TextStyle(
-                                              color: Colors.white70,
-                                              fontSize: 16),
+                                            color: Colors.white,
+                                          ),
                                         )
                                       ],
                                     ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Container(
-                                      margin: const EdgeInsets.only(
-                                          left: 10, right: 10),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Text(
-                                            "Sell Currency",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                        left: 10, right: 10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          "Exchange",
+                                          style: TextStyle(
+                                            color: Colors.white,
                                           ),
-                                          Text(
-                                            finaldata[i]['cryptopair'],
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    Container(
-                                      margin: const EdgeInsets.only(
-                                          left: 10, right: 10),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Text(
-                                            "Exchange",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
+                                        ),
+                                        Text(
+                                          finaldata[i]['exchange'],
+                                          style: const TextStyle(
+                                            color: Colors.white,
                                           ),
-                                          Text(
-                                            finaldata[i]['exchange'],
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          )
-                                        ],
-                                      ),
+                                        )
+                                      ],
                                     ),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    Container(
-                                      margin: const EdgeInsets.only(
-                                          left: 10, right: 10),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Text(
-                                            "Profit",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                        left: 10, right: 10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          "Profit",
+                                          style: TextStyle(
+                                            color: Colors.white,
                                           ),
-                                          Text.rich(
-                                            TextSpan(
-                                              children: [
-                                                TextSpan(
-                                                    text: double.parse(
-                                                            finaldata[i]
-                                                                ['profit'])
-                                                        .toStringAsFixed(4),
-                                                    style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.black)),
-                                                const TextSpan(
-                                                    text: ' USDT',
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.white70)),
-                                              ],
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    Container(
-                                      margin: const EdgeInsets.only(
-                                          left: 10, right: 10),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Text(
-                                            "Time",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
+                                        ),
+                                        Text.rich(
+                                          TextSpan(
+                                            children: [
+                                              TextSpan(
+                                                text: () {
+                                                  final profitStr = finaldata[i]
+                                                              ['profit']
+                                                          ?.toString() ??
+                                                      '';
+                                                  final profit =
+                                                      double.tryParse(
+                                                              profitStr) ??
+                                                          0.0;
+                                                  return profit
+                                                      .toStringAsFixed(4);
+                                                }(),
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              const TextSpan(
+                                                  text: ' USDT',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.white70)),
+                                            ],
                                           ),
-                                          Text(
-                                            finaldata[i]['createtype']
-                                                .toString(),
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ));
-                        }))
-          ],
-        ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                        left: 10, right: 10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          "Time",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        Text(
+                                          finaldata[i]['createtype'].toString(),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ));
+                      }))
+        ],
       ),
     );
   }
@@ -311,138 +459,121 @@ class _RevenueDetailByDateState extends State<RevenueDetailByDate> {
   }
 
   Widget topHeader(String today, comulative) {
-    final Size size = MediaQuery.of(context).size;
-    final double categoryHeight = size.height * 0.25;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(
-          height: 10,
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1E2026), Color(0xFF12151C)],
         ),
-        Container(
-          margin: EdgeInsets.only(right: 30, left: 30),
-          width: double.infinity,
-          height: categoryHeight,
-          decoration: BoxDecoration(
-            color: securetradeaicolor,
-            borderRadius: BorderRadius.circular(16.0),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF2A3A5A), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-          child: Container(
-            margin: EdgeInsets.only(left: 20, right: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 15),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                          child: Text("today_s_profit".tr,
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontFamily: fontFamily,
-                                  fontWeight: FontWeight.bold))),
-                      Flexible(
-                        child: Container(
-                            child: Text("cumulative_profit".tr,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                    fontFamily: fontFamily,
-                                    fontWeight: FontWeight.bold))),
-                      )
-                    ]),
-                SizedBox(
-                  height: 5,
+        ],
+      ),
+      child: Column(
+        children: [
+          // Header with icon
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0B90B).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                          child: Text("≈$today",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontFamily: fontFamily,
-                              ))),
-                      Flexible(
-                        child: Container(
-                            child: Text("≈$comulative",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontFamily: fontFamily,
-                                ))),
-                      )
-                    ]),
-                // SizedBox(
-                //   height: 5,
-                // ),
-                // Container(
-                //     child: Text("data_is_counted".tr,
-                //         style: TextStyle(
-                //           color: Colors.white,
-                //           fontSize: 12,
-                //           fontFamily: fontfamily,
-                //         ))),
-                SizedBox(
-                  height: 5,
+                child: const Icon(
+                  Icons.analytics_outlined,
+                  color: Color(0xFFF0B90B),
+                  size: 20,
                 ),
-                Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                          child: Text(
-                              currentCurrency == "null"
-                                  ? "USD"
-                                  : currentCurrency,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontFamily: fontFamily,
-                              ))),
-                      Flexible(
-                        child: Container(
-                            child: Text(
-                                currentCurrency == "null"
-                                    ? "USD"
-                                    : currentCurrency,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontFamily: fontFamily,
-                                ))),
-                      )
-                    ]),
-                Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                          child: Text("≈${widget.todaycurrentCurrency}",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontFamily: fontFamily,
-                              ))),
-                      Flexible(
-                        child: Container(
-                            child: Text("≈${widget.cumulativecurrentCurrecny}",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontFamily: fontFamily,
-                                ))),
-                      )
-                    ]),
-              ],
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Daily Revenue Summary',
+                style: TextStyle(
+                  color: Color(0xFFEAECEF),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          // Stats Row
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  "Today's Profit",
+                  "≈\$${double.parse(today).toStringAsFixed(4)}",
+                  Icons.today,
+                  const Color(0xFF0ECB81),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildStatCard(
+                  "Total Profit",
+                  "≈\$${double.parse(comulative).toStringAsFixed(4)}",
+                  Icons.account_balance_wallet,
+                  const Color(0xFF4A90E2),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatCard(
+      String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2B3139),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Color(0xFF848E9C),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
