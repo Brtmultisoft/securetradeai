@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-// import 'package:animated_text_kit/animated_text_kit.dart';
-// import 'package:carousel_slider/carousel_slider.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
@@ -367,8 +365,9 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: RefreshIndicator(
-        color: const Color(0xFF4A90E2),
+        color: const Color(0xFFF0B90B),
         backgroundColor: const Color(0xFF0A0E17),
+        strokeWidth: 3.0,
         onRefresh: () {
           Navigator.pushReplacement(
               context,
@@ -386,342 +385,394 @@ class _HomepageState extends State<Homepage> {
         },
         child: Scaffold(
           backgroundColor: const Color(0xFF0A0E17),
-          body: DefaultTabController(
-            length: 1,
-            child: NestedScrollView(
-              headerSliverBuilder:
-                  (BuildContext context, bool innerBoxIsScrolled) {
-                return <Widget>[
-                  SliverList(
-                    delegate: SliverChildListDelegate([
-                      const SizedBox(height: 10.0),
-                      Consumer<HomePageProvider>(
-                          builder: (context, banner, child) {
-                        // return Container();
-                        return CarouselSlider.builder(
-                          itemCount: banner.bannerList.length,
-                          itemBuilder: (context, index, realIndex) {
-                            return banner.bannerList.isEmpty
-                                ? Shimmer.fromColors(
-                                    baseColor: Color(0xFF1A2234),
-                                    highlightColor: Color(0xFF2A3A5A),
-                                    child: Container(
-                                      margin: const EdgeInsets.only(
-                                          left: 10, right: 10),
-                                      width: double.infinity,
+          // Add a subtle gradient background
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFF0A0E17),
+                  Color(0xFF0F1419),
+                  Color(0xFF0A0E17),
+                ],
+                stops: [0.0, 0.5, 1.0],
+              ),
+            ),
+            child: DefaultTabController(
+              length: 1,
+              child: NestedScrollView(
+                headerSliverBuilder:
+                    (BuildContext context, bool innerBoxIsScrolled) {
+                  return <Widget>[
+                    SliverList(
+                      delegate: SliverChildListDelegate([
+                        const SizedBox(height: 15.0),
+                        // Enhanced banner carousel with better styling
+                        Consumer<HomePageProvider>(
+                            builder: (context, banner, child) {
+                          return CarouselSlider.builder(
+                            itemCount: banner.bannerList.length,
+                            itemBuilder: (context, index, realIndex) {
+                              return banner.bannerList.isEmpty
+                                  ? Shimmer.fromColors(
+                                      baseColor: const Color(0xFF1A2234),
+                                      highlightColor: const Color(0xFF2A3A5A),
+                                      child: Container(
+                                        width:
+                                            MediaQuery.of(context).size.width -
+                                                30,
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.5,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF1A2234),
+                                          borderRadius:
+                                              BorderRadius.circular(20.0),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: const Color(0xFFF0B90B)
+                                                  .withOpacity(0.1),
+                                              spreadRadius: 0,
+                                              blurRadius: 20,
+                                              offset: const Offset(0, 8),
+                                            ),
+                                            BoxShadow(
+                                              color:
+                                                  Colors.black.withOpacity(0.4),
+                                              spreadRadius: 0,
+                                              blurRadius: 15,
+                                              offset: const Offset(0, 5),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  : Container(
+                                      width: MediaQuery.of(context).size.width -
+                                          30,
                                       height:
                                           MediaQuery.of(context).size.height *
                                               0.5,
                                       decoration: BoxDecoration(
-                                        color: Color(0xFF1A2234),
                                         borderRadius:
-                                            BorderRadius.circular(16.0),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.3),
-                                            spreadRadius: 1,
-                                            blurRadius: 10,
-                                            offset: Offset(0, 3),
-                                          ),
-                                        ],
+                                            BorderRadius.circular(20.0),
                                       ),
-                                    ),
-                                  )
-                                : Container(
-                                    margin: const EdgeInsets.only(
-                                        left: 10, right: 10),
-                                    width: double.infinity,
-                                    height: MediaQuery.of(context).size.height *
-                                        0.5,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16.0),
-                                      image: DecorationImage(
-                                          image: NetworkImage(path +
-                                              banner.bannerList[index]
-                                                  .bannerImage),
-                                          fit: BoxFit.fill),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.3),
-                                          spreadRadius: 1,
-                                          blurRadius: 10,
-                                          offset: Offset(0, 3),
+                                      child: ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(20.0),
+                                        child: Stack(
+                                          children: [
+                                            // Background image
+                                            Positioned.fill(
+                                              child: Image.network(
+                                                path +
+                                                    banner.bannerList[index]
+                                                        .bannerImage,
+                                                fit: BoxFit.fill,
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return Container(
+                                                    color:
+                                                        const Color(0xFF1A2234),
+                                                    child: const Center(
+                                                      child: Icon(
+                                                        Icons
+                                                            .image_not_supported,
+                                                        color:
+                                                            Color(0xFF848E9C),
+                                                        size: 50,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                            // Gradient overlay for better text readability
+                                            Positioned.fill(
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    begin: Alignment.topCenter,
+                                                    end: Alignment.bottomCenter,
+                                                    colors: [
+                                                      Colors.transparent,
+                                                      Colors.black
+                                                          .withOpacity(0.3),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            // Decorative corner accent
+                                            Positioned(
+                                              top: 15,
+                                              right: 15,
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 12,
+                                                  vertical: 6,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFFF0B90B)
+                                                      .withOpacity(0.9),
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: const Color(
+                                                              0xFFF0B90B)
+                                                          .withOpacity(0.3),
+                                                      spreadRadius: 0,
+                                                      blurRadius: 8,
+                                                      offset:
+                                                          const Offset(0, 2),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: const Text(
+                                                  'Featured',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                  );
-                          },
-                          options: CarouselOptions(
-                            initialPage: 1,
-                            aspectRatio: 16 / 8,
-                            viewportFraction: 1,
-                            autoPlay: true,
-                            autoPlayAnimationDuration:
-                                Duration(milliseconds: 800),
-                            autoPlayCurve: Curves.fastOutSlowIn,
-                          ),
-                        );
-                      }),
-                      // Container(
-                      //   height: 20,
-                      //   margin:
-                      //       const EdgeInsets.only(top: 10, left: 10, right: 10),
-                      //   child: Row(
-                      //     children: [
-                      //       // Text(
-                      //       //   "topnews".tr + " : ",
-                      //       //   style: const TextStyle(
-                      //       //       fontWeight: FontWeight.bold,
-                      //       //       fontFamily: fontFamily,
-                      //       //       color: Color(0xFF4A90E2)),
-                      //       // ),
-                      //       // Expanded(
-                      //       //   child: Consumer<HomePageProvider>(
-                      //       //     builder: (context, banner, child) {
-                      //       //       return AnimatedTextKit(
-                      //       //           isRepeatingAnimation: true,
-                      //       //           repeatForever: true,
-                      //       //           onTap: () {
-                      //       //             Navigator.push(
-                      //       //                 context,
-                      //       //                 PageRouteBuilder(
-                      //       //                     pageBuilder: (context,
-                      //       //                             animation,
-                      //       //                             secondaryAnimation) =>
-                      //       //                         const TopNews(),
-                      //       //                     transitionsBuilder: (context,
-                      //       //                         animation,
-                      //       //                         secondaryAnimation,
-                      //       //                         child) {
-                      //       //                       return FadeTransition(
-                      //       //                         opacity: animation,
-                      //       //                         child: child,
-                      //       //                       );
-                      //       //                     },
-                      //       //                     transitionDuration: Duration(
-                      //       //                         milliseconds: 300)));
-                      //       //           },
-                      //       //           animatedTexts: [
-                      //       //             RotateAnimatedText(banner.lastnews,
-                      //       //                 textStyle: const TextStyle(
-                      //       //                     fontWeight: FontWeight.bold,
-                      //       //                     fontFamily: fontfamily,
-                      //       //                     color: Colors.white)),
-                      //       //           ]);
-                      //       //     },
-                      //       //   ),
-                      //       // ),
-                      //     ],
-                      //   ),
-                      // ),
-                      const SizedBox(height: 10),
-                      options(),
-                    ]),
-                  ),
-                  SliverPersistentHeader(
-                    delegate: _SliverAppBarDelegate(
-                      TabBar(
-                        labelPadding:
-                            const EdgeInsets.only(left: 10, right: 10),
-                        isScrollable: true,
-                        labelColor: Colors.white,
-                        unselectedLabelColor: Colors.grey,
-                        indicatorSize: TabBarIndicatorSize.label,
-                        indicatorColor: const Color(0xFF4A90E2),
-                        indicator: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: const Color(0xFF4A90E2),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF4A90E2).withOpacity(0.3),
-                                spreadRadius: 1,
-                                blurRadius: 5,
-                                offset: const Offset(0, 2),
-                              ),
-                            ]),
-                        labelStyle: const TextStyle(fontFamily: fontFamily),
-                        tabs: [
-                          Tab(
-                            child: Container(
-                              width: 120,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text('openTrade'.tr,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      fontSize: 13)),
-                            ),
-                          ),
-                        ],
-                        onTap: (v) {
-                          setState(() {
-                            indexvalue = v;
-                          });
-                        },
-                      ),
-                      Container(
-                          margin: const EdgeInsets.only(right: 15),
-                          child: DropdownButton(
-                            value: dropdownvalue,
-                            dropdownColor: const Color(0xFF121824),
-                            underline: const SizedBox(),
-                            icon: const Icon(
-                              Icons.keyboard_arrow_down,
-                              color: Colors.white,
-                            ),
-                            items: items.map((String items) {
-                              return DropdownMenuItem(
-                                  value: items,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 8.0),
-                                    child: Row(
-                                      children: [
-                                        CircleAvatar(
-                                            backgroundColor: Colors.white,
-                                            radius: 15.0,
-                                            backgroundImage: AssetImage(items ==
-                                                    "Binance"
-                                                ? "assets/img/bnb2.png"
-                                                : items == "OKX"
-                                                    ? "assets/img/okx.jpeg"
-                                                    : "assets/img/huboi.png")),
-                                        const SizedBox(
-                                          width: 8,
-                                        ),
-                                        Text(
-                                          items,
-                                          style: const TextStyle(
-                                              color: Colors.white),
-                                        ),
-                                      ],
-                                    ),
-                                  ));
-                            }).toList(),
-                            onChanged: (String? newValue) {
-                              _updateExchangerValue(newValue);
-                              setState(() {
-                                final bal =
-                                    Provider.of<Repo>(context, listen: false);
-                                bal.updateBalance(newValue.toString());
-                                dropdownvalue = newValue.toString();
-                              });
-                              Navigator.push(
-                                  context,
-                                  PageRouteBuilder(
-                                      pageBuilder: (context, animation,
-                                              secondaryAnimation) =>
-                                          Tabscreen(reffral: widget.reffral),
-                                      transitionsBuilder: (context, animation,
-                                          secondaryAnimation, child) {
-                                        return FadeTransition(
-                                          opacity: animation,
-                                          child: child,
-                                        );
-                                      },
-                                      transitionDuration:
-                                          const Duration(milliseconds: 300)));
+                                      ),
+                                    );
                             },
-                          )),
+                            options: CarouselOptions(
+                              initialPage: 0,
+                              aspectRatio: 16 / 8,
+                              viewportFraction: 1.0,
+                              autoPlay: true,
+                              autoPlayAnimationDuration:
+                                  const Duration(milliseconds: 1000),
+                              autoPlayCurve: Curves.easeInOutCubic,
+                              enlargeCenterPage: false,
+                              scrollDirection: Axis.horizontal,
+                            ),
+                          );
+                        }),
+                        const SizedBox(height: 10),
+                        options(),
+                      ]),
                     ),
-                    pinned: true,
-                  ),
-                ];
-              },
-              body: dropdownvalue != "Binance"
-                  ? Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1A2234),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.3),
-                              spreadRadius: 1,
-                              blurRadius: 10,
-                              offset: const Offset(0, 3),
+                    SliverPersistentHeader(
+                      delegate: _SliverAppBarDelegate(
+                        TabBar(
+                          labelPadding:
+                              const EdgeInsets.only(left: 10, right: 10),
+                          isScrollable: true,
+                          labelColor: Colors.white,
+                          unselectedLabelColor: Colors.grey,
+                          indicatorSize: TabBarIndicatorSize.label,
+                          indicatorColor: const Color(0xFF4A90E2),
+                          indicator: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: const Color(0xFF4A90E2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      const Color(0xFF4A90E2).withOpacity(0.3),
+                                  spreadRadius: 1,
+                                  blurRadius: 5,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ]),
+                          labelStyle: const TextStyle(fontFamily: fontFamily),
+                          tabs: [
+                            Tab(
+                              child: Container(
+                                width: 120,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text('openTrade'.tr,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        fontSize: 13)),
+                              ),
                             ),
                           ],
+                          onTap: (v) {
+                            setState(() {
+                              indexvalue = v;
+                            });
+                          },
                         ),
-                        child: Image.asset("assets/img/commingsoon.png"),
+                        Container(
+                            margin: const EdgeInsets.only(right: 15),
+                            child: DropdownButton(
+                              value: dropdownvalue,
+                              dropdownColor: const Color(0xFF121824),
+                              underline: const SizedBox(),
+                              icon: const Icon(
+                                Icons.keyboard_arrow_down,
+                                color: Colors.white,
+                              ),
+                              items: items.map((String items) {
+                                return DropdownMenuItem(
+                                    value: items,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 8.0),
+                                      child: Row(
+                                        children: [
+                                          CircleAvatar(
+                                              backgroundColor: Colors.white,
+                                              radius: 15.0,
+                                              backgroundImage: AssetImage(items ==
+                                                      "Binance"
+                                                  ? "assets/img/bnb2.png"
+                                                  : items == "OKX"
+                                                      ? "assets/img/okx.jpeg"
+                                                      : "assets/img/huboi.png")),
+                                          const SizedBox(
+                                            width: 8,
+                                          ),
+                                          Text(
+                                            items,
+                                            style: const TextStyle(
+                                                color: Colors.white),
+                                          ),
+                                        ],
+                                      ),
+                                    ));
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                _updateExchangerValue(newValue);
+                                setState(() {
+                                  final bal =
+                                      Provider.of<Repo>(context, listen: false);
+                                  bal.updateBalance(newValue.toString());
+                                  dropdownvalue = newValue.toString();
+                                });
+                                Navigator.push(
+                                    context,
+                                    PageRouteBuilder(
+                                        pageBuilder: (context, animation,
+                                                secondaryAnimation) =>
+                                            Tabscreen(reffral: widget.reffral),
+                                        transitionsBuilder: (context, animation,
+                                            secondaryAnimation, child) {
+                                          return FadeTransition(
+                                            opacity: animation,
+                                            child: child,
+                                          );
+                                        },
+                                        transitionDuration:
+                                            const Duration(milliseconds: 300)));
+                              },
+                            )),
                       ),
-                    )
-                  : Consumer<HomePageProvider>(builder: (context, list, child) {
-                      return TabBarView(
-                        children: [
-                          exchanger == "Binance"
-                              ? list.check_TransactionData
-                                  ? Container(
-                                      margin: const EdgeInsets.only(top: 20),
-                                      padding: const EdgeInsets.all(20),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF1A2234),
-                                        borderRadius: BorderRadius.circular(20),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.3),
-                                            spreadRadius: 1,
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 3),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Image.asset("assets/img/logo.png"),
-                                    )
-                                  : list.finalTransactionData.isEmpty
-                                      ? const Center(
-                                          child: CircularProgressIndicator(
-                                              color: Color(0xFF4A90E2)))
-                                      : Column(
-                                          children: [
-                                            Expanded(
-                                                child: _display1(
-                                                    list.finalTransactionData)),
-                                            const SizedBox(
-                                              height: 20,
-                                            )
-                                          ],
-                                        )
-                              : list.check_TransactionDatahuobi
-                                  ? Container(
-                                      padding: const EdgeInsets.all(20),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF1A2234),
-                                        borderRadius: BorderRadius.circular(20),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.3),
-                                            spreadRadius: 1,
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 3),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Image.asset("assets/img/logo.png"),
-                                    )
-                                  : list.finalTransactionDataHuobi.isEmpty
-                                      ? const Center(
-                                          child: CircularProgressIndicator(
-                                              color: Colors.white))
-                                      : Column(
-                                          children: [
-                                            Expanded(
-                                                child: _display1Huobi(list
-                                                    .finalTransactionDataHuobi)),
-                                            const SizedBox(
-                                              height: 20,
-                                            )
+                      pinned: true,
+                    ),
+                  ];
+                },
+                body: dropdownvalue != "Binance"
+                    ? Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1A2234),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                spreadRadius: 1,
+                                blurRadius: 10,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Image.asset("assets/img/commingsoon.png"),
+                        ),
+                      )
+                    : Consumer<HomePageProvider>(
+                        builder: (context, list, child) {
+                        return TabBarView(
+                          children: [
+                            exchanger == "Binance"
+                                ? list.check_TransactionData
+                                    ? Container(
+                                        margin: const EdgeInsets.only(top: 20),
+                                        padding: const EdgeInsets.all(20),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF1A2234),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.black.withOpacity(0.3),
+                                              spreadRadius: 1,
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 3),
+                                            ),
                                           ],
                                         ),
-                        ],
-                      );
-                    }),
+                                        child:
+                                            Image.asset("assets/img/logo.png"),
+                                      )
+                                    : list.finalTransactionData.isEmpty
+                                        ? const Center(
+                                            child: CircularProgressIndicator(
+                                                color: Color(0xFF4A90E2)))
+                                        : Column(
+                                            children: [
+                                              Expanded(
+                                                  child: _display1(list
+                                                      .finalTransactionData)),
+                                              const SizedBox(
+                                                height: 20,
+                                              )
+                                            ],
+                                          )
+                                : list.check_TransactionDatahuobi
+                                    ? Container(
+                                        padding: const EdgeInsets.all(20),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF1A2234),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.black.withOpacity(0.3),
+                                              spreadRadius: 1,
+                                              blurRadius: 10,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child:
+                                            Image.asset("assets/img/logo.png"),
+                                      )
+                                    : list.finalTransactionDataHuobi.isEmpty
+                                        ? const Center(
+                                            child: CircularProgressIndicator(
+                                                color: Colors.white))
+                                        : Column(
+                                            children: [
+                                              Expanded(
+                                                  child: _display1Huobi(list
+                                                      .finalTransactionDataHuobi)),
+                                              const SizedBox(
+                                                height: 20,
+                                              )
+                                            ],
+                                          ),
+                          ],
+                        );
+                      }),
+              ),
             ),
           ),
         ),
@@ -1460,55 +1511,112 @@ class _HomepageState extends State<Homepage> {
 
           // Section title with yellow indicator
 
-          /// trading
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
+          /// Enhanced Trading Bots section header
+          Container(
+            margin: const EdgeInsets.only(top: 20, bottom: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  binanceYellow.withOpacity(0.1),
+                  Colors.transparent,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: binanceYellow.withOpacity(0.2),
+                width: 1,
+              ),
+            ),
             child: Row(
               children: [
                 Container(
-                  width: 4,
-                  height: 18,
+                  width: 6,
+                  height: 24,
                   decoration: BoxDecoration(
-                    color: binanceYellow,
-                    borderRadius: BorderRadius.circular(2),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        binanceYellow,
+                        binanceYellow.withOpacity(0.7),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: binanceYellow.withOpacity(0.3),
+                        spreadRadius: 0,
+                        blurRadius: 4,
+                        offset: const Offset(0, 0),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 const Text(
                   "Trading Bots",
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 18,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: binanceYellow.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    "4 Tools",
+                    style: TextStyle(
+                      color: binanceYellow,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
 
-          /// Future and Spot trading bots
+          /// Enhanced Future and Spot trading bots container
           Container(
-            margin: const EdgeInsets.only(bottom: 12),
+            margin: const EdgeInsets.only(bottom: 20),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF161D2B),
-                  Color(0xFF0F1923),
+                  Color(0xFF1E2329),
+                  Color(0xFF181C22),
+                  Color(0xFF161A1E),
                 ],
+                stops: [0.0, 0.5, 1.0],
               ),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: cardBorder,
-                width: 1,
+                color: const Color(0xFFF0B90B).withOpacity(0.2),
+                width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: const Color(0xFFF0B90B).withOpacity(0.1),
                   spreadRadius: 0,
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.4),
+                  spreadRadius: 0,
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -1567,54 +1675,113 @@ class _HomepageState extends State<Homepage> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
+
+          /// Enhanced Reports section header
+          Container(
+            margin: const EdgeInsets.only(top: 20, bottom: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  const Color(0xFF4A90E2).withOpacity(0.1),
+                  Colors.transparent,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF4A90E2).withOpacity(0.2),
+                width: 1,
+              ),
+            ),
             child: Row(
               children: [
                 Container(
-                  width: 4,
-                  height: 18,
+                  width: 6,
+                  height: 24,
                   decoration: BoxDecoration(
-                    color: binanceYellow,
-                    borderRadius: BorderRadius.circular(2),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color(0xFF4A90E2),
+                        Color(0xFF357ABD),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF4A90E2).withOpacity(0.3),
+                        spreadRadius: 0,
+                        blurRadius: 4,
+                        offset: const Offset(0, 0),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 const Text(
                   "Reports",
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 18,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4A90E2).withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    "Analytics",
+                    style: TextStyle(
+                      color: Color(0xFF4A90E2),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
 
-          /// Trading Tools card with improved grid layout
+          /// Enhanced Trading Tools card with improved styling
           Container(
-            margin: const EdgeInsets.only(bottom: 12),
+            margin: const EdgeInsets.only(bottom: 20),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF161D2B),
-                  Color(0xFF0F1923),
+                  Color(0xFF1E2329),
+                  Color(0xFF181C22),
+                  Color(0xFF161A1E),
                 ],
+                stops: [0.0, 0.5, 1.0],
               ),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: cardBorder,
-                width: 1,
+                color: const Color(0xFF4A90E2).withOpacity(0.2),
+                width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: const Color(0xFF4A90E2).withOpacity(0.1),
                   spreadRadius: 0,
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.4),
+                  spreadRadius: 0,
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -1671,55 +1838,112 @@ class _HomepageState extends State<Homepage> {
             ),
           ),
 
-          /// Section title with yellow indicator
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
+          /// Enhanced Fund Management section header
+          Container(
+            margin: const EdgeInsets.only(top: 20, bottom: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  const Color(0xFF00C853).withOpacity(0.1),
+                  Colors.transparent,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF00C853).withOpacity(0.2),
+                width: 1,
+              ),
+            ),
             child: Row(
               children: [
                 Container(
-                  width: 4,
-                  height: 18,
+                  width: 6,
+                  height: 24,
                   decoration: BoxDecoration(
-                    color: binanceYellow,
-                    borderRadius: BorderRadius.circular(2),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color(0xFF00C853),
+                        Color(0xFF00A843),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF00C853).withOpacity(0.3),
+                        spreadRadius: 0,
+                        blurRadius: 4,
+                        offset: const Offset(0, 0),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 const Text(
                   "Fund Management",
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 18,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00C853).withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    "Manage",
+                    style: TextStyle(
+                      color: Color(0xFF00C853),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
 
-          /// Fund Management card with improved grid layout
+          /// Enhanced Fund Management card with improved styling
           Container(
-            margin: const EdgeInsets.only(bottom: 12),
+            margin: const EdgeInsets.only(bottom: 20),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF161D2B),
-                  Color(0xFF0F1923),
+                  Color(0xFF1E2329),
+                  Color(0xFF181C22),
+                  Color(0xFF161A1E),
                 ],
+                stops: [0.0, 0.5, 1.0],
               ),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: cardBorder,
-                width: 1,
+                color: const Color(0xFF00C853).withOpacity(0.2),
+                width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: const Color(0xFF00C853).withOpacity(0.1),
                   spreadRadius: 0,
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.4),
+                  spreadRadius: 0,
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -1761,55 +1985,112 @@ class _HomepageState extends State<Homepage> {
             ),
           ),
 
-          /// Section title with yellow indicator
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 8, top: 4),
+          /// Enhanced More Services section header
+          Container(
+            margin: const EdgeInsets.only(top: 20, bottom: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  const Color(0xFFE91E63).withOpacity(0.1),
+                  Colors.transparent,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFFE91E63).withOpacity(0.2),
+                width: 1,
+              ),
+            ),
             child: Row(
               children: [
                 Container(
-                  width: 4,
-                  height: 18,
+                  width: 6,
+                  height: 24,
                   decoration: BoxDecoration(
-                    color: binanceYellow,
-                    borderRadius: BorderRadius.circular(2),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color(0xFFE91E63),
+                        Color(0xFFC2185B),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFE91E63).withOpacity(0.3),
+                        spreadRadius: 0,
+                        blurRadius: 4,
+                        offset: const Offset(0, 0),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 const Text(
                   "More Services",
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 18,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE91E63).withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    "Support",
+                    style: TextStyle(
+                      color: Color(0xFFE91E63),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
 
-          /// More Services card with improved grid layout
+          /// Enhanced More Services card with improved styling
           Container(
-            margin: const EdgeInsets.only(bottom: 12),
+            margin: const EdgeInsets.only(bottom: 20),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF161D2B),
-                  Color(0xFF0F1923),
+                  Color(0xFF1E2329),
+                  Color(0xFF181C22),
+                  Color(0xFF161A1E),
                 ],
+                stops: [0.0, 0.5, 1.0],
               ),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: cardBorder,
-                width: 1,
+                color: const Color(0xFFE91E63).withOpacity(0.2),
+                width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: const Color(0xFFE91E63).withOpacity(0.1),
                   spreadRadius: 0,
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.4),
+                  spreadRadius: 0,
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -1862,7 +2143,7 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  // Grid option item for Trading Tools section
+  // Enhanced Grid option item with better animations and styling
   Widget _buildGridOptionItem({
     required String icon,
     required String label,
@@ -1872,108 +2153,161 @@ class _HomepageState extends State<Homepage> {
     const Color yellow = Color(0xFFF0B90B);
     const Color cardBorder = Color(0xFF2A3A5A);
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        splashColor: yellow.withOpacity(0.1),
-        highlightColor: yellow.withOpacity(0.05),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 5),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1A2234),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: cardBorder,
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                spreadRadius: 0,
-                blurRadius: 8,
-                offset: const Offset(0, 4),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap,
+          splashColor: yellow.withOpacity(0.2),
+          highlightColor: yellow.withOpacity(0.1),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF1E2329),
+                  Color(0xFF181C22),
+                ],
               ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              // Decorative corner accent
-              Positioned(
-                top: 0,
-                right: 0,
-                child: Container(
-                  height: 5,
-                  width: 5,
-                  decoration: BoxDecoration(
-                    color: yellow.withOpacity(0.1),
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(10),
-                      bottomLeft: Radius.circular(10),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: cardBorder.withOpacity(0.5),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  spreadRadius: 0,
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+                BoxShadow(
+                  color: yellow.withOpacity(0.05),
+                  spreadRadius: 0,
+                  blurRadius: 20,
+                  offset: const Offset(0, 0),
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                // Animated background glow effect
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: RadialGradient(
+                        center: Alignment.center,
+                        radius: 1.0,
+                        colors: [
+                          yellow.withOpacity(0.02),
+                          Colors.transparent,
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // Main content
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 40,
-                      width: 40,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            yellow.withOpacity(0.15),
-                            yellow.withOpacity(0.05),
+                // Decorative corner accent with glow
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    height: 8,
+                    width: 8,
+                    decoration: BoxDecoration(
+                      color: yellow.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(4),
+                      boxShadow: [
+                        BoxShadow(
+                          color: yellow.withOpacity(0.4),
+                          spreadRadius: 0,
+                          blurRadius: 4,
+                          offset: const Offset(0, 0),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Main content with enhanced styling
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Enhanced icon container with multiple layers
+                      Container(
+                        height: 50,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              yellow.withOpacity(0.2),
+                              yellow.withOpacity(0.05),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: yellow.withOpacity(0.4),
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: yellow.withOpacity(0.15),
+                              spreadRadius: 0,
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              spreadRadius: 0,
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: yellow.withOpacity(0.3),
-                          width: 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: yellow.withOpacity(0.1),
-                            spreadRadius: 0,
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
+                        child: Center(
+                          child: Image.asset(
+                            icon,
+                            color: yellow,
+                            height: 28,
+                            width: 28,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.apps,
+                                color: yellow,
+                                size: 28,
+                              );
+                            },
                           ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Image.asset(
-                          icon,
-                          color: yellow,
-                          height: 30,
-                          width: 30,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      label,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        letterSpacing: 0.1,
+                      const SizedBox(height: 12),
+                      // Enhanced text with better typography
+                      Text(
+                        label,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          letterSpacing: 0.2,
+                          height: 1.2,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -5,6 +5,7 @@ import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/model/future_trading_models.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/Service/future_trading_service.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 import 'package:securetradeai/src/widget/trading_widgets.dart';
 
 class FuturePositionsPage extends StatefulWidget {
@@ -141,47 +142,8 @@ class _FuturePositionsPageState extends State<FuturePositionsPage>
   }
 
   PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: TradingTheme.secondaryBackground,
-      elevation: 0,
-      title: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              gradient: TradingTheme.accentGradient,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.list_alt,
-                  color: Colors.black,
-                  size: 16,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  '${_positions.length}',
-                  style: TradingTypography.bodyMedium.copyWith(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Spacer(),
-          Text(
-            'Open Positions',
-            style: TradingTypography.heading3,
-          ),
-        ],
-      ),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: TradingTheme.primaryText),
-        onPressed: () => Navigator.pop(context),
-      ),
+    return CommonAppBar.basic(
+      title: "Open Position",
       actions: [
         IconButton(
           icon: const Icon(Icons.refresh, color: TradingTheme.primaryAccent),

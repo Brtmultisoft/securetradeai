@@ -5,18 +5,19 @@ import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/model/future_trading_models.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/Service/future_trading_service.dart';
+import 'package:securetradeai/src/future_trading/emergency_stop_popup.dart';
 import 'package:securetradeai/src/future_trading/future_history_page.dart';
 import 'package:securetradeai/src/future_trading/future_positions_page.dart';
-import 'package:securetradeai/src/future_trading/risk_settings_page.dart';
 import 'package:securetradeai/src/future_trading/future_trade_page.dart';
+import 'package:securetradeai/src/future_trading/monitor_tpsl_popup.dart';
 import 'package:securetradeai/src/future_trading/performance_popup.dart';
 import 'package:securetradeai/src/future_trading/pnl_tracking_popup.dart';
-import 'package:securetradeai/src/future_trading/strategy_monitor_popup.dart';
-import 'package:securetradeai/src/future_trading/tpsl_monitor_popup.dart';
-import 'package:securetradeai/src/future_trading/emergency_stop_popup.dart';
-import 'package:securetradeai/src/future_trading/system_health_popup.dart';
+import 'package:securetradeai/src/future_trading/risk_settings_page.dart';
 import 'package:securetradeai/src/future_trading/set_tpsl_popup.dart';
-import 'package:securetradeai/src/future_trading/monitor_tpsl_popup.dart';
+import 'package:securetradeai/src/future_trading/strategy_monitor_popup.dart';
+import 'package:securetradeai/src/future_trading/system_health_popup.dart';
+import 'package:securetradeai/src/future_trading/tpsl_monitor_popup.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 import 'package:securetradeai/src/widget/trading_widgets.dart';
 
 class FutureTradingSection extends StatefulWidget {
@@ -121,8 +122,9 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
   }
 
   void _startAutoRefresh() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
       if (mounted && !_isLoading) {
+        // Background refresh without any UI indicators
         _refreshData();
       }
     });
@@ -215,31 +217,45 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
   }
 
   Future<void> _refreshData() async {
-    setState(() => _isRefreshing = true);
-
-    // Start rotation animation
-    _rotationController.repeat();
-
+    // Background refresh without UI indicators
     try {
       // Call real API to refresh account balance
       final refreshedSummary =
           await FutureTradingService.getDualSideAccountBalance();
 
-      if (refreshedSummary != null) {
-        _accountSummary = refreshedSummary;
+      if (refreshedSummary != null && mounted) {
+        setState(() {
+          _accountSummary = refreshedSummary;
+        });
       }
 
-      // Also refresh positions
+      // Also refresh positions in background
       await _loadOpenPositions();
     } catch (e) {
-      // Silently handle refresh errors - don't show error messages for auto-refresh
-      // The user can manually refresh if needed
+      // Silently handle refresh errors - don't show error messages for background refresh
+      print('Background refresh error: $e');
+    }
+  }
+
+  Future<void> _manualRefresh() async {
+    // Manual refresh triggered by user - show brief feedback
+    setState(() => _isRefreshing = true);
+
+    // Start rotation animation briefly
+    _rotationController.repeat();
+
+    try {
+      await _refreshData();
     } finally {
       if (mounted) {
-        setState(() => _isRefreshing = false);
-        // Stop rotation animation
-        _rotationController.stop();
-        _rotationController.reset();
+        // Stop animation after brief period
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            setState(() => _isRefreshing = false);
+            _rotationController.stop();
+            _rotationController.reset();
+          }
+        });
       }
     }
   }
@@ -429,33 +445,21 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
   }
 
   PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: TradingTheme.secondaryBackground,
-      elevation: 0,
-      title: Text(
-        'Future Trading',
-        style: TradingTypography.heading3,
-      ),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: TradingTheme.primaryText),
-        onPressed: () => Navigator.pop(context),
-      ),
+    return CommonAppBar.analytics(
+      title: 'Future Trading',
       actions: [
-        if (_isRefreshing)
-          Container(
-            margin: const EdgeInsets.all(16),
-            width: 20,
-            height: 20,
-            child: const CircularProgressIndicator(
-              strokeWidth: 2,
-              color: TradingTheme.primaryAccent,
-            ),
-          )
-        else
-          IconButton(
-            icon: const Icon(Icons.refresh, color: TradingTheme.primaryAccent),
-            onPressed: _refreshData,
-          ),
+        AnimatedBuilder(
+          animation: _rotationController,
+          builder: (context, child) {
+            return Transform.rotate(
+              angle: _rotationController.value * 2 * 3.14159,
+              child: IconButton(
+                icon: const Icon(Icons.refresh, color: TradingTheme.primaryAccent),
+                onPressed: _manualRefresh,
+              ),
+            );
+          },
+        ),
         IconButton(
           icon: const Icon(Icons.settings, color: TradingTheme.secondaryText),
           onPressed: () {
@@ -470,6 +474,48 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
       ],
     );
   }
+  // PreferredSizeWidget _buildAppBar() {
+  //   return AppBar(
+  //     backgroundColor: TradingTheme.secondaryBackground,
+  //     elevation: 0,
+  //     title: Text(
+  //       'Future Trading',
+  //       style: TradingTypography.heading3,
+  //     ),
+  //     leading: IconButton(
+  //       icon: const Icon(Icons.arrow_back, color: TradingTheme.primaryText),
+  //       onPressed: () => Navigator.pop(context),
+  //     ),
+  //     actions: [
+  //       if (_isRefreshing)
+  //         Container(
+  //           margin: const EdgeInsets.all(16),
+  //           width: 20,
+  //           height: 20,
+  //           child: const CircularProgressIndicator(
+  //             strokeWidth: 2,
+  //             color: TradingTheme.primaryAccent,
+  //           ),
+  //         )
+  //       else
+  //         IconButton(
+  //           icon: const Icon(Icons.refresh, color: TradingTheme.primaryAccent),
+  //           onPressed: _refreshData,
+  //         ),
+  //       IconButton(
+  //         icon: const Icon(Icons.settings, color: TradingTheme.secondaryText),
+  //         onPressed: () {
+  //           Navigator.push(
+  //             context,
+  //             MaterialPageRoute(
+  //               builder: (context) => const RiskSettingsPage(),
+  //             ),
+  //           );
+  //         },
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildLoadingScreen() {
     return const Center(

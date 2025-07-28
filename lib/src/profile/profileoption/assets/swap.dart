@@ -1,13 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:securetradeai/data/api.dart';
-import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:securetradeai/data/api.dart';
 import 'package:securetradeai/data/strings.dart';
-import 'package:securetradeai/src/User/signup.dart';
+import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 class Swap extends StatefulWidget {
   const Swap({Key? key, this.balance}) : super(key: key);
@@ -23,8 +22,8 @@ class _SwapState extends State<Swap> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text("Swap"),
+      appBar: CommonAppBar.basic(
+        title: "Swap",
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -139,10 +138,7 @@ class _SwapState extends State<Swap> {
       } else {
         showLoading(context);
         final resp = await http.post(Uri.parse(swap),
-            body: jsonEncode({
-              "user_id": commonuserId,
-              "amount": amount.text
-            }));
+            body: jsonEncode({"user_id": commonuserId, "amount": amount.text}));
         if (resp.statusCode != 200) {
           showtoast("Server Error", context);
           Navigator.pop(context);

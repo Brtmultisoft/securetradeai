@@ -1,5 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:securetradeai/Data/Api.dart';
+import 'package:securetradeai/data/strings.dart';
+import 'package:securetradeai/src/tabscreen/tabscreen.dart';
 import 'package:securetradeai/src/user/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -42,13 +48,103 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // Navigate to login page after 3 seconds
+    // Check authentication state after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
+      _checkAuthenticationState();
+    });
+  }
+
+  // Check if user is already logged in
+  Future<void> _checkAuthenticationState() async {
+    try {
+      SharedPreferences pref = await SharedPreferences.getInstance();
+
+      // Check if login credentials are stored
+      if (pref.containsKey('emailorpass') && pref.containsKey('password')) {
+        String emailormobile = pref.getString('emailorpass').toString();
+        String passwordvalue = pref.getString('password').toString();
+
+        print('🔍 Found stored credentials, attempting auto-login...');
+
+        // Attempt auto-login with stored credentials
+        bool loginSuccess = await _attemptAutoLogin(emailormobile, passwordvalue);
+
+        if (loginSuccess) {
+          print('✅ Auto-login successful, navigating to home');
+          return; // Navigation handled in _attemptAutoLogin
+        } else {
+          print('❌ Auto-login failed, navigating to login page');
+          _navigateToLogin();
+        }
+      } else {
+        print('ℹ️ No stored credentials found, navigating to login page');
+        _navigateToLogin();
+      }
+    } catch (e) {
+      print('❌ Error checking authentication state: $e');
+      _navigateToLogin();
+    }
+  }
+
+  // Attempt to login with stored credentials
+  Future<bool> _attemptAutoLogin(String mobile, String password) async {
+    try {
+      var bodydata = jsonEncode({
+        "mobile": mobile,
+        "password": password,
+        "type": "Normal"
+      });
+
+      final response = await http
+          .post(
+            Uri.parse(loginUrl),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'User-Agent': 'SecureTradeAI-Mobile-App',
+            },
+            body: bodydata,
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200 && response.body.isNotEmpty) {
+        var data = jsonDecode(response.body);
+        if (data['status'] == 'success') {
+          // Update global variables
+          setState(() {
+            commonuserId = data['data']['user_id'];
+            commonEmail = data['data']['email'];
+          });
+
+          // Navigate to home screen
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Tabscreen(
+                  reffral: data['data']['referral_code'],
+                ),
+              ),
+            );
+          }
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      print('❌ Auto-login error: $e');
+      return false;
+    }
+  }
+
+  // Navigate to login page
+  void _navigateToLogin() {
+    if (mounted) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const LoginPage()),
       );
-    });
+    }
   }
 
   @override

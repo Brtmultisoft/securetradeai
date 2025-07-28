@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/profile/profileoption/APIBinding/binance.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 import '../../../../data/api.dart';
 
@@ -105,22 +106,9 @@ class _ApiBindingState extends State<ApiBinding> {
     final double categoryHeight = size.height * 0.15;
     return Scaffold(
         backgroundColor: const Color(0xFF0C0E12),
-        appBar: AppBar(
-            backgroundColor: const Color(0xFF161A1E),
-            title: Text(
-              "api_bindige".tr,
-              style: TextStyle(
-                  fontFamily: fontFamily, fontSize: 20, color: Colors.white),
-            ),
-            leading: IconButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: Icon(
-                  Icons.arrow_back,
-                  color: Colors.white,
-                  size: 20,
-                ))),
+        appBar: CommonAppBar.basic(
+          title: "api_bindige".tr,
+        ),
         body: Column(
           children: [
             Container(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:securetradeai/method/methods.dart';
 import 'package:securetradeai/model/DeposittransactionModel.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 class PaymentSection extends StatefulWidget {
   const PaymentSection({Key? key}) : super(key: key);
@@ -38,13 +39,13 @@ class _PaymentSectionState extends State<PaymentSection> {
       }
 
       // Get deposit/withdrawal transaction data
-      final depositData = await CommonMethod().getDepositTransactionDetail(page);
+      final depositData =
+          await CommonMethod().getDepositTransactionDetail(page);
       if (depositData.status == "success") {
         setState(() {
           transactions = depositData.data.details;
         });
       }
-
     } catch (e) {
       print('Error loading data: $e');
     } finally {
@@ -57,22 +58,9 @@ class _PaymentSectionState extends State<PaymentSection> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0C0E12), // Binance dark background
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF161A1E), // Binance header color
-        elevation: 0,
-        title: const Text(
-          'Transaction Record',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-            fontSize: 18,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+      backgroundColor: const Color(0xFF0C0E12),
+      appBar: CommonAppBar.basic(
+        title: 'Transaction Record',
       ),
       body: RefreshIndicator(
         color: const Color(0xFFF0B90B), // Binance yellow
@@ -131,9 +119,11 @@ class _PaymentSectionState extends State<PaymentSection> {
                                 ),
                               ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF0B90B).withOpacity(0.1), // Binance yellow with opacity
+                            color: const Color(0xFFF0B90B).withOpacity(
+                                0.1), // Binance yellow with opacity
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: const Text(
@@ -238,7 +228,8 @@ class _PaymentSectionState extends State<PaymentSection> {
 
               // Transaction History Header in Binance style
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 width: double.infinity,
                 color: const Color(0xFF161A1E), // Binance section header color
                 child: const Text(
@@ -253,15 +244,18 @@ class _PaymentSectionState extends State<PaymentSection> {
 
               // Transaction filters in Binance style
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 color: const Color(0xFF1E2026), // Binance card background
                 child: Row(
                   children: [
                     Expanded(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2B3139), // Binance input background
+                          color: const Color(
+                              0xFF2B3139), // Binance input background
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Row(
@@ -285,9 +279,11 @@ class _PaymentSectionState extends State<PaymentSection> {
                     ),
                     const SizedBox(width: 12),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2B3139), // Binance input background
+                        color:
+                            const Color(0xFF2B3139), // Binance input background
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Row(
@@ -318,15 +314,16 @@ class _PaymentSectionState extends State<PaymentSection> {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: isLoading
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(const Color(0xFFF0B90B)),
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                const Color(0xFFF0B90B)),
+                          ),
                         ),
-                      ),
-                    )
-                  : _buildRecentTransactions(),
+                      )
+                    : _buildRecentTransactions(),
               ),
             ],
           ),
@@ -428,26 +425,32 @@ class _PaymentSectionState extends State<PaymentSection> {
     required String status,
   }) {
     final isDeposit = type == 'Deposit';
-    final statusColor = status == 'Completed' ? const Color(0xFF0ECB81) : const Color(0xFFF0B90B);
+    final statusColor = status == 'Completed'
+        ? const Color(0xFF0ECB81)
+        : const Color(0xFFF0B90B);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFF1E2026), // Binance card background
-        border: Border(bottom: BorderSide(color: const Color(0xFF2A2D35), width: 1)),
+        border: Border(
+            bottom: BorderSide(color: const Color(0xFF2A2D35), width: 1)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isDeposit ? const Color(0xFF0ECB81).withOpacity(0.1) : const Color(0xFFEA4335).withOpacity(0.1),
+              color: isDeposit
+                  ? const Color(0xFF0ECB81).withOpacity(0.1)
+                  : const Color(0xFFEA4335).withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               isDeposit ? Icons.arrow_upward : Icons.arrow_downward,
-              color: isDeposit ? const Color(0xFF0ECB81) : const Color(0xFFEA4335),
+              color:
+                  isDeposit ? const Color(0xFF0ECB81) : const Color(0xFFEA4335),
               size: 20,
             ),
           ),
@@ -481,7 +484,9 @@ class _PaymentSectionState extends State<PaymentSection> {
               Text(
                 '${isDeposit ? '+' : '-'}${amount.toStringAsFixed(4)} $currentCurrency',
                 style: TextStyle(
-                  color: isDeposit ? const Color(0xFF0ECB81) : const Color(0xFFEA4335),
+                  color: isDeposit
+                      ? const Color(0xFF0ECB81)
+                      : const Color(0xFFEA4335),
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),

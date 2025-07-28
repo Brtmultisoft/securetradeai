@@ -9,6 +9,7 @@ import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/quantitative/autoTrading.dart';
 import 'package:securetradeai/src/quantitative/copyTrading.dart';
 import 'package:securetradeai/src/tabscreen/tabscreen.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../method/homepageProvider.dart';
@@ -96,6 +97,116 @@ class _SpotTradingServiceState extends State<SpotTradingService> {
     });
   }
 
+  void _showExchangeDropdown() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1A202C),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[600],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Select Exchange',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ...items.map((item) => _buildExchangeOption(item)),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildExchangeOption(String name) {
+    final isSelected = dropdownvalue == name;
+    return GestureDetector(
+      onTap: () {
+        _updateExchangerValue(name);
+        setState(() {
+          final bal = Provider.of<Repo>(context, listen: false);
+          bal.updateBalance(name);
+          dropdownvalue = name;
+        });
+        Navigator.pop(context);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Tabscreen(reffral: widget.reffralno),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue.withOpacity(0.2) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Colors.blue : Colors.grey.withOpacity(0.3),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              _getExchangeIcon(name),
+              color: isSelected ? Colors.blue : Colors.white,
+              size: 24,
+            ),
+            const SizedBox(width: 16),
+            Text(
+              name,
+              style: TextStyle(
+                color: isSelected ? Colors.blue : Colors.white,
+                fontSize: 16,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+            const Spacer(),
+            if (isSelected)
+              const Icon(
+                Icons.check,
+                color: Colors.blue,
+                size: 20,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  IconData _getExchangeIcon(String exchange) {
+    switch (exchange) {
+      case 'Binance':
+        return Icons.currency_bitcoin;
+      case 'Huobi':
+        return Icons.account_balance;
+      case 'OKX':
+        return Icons.trending_up;
+      default:
+        return Icons.currency_exchange;
+    }
+  }
+
   searchbytab(String val) {
     setState(() {
       searchWords = val;
@@ -138,678 +249,627 @@ class _SpotTradingServiceState extends State<SpotTradingService> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         backgroundColor: const Color(0xFF0A0E17),
-        appBar: AppBar(
-          title: Row(
-            children: [
-              Text(exchanger == "null" ? "Binance" : exchanger),
-              const SizedBox(
-                width: 20,
-              ),
-              Container(
-                child: DropdownButton(
-                  dropdownColor: const Color(0xFF171d28),
-                  value: dropdownvalue,
-                  underline: const SizedBox(),
-                  icon: const Icon(Icons.keyboard_arrow_down,
-                      color: Colors.white),
-                  items: items.map((String items) {
-                    return DropdownMenuItem(
-                        value: items,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text(
-                            items,
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ));
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    _updateExchangerValue(newValue);
-                    setState(() {
-                      final bal = Provider.of<Repo>(context, listen: false);
-                      bal.updateBalance(newValue.toString());
-                      dropdownvalue = newValue.toString();
-                    });
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                Tabscreen(reffral: widget.reffralno)));
-                  },
-                ),
-              )
-            ],
-          ),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Self Trading'),
-              // Tab(text: 'Cycle Trading'),
-              // Tab(text: 'One Shot'),
-              // Tab(text: 'Stop Margin Call'),
-              Tab(text: 'Auto Trading'),
-              Tab(text: 'Copy Trading'),
-            ],
-          ),
+        appBar: CommonAppBar.tradingWithDropdown(
+          title: exchanger == "null" ? "Binance" : exchanger,
+          onDropdownTap: _showExchangeDropdown,
         ),
-        body: TabBarView(
-          children: [
-            Consumer<Repo>(builder: (context, repo, child) {
-              return (exchanger == "null" || exchanger == "Binance")
-                  ? repo.final_Quantitative_data.isEmpty
-                      ? Center(
-                          child: CircularProgressIndicator(
-                              color: securetradeaicolor))
-                      : Column(
-                          children: [
-                            // Header Section
-                            // Container(
-                            //   padding: EdgeInsets.all(16),
-                            //   decoration: BoxDecoration(
-                            //     color: Color(0xFF121824),
-                            //     border: Border(
-                            //       bottom: BorderSide(
-                            //         color: Color(0xFF2A3A5A),
-                            //         width: 1,
-                            //       ),
-                            //     ),
-                            //   ),
-                            //   child: Column(
-                            //     crossAxisAlignment: CrossAxisAlignment.start,
-                            //     children: [
-                            //       Row(
-                            //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            //         children: [
-                            //           Text(
-                            //             'Self Trading',
-                            //             style: TextStyle(
-                            //               color: Colors.white,
-                            //               fontSize: 24,
-                            //               fontWeight: FontWeight.bold,
-                            //             ),
-                            //           ),
-                            //           Row(
-                            //             children: [
-                            //               Text(
-                            //                 '24h Change',
-                            //                 style: TextStyle(
-                            //                   color: Colors.white70,
-                            //                   fontSize: 14,
-                            //                 ),
-                            //               ),
-                            //               SizedBox(width: 5),
-                            //               Icon(Icons.arrow_upward, color: Color(0xFF00C853), size: 16),
-                            //             ],
-                            //           ),
-                            //         ],
-                            //       ),
-                            //       SizedBox(height: 8),
-                            //       Text(
-                            //         'Trade cryptocurrencies with advanced tools and real-time data',
-                            //         style: TextStyle(
-                            //           color: Colors.grey[400],
-                            //           fontSize: 14,
-                            //         ),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
-
-                            // Market Overview
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF121824),
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Color(0xFF2A3A5A),
-                                    width: 1,
-                                  ),
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Market Overview',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
-                                      children: [
-                                        _buildMarketOverviewCard(
-                                          'Total Market Cap',
-                                          '\$1.2T',
-                                          '+2.5%',
-                                          Icons.show_chart,
-                                          const Color(0xFF4A90E2),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        _buildMarketOverviewCard(
-                                          '24h Volume',
-                                          '\$48.5B',
-                                          '+1.8%',
-                                          Icons.bar_chart,
-                                          const Color(0xFFFF9800),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        _buildMarketOverviewCard(
-                                          'BTC Dominance',
-                                          '42.5%',
-                                          '-0.3%',
-                                          Icons.currency_bitcoin,
-                                          const Color(0xFFF7931A),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Search and Filter Section
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF121824),
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Color(0xFF2A3A5A),
-                                    width: 1,
-                                  ),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFF1A2234),
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: const Color(0xFF2A3A5A),
-                                          width: 1,
-                                        ),
-                                      ),
-                                      child: TextField(
-                                        controller: searchText,
-                                        onChanged: (value) {
-                                          searchbytab(value);
-                                        },
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                        decoration: const InputDecoration(
-                                          hintText: 'Search coin...',
-                                          hintStyle:
-                                              TextStyle(color: Colors.white70),
-                                          prefixIcon: Icon(Icons.search,
-                                              color: Color(0xFF4A90E2)),
-                                          border: InputBorder.none,
-                                          contentPadding: EdgeInsets.symmetric(
-                                              horizontal: 15, vertical: 10),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF1A2234),
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                        color: const Color(0xFF2A3A5A),
-                                        width: 1,
-                                      ),
-                                    ),
-                                    child: IconButton(
-                                      icon: const Icon(Icons.filter_list,
-                                          color: Color(0xFF4A90E2)),
-                                      onPressed: () {
-                                        // Add filter functionality
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Coins List
-                            Expanded(
-                              child: ListView.builder(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
-                                itemCount: repo.final_Quantitative_data.length,
-                                itemBuilder: (context, index) {
-                                  final open = double.tryParse(repo
-                                              .final_Quantitative_data[index]
-                                                  ['open']
-                                              ?.toString() ??
-                                          '0') ??
-                                      0;
-                                  final close = double.tryParse(repo
-                                              .final_Quantitative_data[index]
-                                                  ['close']
-                                              ?.toString() ??
-                                          '0') ??
-                                      0;
-                                  final volume = double.tryParse(repo
-                                              .final_Quantitative_data[index]
-                                                  ['volume']
-                                              ?.toString() ??
-                                          '0') ??
-                                      0;
-                                  final quoteVolume = double.tryParse(repo
-                                              .final_Quantitative_data[index]
-                                                  ['quoteVolume']
-                                              ?.toString() ??
-                                          '0') ??
-                                      0;
-
-                                  double finalincrse = 0;
-                                  if (open != 0) {
-                                    finalincrse = ((close - open) / open) * 100;
-                                  }
-
-                                  var b = repo.final_Quantitative_data[index]
-                                              ['symbol']
-                                          ?.toString() ??
-                                      '';
-                                  var finalsymble = b
-                                      .replaceAll("usdt", "")
-                                      .replaceAll("USDT", "");
-
-                                  bool isVisible = true;
-                                  if (searchWords.isNotEmpty) {
-                                    isVisible = finalsymble
-                                        .toLowerCase()
-                                        .contains(searchWords.toLowerCase());
-                                  }
-
-                                  return Visibility(
-                                    visible: isVisible,
-                                    child: Visibility(
-                                      visible:
-                                          repo.final_Quantitative_data[index]
-                                                      ['status'] !=
-                                                  "0"
-                                              ? false
-                                              : true,
-                                      child: Container(
-                                        margin: const EdgeInsets.symmetric(
-                                            vertical: 8),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF1A2234),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          border: Border.all(
-                                            color: const Color(0xFF2A3A5A),
-                                            width: 1,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.1),
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 2),
+        body: SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              // Tab Bar
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 5),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const TabBar(
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.grey,
+                  indicatorColor: Colors.blue,
+                  indicatorWeight: 2,
+                  indicatorSize: TabBarIndicatorSize.label,
+                  tabs: [
+                    Tab(text: 'Self Trading'),
+                    Tab(text: 'Auto Trading'),
+                    Tab(text: 'Copy Trading'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Tab Bar View
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    Consumer<Repo>(
+                      builder: (context, repo, child) {
+                        return (exchanger == "null" || exchanger == "Binance")
+                            ? repo.final_Quantitative_data.isEmpty
+                                ? Center(
+                                    child: CircularProgressIndicator(
+                                        color: securetradeaicolor))
+                                : Column(
+                                    children: [
+                                      // Market Overview
+                                      Container(
+                                        padding: const EdgeInsets.all(16),
+                                        decoration: const BoxDecoration(
+                                          color: Color(0xFF121824),
+                                          border: Border(
+                                            bottom: BorderSide(
+                                              color: Color(0xFF2A3A5A),
+                                              width: 1,
                                             ),
-                                          ],
+                                          ),
                                         ),
-                                        child: Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      SubbinMode(
-                                                    id: "",
-                                                    coinurl:
-                                                        repo.final_Quantitative_data[
-                                                            index]['coinurl'],
-                                                    reffralnno:
-                                                        widget.reffralno,
-                                                    coinimg:
-                                                        repo.final_Quantitative_data[
-                                                            index]['asset_img'],
-                                                    compaircoinname:
-                                                        repo.final_Quantitative_data[
-                                                            index]['symbol'],
-                                                    finalCoinName: finalsymble,
-                                                    currentPrice: close
-                                                        .toStringAsFixed(5),
-                                                    priceChange: finalincrse
-                                                        .toStringAsFixed(3),
-                                                    openPrice:
-                                                        open.toStringAsFixed(5),
-                                                    highPrice: repo
-                                                            .final_Quantitative_data[
-                                                                index]['high']
-                                                            ?.toString() ??
-                                                        '0.00000',
-                                                    lowPrice: repo
-                                                            .final_Quantitative_data[
-                                                                index]['low']
-                                                            ?.toString() ??
-                                                        '0.00000',
-                                                    volume: repo
-                                                            .final_Quantitative_data[
-                                                                index]['volume']
-                                                            ?.toString() ??
-                                                        '0.00000',
-                                                    quoteVolume: repo
-                                                            .final_Quantitative_data[
-                                                                index]
-                                                                ['quoteVolume']
-                                                            ?.toString() ??
-                                                        '0.00000',
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 8),
-                                              child: Column(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              'Market Overview',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 16),
+                                            SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Row(
                                                 children: [
-                                                  Row(
-                                                    children: [
-                                                      /// Coin Icon and Name
-                                                      Expanded(
-                                                        flex: 2,
-                                                        child: Row(
-                                                          children: [
-                                                            Container(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .all(6),
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: const Color(
-                                                                    0xFF121824),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            8),
-                                                              ),
-                                                              child:
-                                                                  Image.network(
-                                                                repo.final_Quantitative_data[
-                                                                            index]
-                                                                        [
-                                                                        'asset_img'] ??
-                                                                    "https://securetradeai.com/assets/securetradeai/assets/images/logo.png",
-                                                                width: 24,
-                                                                height: 24,
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                                errorBuilder:
-                                                                    (context,
-                                                                        error,
-                                                                        stackTrace) {
-                                                                  return const Icon(
-                                                                      Icons
-                                                                          .currency_bitcoin,
-                                                                      color: Colors
-                                                                          .white70,
-                                                                      size: 16);
-                                                                },
-                                                              ),
-                                                            ),
-                                                            const SizedBox(
-                                                                width: 8),
-                                                            Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                Text(
-                                                                  finalsymble
-                                                                      .toUpperCase(),
-                                                                  style:
-                                                                      const TextStyle(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontSize:
-                                                                        14,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                  ),
-                                                                ),
-                                                                const Text(
-                                                                  "USDT",
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                        .white70,
-                                                                    fontSize:
-                                                                        10,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-
-                                                      /// Price and Change
-                                                      Expanded(
-                                                        flex: 2,
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .end,
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Text(
-                                                              '\$${close.toStringAsFixed(5)}',
-                                                              style:
-                                                                  const TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 14,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
-                                                            ),
-                                                            SizedBox(
-                                                              height: 1,
-                                                            ),
-                                                            Container(
-                                                              padding: const EdgeInsets
-                                                                      .symmetric(
-                                                                  horizontal: 6,
-                                                                  vertical: 2),
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: finalincrse >=
-                                                                        0
-                                                                    ? const Color(
-                                                                            0xFF00C853)
-                                                                        .withOpacity(
-                                                                            0.1)
-                                                                    : const Color(
-                                                                            0xFFE53935)
-                                                                        .withOpacity(
-                                                                            0.1),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            4),
-                                                              ),
-                                                              child: Row(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .min,
-                                                                children: [
-                                                                  Icon(
-                                                                    finalincrse >=
-                                                                            0
-                                                                        ? Icons
-                                                                            .arrow_upward
-                                                                        : Icons
-                                                                            .arrow_downward,
-                                                                    color: finalincrse >=
-                                                                            0
-                                                                        ? const Color(
-                                                                            0xFF00C853)
-                                                                        : const Color(
-                                                                            0xFFE53935),
-                                                                    size: 10,
-                                                                  ),
-                                                                  const SizedBox(
-                                                                      width: 2),
-                                                                  Text(
-                                                                    '${finalincrse.toStringAsFixed(3)}%',
-                                                                    style:
-                                                                        TextStyle(
-                                                                      color: finalincrse >=
-                                                                              0
-                                                                          ? const Color(
-                                                                              0xFF00C853)
-                                                                          : const Color(
-                                                                              0xFFE53935),
-                                                                      fontSize:
-                                                                          10,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        width: 10,
-                                                      ),
-
-                                                      /// Trade Button
-                                                      Expanded(
-                                                        flex: 1,
-                                                        child: Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            gradient:
-                                                                const LinearGradient(
-                                                              colors: [
-                                                                Color(
-                                                                    0xFF4A90E2),
-                                                                Color(
-                                                                    0xFF5C9CE6),
-                                                              ],
-                                                              begin: Alignment
-                                                                  .topLeft,
-                                                              end: Alignment
-                                                                  .bottomRight,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        6),
-                                                            boxShadow: [
-                                                              BoxShadow(
-                                                                color: const Color(
-                                                                        0xFF4A90E2)
-                                                                    .withOpacity(
-                                                                        0.3),
-                                                                blurRadius: 5,
-                                                                offset:
-                                                                    const Offset(
-                                                                        0, 2),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .symmetric(
-                                                                  vertical: 6,
-                                                                  horizontal:
-                                                                      8),
-                                                          child: const Center(
-                                                            child: Text(
-                                                              'Trade',
-                                                              style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize: 12,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
+                                                  _buildMarketOverviewCard(
+                                                    'Total Market Cap',
+                                                    '\$1.2T',
+                                                    '+2.5%',
+                                                    Icons.show_chart,
+                                                    const Color(0xFF4A90E2),
                                                   ),
-                                                  const SizedBox(height: 8),
-                                                  const Divider(
-                                                      color: Color(0xFF2A3A5A),
-                                                      height: 1),
-                                                  const SizedBox(height: 8),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      _buildStatItem(
-                                                        'Current Price',
-                                                        '\$${close.toStringAsFixed(2)}',
-                                                      ),
-                                                      _buildStatItem(
-                                                        'Open Price',
-                                                        '\$${open.toStringAsFixed(2)}',
-                                                      ),
-                                                      _buildStatItem(
-                                                        '24h Change',
-                                                        '${finalincrse.toStringAsFixed(2)}%',
-                                                        isPositive:
-                                                            finalincrse >= 0,
-                                                      ),
-                                                    ],
+                                                  const SizedBox(width: 12),
+                                                  _buildMarketOverviewCard(
+                                                    '24h Volume',
+                                                    '\$48.5B',
+                                                    '+1.8%',
+                                                    Icons.bar_chart,
+                                                    const Color(0xFFFF9800),
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  _buildMarketOverviewCard(
+                                                    'BTC Dominance',
+                                                    '42.5%',
+                                                    '-0.3%',
+                                                    Icons.currency_bitcoin,
+                                                    const Color(0xFFF7931A),
                                                   ),
                                                 ],
                                               ),
                                             ),
-                                          ),
+                                          ],
                                         ),
                                       ),
+
+                                      // Search and Filter Section
+                                      Container(
+                                        padding: const EdgeInsets.all(16),
+                                        decoration: const BoxDecoration(
+                                          color: Color(0xFF121824),
+                                          border: Border(
+                                            bottom: BorderSide(
+                                              color: Color(0xFF2A3A5A),
+                                              width: 1,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      const Color(0xFF1A2234),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  border: Border.all(
+                                                    color:
+                                                        const Color(0xFF2A3A5A),
+                                                    width: 1,
+                                                  ),
+                                                ),
+                                                alignment: Alignment.center,
+                                                child: TextField(
+                                                  controller: searchText,
+                                                  onChanged: (value) {
+                                                    searchbytab(value);
+                                                  },
+                                                  style: const TextStyle(
+                                                      color: Colors.white),
+                                                  decoration:
+                                                      const InputDecoration(
+                                                    hintText: 'Search coin...',
+                                                    hintStyle: TextStyle(
+                                                        color: Colors.white70),
+                                                    prefixIcon: Icon(
+                                                        Icons.search,
+                                                        color:
+                                                            Color(0xFF4A90E2)),
+                                                    border: InputBorder.none,
+                                                    contentPadding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 15,
+                                                            vertical: 15),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFF1A2234),
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                border: Border.all(
+                                                  color:
+                                                      const Color(0xFF2A3A5A),
+                                                  width: 1,
+                                                ),
+                                              ),
+                                              child: IconButton(
+                                                icon: const Icon(
+                                                    Icons.filter_list,
+                                                    color: Color(0xFF4A90E2)),
+                                                onPressed: () {
+                                                  // Add filter functionality
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      // Coins List
+                                      Expanded(
+                                        child: ListView.builder(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8),
+                                          itemCount: repo
+                                              .final_Quantitative_data.length,
+                                          itemBuilder: (context, index) {
+                                            final open = double.tryParse(repo
+                                                        .final_Quantitative_data[
+                                                            index]['open']
+                                                        ?.toString() ??
+                                                    '0') ??
+                                                0;
+                                            final close = double.tryParse(repo
+                                                        .final_Quantitative_data[
+                                                            index]['close']
+                                                        ?.toString() ??
+                                                    '0') ??
+                                                0;
+                                            final volume = double.tryParse(repo
+                                                        .final_Quantitative_data[
+                                                            index]['volume']
+                                                        ?.toString() ??
+                                                    '0') ??
+                                                0;
+                                            final quoteVolume = double.tryParse(repo
+                                                        .final_Quantitative_data[
+                                                            index]
+                                                            ['quoteVolume']
+                                                        ?.toString() ??
+                                                    '0') ??
+                                                0;
+
+                                            double finalincrse = 0;
+                                            if (open != 0) {
+                                              finalincrse =
+                                                  ((close - open) / open) * 100;
+                                            }
+
+                                            var b = repo
+                                                    .final_Quantitative_data[
+                                                        index]['symbol']
+                                                    ?.toString() ??
+                                                '';
+                                            var finalsymble = b
+                                                .replaceAll("usdt", "")
+                                                .replaceAll("USDT", "");
+
+                                            bool isVisible = true;
+                                            if (searchWords.isNotEmpty) {
+                                              isVisible = finalsymble
+                                                  .toLowerCase()
+                                                  .contains(searchWords
+                                                      .toLowerCase());
+                                            }
+
+                                            return Visibility(
+                                              visible: isVisible,
+                                              child: Visibility(
+                                                visible:
+                                                    repo.final_Quantitative_data[
+                                                                    index]
+                                                                ['status'] !=
+                                                            "0"
+                                                        ? false
+                                                        : true,
+                                                child: Container(
+                                                  margin: const EdgeInsets
+                                                      .symmetric(vertical: 8),
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        const Color(0xFF1A2234),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
+                                                    border: Border.all(
+                                                      color: const Color(
+                                                          0xFF2A3A5A),
+                                                      width: 1,
+                                                    ),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black
+                                                            .withOpacity(0.1),
+                                                        blurRadius: 10,
+                                                        offset:
+                                                            const Offset(0, 2),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: Material(
+                                                    color: Colors.transparent,
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    SubbinMode(
+                                                              id: "",
+                                                              coinurl:
+                                                                  repo.final_Quantitative_data[
+                                                                          index]
+                                                                      [
+                                                                      'coinurl'],
+                                                              reffralnno: widget
+                                                                  .reffralno,
+                                                              coinimg:
+                                                                  repo.final_Quantitative_data[
+                                                                          index]
+                                                                      [
+                                                                      'asset_img'],
+                                                              compaircoinname:
+                                                                  repo.final_Quantitative_data[
+                                                                          index]
+                                                                      [
+                                                                      'symbol'],
+                                                              finalCoinName:
+                                                                  finalsymble,
+                                                              currentPrice: close
+                                                                  .toStringAsFixed(
+                                                                      5),
+                                                              priceChange:
+                                                                  finalincrse
+                                                                      .toStringAsFixed(
+                                                                          3),
+                                                              openPrice: open
+                                                                  .toStringAsFixed(
+                                                                      5),
+                                                              highPrice: repo
+                                                                      .final_Quantitative_data[
+                                                                          index]
+                                                                          [
+                                                                          'high']
+                                                                      ?.toString() ??
+                                                                  '0.00000',
+                                                              lowPrice: repo
+                                                                      .final_Quantitative_data[
+                                                                          index]
+                                                                          [
+                                                                          'low']
+                                                                      ?.toString() ??
+                                                                  '0.00000',
+                                                              volume: repo
+                                                                      .final_Quantitative_data[
+                                                                          index]
+                                                                          [
+                                                                          'volume']
+                                                                      ?.toString() ??
+                                                                  '0.00000',
+                                                              quoteVolume: repo
+                                                                      .final_Quantitative_data[
+                                                                          index]
+                                                                          [
+                                                                          'quoteVolume']
+                                                                      ?.toString() ??
+                                                                  '0.00000',
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                horizontal: 12,
+                                                                vertical: 8),
+                                                        child: Column(
+                                                          children: [
+                                                            Row(
+                                                              children: [
+                                                                /// Coin Icon and Name
+                                                                Expanded(
+                                                                  flex: 2,
+                                                                  child: Row(
+                                                                    children: [
+                                                                      Container(
+                                                                        padding:
+                                                                            const EdgeInsets.all(6),
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              const Color(0xFF121824),
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(8),
+                                                                        ),
+                                                                        child: Image
+                                                                            .network(
+                                                                          repo.final_Quantitative_data[index]['asset_img'] ??
+                                                                              "https://securetradeai.com/assets/securetradeai/assets/images/logo.png",
+                                                                          width:
+                                                                              20,
+                                                                          height:
+                                                                              20,
+                                                                          fit: BoxFit
+                                                                              .cover,
+                                                                          errorBuilder: (context,
+                                                                              error,
+                                                                              stackTrace) {
+                                                                            return const Icon(
+                                                                              Icons.currency_bitcoin,
+                                                                              color: Colors.white70,
+                                                                              size: 16,
+                                                                            );
+                                                                          },
+                                                                        ),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        width:
+                                                                            8,
+                                                                      ),
+                                                                      Column(
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.start,
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.center,
+                                                                        children: [
+                                                                          Text(
+                                                                            finalsymble.toUpperCase(),
+                                                                            style:
+                                                                                const TextStyle(
+                                                                              color: Colors.white,
+                                                                              fontSize: 14,
+                                                                              fontWeight: FontWeight.bold,
+                                                                            ),
+                                                                          ),
+                                                                          const Text(
+                                                                            "USDT",
+                                                                            style:
+                                                                                TextStyle(
+                                                                              color: Colors.white70,
+                                                                              fontSize: 10,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+
+                                                                /// Price and Change
+                                                                Expanded(
+                                                                  flex: 2,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .end,
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .center,
+                                                                    children: [
+                                                                      Text(
+                                                                        '\$${close.toStringAsFixed(5)}',
+                                                                        style:
+                                                                            const TextStyle(
+                                                                          color:
+                                                                              Colors.white,
+                                                                          fontSize:
+                                                                              14,
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                        ),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        height:
+                                                                            1,
+                                                                      ),
+                                                                      Container(
+                                                                        padding: const EdgeInsets.symmetric(
+                                                                            horizontal:
+                                                                                6,
+                                                                            vertical:
+                                                                                2),
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color: finalincrse >= 0
+                                                                              ? const Color(0xFF00C853).withOpacity(0.1)
+                                                                              : const Color(0xFFE53935).withOpacity(0.1),
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(4),
+                                                                        ),
+                                                                        child:
+                                                                            Row(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.min,
+                                                                          children: [
+                                                                            Icon(
+                                                                              finalincrse >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
+                                                                              color: finalincrse >= 0 ? const Color(0xFF00C853) : const Color(0xFFE53935),
+                                                                              size: 10,
+                                                                            ),
+                                                                            const SizedBox(width: 2),
+                                                                            Text(
+                                                                              '${finalincrse.toStringAsFixed(3)}%',
+                                                                              style: TextStyle(
+                                                                                color: finalincrse >= 0 ? const Color(0xFF00C853) : const Color(0xFFE53935),
+                                                                                fontSize: 10,
+                                                                                fontWeight: FontWeight.bold,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                const SizedBox(
+                                                                  width: 10,
+                                                                ),
+
+                                                                /// Trade Button
+                                                                Expanded(
+                                                                  flex: 1,
+                                                                  child:
+                                                                      Container(
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      gradient:
+                                                                          const LinearGradient(
+                                                                        colors: [
+                                                                          Color(
+                                                                              0xFF4A90E2),
+                                                                          Color(
+                                                                              0xFF5C9CE6),
+                                                                        ],
+                                                                        begin: Alignment
+                                                                            .topLeft,
+                                                                        end: Alignment
+                                                                            .bottomRight,
+                                                                      ),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              6),
+                                                                      boxShadow: [
+                                                                        BoxShadow(
+                                                                          color:
+                                                                              const Color(0xFF4A90E2).withOpacity(0.3),
+                                                                          blurRadius:
+                                                                              5,
+                                                                          offset: const Offset(
+                                                                              0,
+                                                                              2),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    padding: const EdgeInsets
+                                                                            .symmetric(
+                                                                        vertical:
+                                                                            6,
+                                                                        horizontal:
+                                                                            8),
+                                                                    child:
+                                                                        const Center(
+                                                                      child:
+                                                                          Text(
+                                                                        'Trade',
+                                                                        style:
+                                                                            TextStyle(
+                                                                          color:
+                                                                              Colors.white,
+                                                                          fontSize:
+                                                                              12,
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 8),
+                                                            const Divider(
+                                                              color: Color(
+                                                                0xFF2A3A5A,
+                                                              ),
+                                                              height: 1,
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 8),
+                                                            Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                _buildStatItem(
+                                                                  'Current Price',
+                                                                  '\$${close.toStringAsFixed(2)}',
+                                                                ),
+                                                                _buildStatItem(
+                                                                  'Open Price',
+                                                                  '\$${open.toStringAsFixed(2)}',
+                                                                ),
+                                                                _buildStatItem(
+                                                                  '24h Change',
+                                                                  '${finalincrse.toStringAsFixed(2)}%',
+                                                                  isPositive:
+                                                                      finalincrse >=
+                                                                          0,
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                            : repo.finalhuobiData.isEmpty
+                                ? const Center(
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
                                     ),
+                                  )
+                                : Huobi(
+                                    repo.finalhuobiData,
                                   );
-                                },
-                              ),
-                            ),
-                          ],
-                        )
-                  : repo.finalhuobiData.isEmpty
-                      ? const Center(
-                          child: CircularProgressIndicator(color: Colors.white))
-                      : Huobi(repo.finalhuobiData);
-            }),
-            // Self Trading tab is already included above
-            const AutoTrading(),
-            const CopyTrading(),
-          ],
+                      },
+                    ),
+                    // Self Trading tab is already included above
+                    const AutoTrading(),
+                    const CopyTrading(),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -847,16 +907,18 @@ class _SpotTradingServiceState extends State<SpotTradingService> {
               child: InkWell(
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => SubbinMode(
-                                id: "",
-                                coinurl: data[index]['coinurl'],
-                                reffralnno: widget.reffralno,
-                                coinimg: data[index]['asset_img'],
-                                compaircoinname: data[index]['symbol'],
-                                finalCoinName: finalsymble,
-                              )));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SubbinMode(
+                        id: "",
+                        coinurl: data[index]['coinurl'],
+                        reffralnno: widget.reffralno,
+                        coinimg: data[index]['asset_img'],
+                        compaircoinname: data[index]['symbol'],
+                        finalCoinName: finalsymble,
+                      ),
+                    ),
+                  );
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(5.0),
@@ -872,6 +934,8 @@ class _SpotTradingServiceState extends State<SpotTradingService> {
                           height: MediaQuery.of(context).size.height * 0.2,
                           width: double.infinity,
                           child: Container(
+                            height: 24,
+                            width: 24,
                             margin: const EdgeInsets.only(
                                 left: 10, right: 10, top: 10),
                             child: Column(
@@ -884,28 +948,28 @@ class _SpotTradingServiceState extends State<SpotTradingService> {
                                     Row(
                                       children: [
                                         CircleAvatar(
-                                            radius: 15.0,
-                                            backgroundImage: data[index]
-                                                        ['asset_img'] ==
-                                                    null
-                                                ? const NetworkImage(
-                                                    "https://securetradeai.com/assets/securetradeai/assets/images/logo.png")
-                                                : NetworkImage(
-                                                    data[index]['asset_img'])),
+                                          radius: 15.0,
+                                          backgroundImage: data[index]
+                                                      ['asset_img'] ==
+                                                  null
+                                              ? const NetworkImage(
+                                                  "https://securetradeai.com/assets/securetradeai/assets/images/logo.png")
+                                              : NetworkImage(
+                                                  data[index]['asset_img'],
+                                                ),
+                                        ),
                                         const SizedBox(
                                           width: 5,
                                         ),
                                         Row(
                                           children: [
-                                            Container(
-                                                child: Text(
-                                                    finalsymble.toUpperCase(),
-                                                    style: const TextStyle(
-                                                        fontSize: 12,
-                                                        color: Colors.white,
-                                                        fontFamily: fontFamily,
-                                                        fontWeight:
-                                                            FontWeight.bold))),
+                                            Text(finalsymble.toUpperCase(),
+                                                style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.white,
+                                                    fontFamily: fontFamily,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
                                             Container(
                                                 child: const Text("/USDT",
                                                     style: TextStyle(

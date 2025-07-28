@@ -1,13 +1,16 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:securetradeai/data/strings.dart';
+import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/profile/profileoption/Team/enhanced_level_team.dart';
 import 'package:securetradeai/src/profile/profileoption/Team/enhanced_rank_team.dart';
 import 'package:securetradeai/src/profile/profileoption/Team/enhanced_team_detail.dart';
 import 'package:securetradeai/src/profile/profileoption/share/share.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
+
 import '../../../../Data/Api.dart';
 
 class Team extends StatefulWidget {
@@ -18,7 +21,6 @@ class Team extends StatefulWidget {
 }
 
 class TeamState extends State<Team> {
-
   // Team state variables
   var teamDirect = [];
   bool isAPIcalled = false;
@@ -51,7 +53,8 @@ class TeamState extends State<Team> {
 
           for (var element in localdata) {
             // Check if level exists and is Level 1
-            if (element['level'] != null && element['level'].toString() == "Level 1") {
+            if (element['level'] != null &&
+                element['level'].toString() == "Level 1") {
               // Create a complete member object with all available fields
               Map<String, dynamic> memberData = {
                 "name": element['name'] ?? "Unknown",
@@ -103,10 +106,8 @@ class TeamState extends State<Team> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0B0E11),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0E11),
-        elevation: 0,
-        title: Text("My Team".tr, style: const TextStyle(color: Colors.white)),
+      appBar: CommonAppBar.basic(
+        title: "My Team".tr,
       ),
       body: DefaultTabController(
         length: 3,
@@ -120,7 +121,8 @@ class TeamState extends State<Team> {
               ),
               constraints: const BoxConstraints.expand(height: 50),
               child: TabBar(
-                  labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontFamily: fontFamily),
+                  labelStyle: const TextStyle(
+                      fontWeight: FontWeight.bold, fontFamily: fontFamily),
                   labelColor: const Color(0xFFF0B90B),
                   unselectedLabelColor: Colors.white70,
                   indicatorColor: const Color(0xFFF0B90B),
@@ -134,11 +136,13 @@ class TeamState extends State<Team> {
               child: TabBarView(children: [
                 isAPIcalled
                     ? Center(
-                        child: CircularProgressIndicator(color: securetradeaicolor),
+                        child: CircularProgressIndicator(
+                            color: securetradeaicolor),
                       )
                     : checkdata
                         ? Center(
-                            child: Image.asset("assets/img/logo.png", height: 200),
+                            child:
+                                Image.asset("assets/img/logo.png", height: 200),
                           )
                         : _getDirect(),
                 EnhancedLevelTeam(
@@ -168,9 +172,9 @@ class TeamState extends State<Team> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF1A237E),  // Deep blue
-                  Color(0xFF0D47A1),  // Royal blue
-                  Color(0xFF0B0E11),  // Dark background
+                  Color(0xFF1A237E), // Deep blue
+                  Color(0xFF0D47A1), // Royal blue
+                  Color(0xFF0B0E11), // Dark background
                 ],
               ),
               borderRadius: BorderRadius.circular(0),
@@ -223,17 +227,16 @@ class TeamState extends State<Team> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildStatCard("Total Referrals", "${teamDirect.length}", const Color(0xFF4A90E2)),
+                    _buildStatCard("Total Referrals", "${teamDirect.length}",
+                        const Color(0xFF4A90E2)),
                     _buildStatCard(
-                      "Active Members",
-                      "${teamDirect.where((e) => e['days'] != "0").length}",
-                      const Color(0xFF2EBD85)
-                    ),
+                        "Active Members",
+                        "${teamDirect.where((e) => e['days'] != "0").length}",
+                        const Color(0xFF2EBD85)),
                     _buildStatCard(
-                      "Inactive",
-                      "${teamDirect.where((e) => e['days'] == "0").length}",
-                      const Color(0xFFE57373)
-                    ),
+                        "Inactive",
+                        "${teamDirect.where((e) => e['days'] == "0").length}",
+                        const Color(0xFFE57373)),
                   ],
                 ),
               ],
@@ -311,7 +314,8 @@ class TeamState extends State<Team> {
                   itemBuilder: (context, i) {
                     bool isActive = teamDirect[i]['days'] != "0";
                     return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
                       decoration: BoxDecoration(
                         color: const Color(0xFF1E2329),
                         borderRadius: BorderRadius.circular(8),
@@ -320,89 +324,100 @@ class TeamState extends State<Team> {
                       child: Column(
                         children: [
                           ListTile(
-                        leading: CircleAvatar(
-                          radius: 20.0,
-                          backgroundColor: const Color(0xFF0B0E11),
-                          backgroundImage: teamDirect[i]['image'] != null && teamDirect[i]['image'] != "default.jpg"
-                              ? NetworkImage("$imagepath${teamDirect[i]['image']}")
-                              : null,
-                          child: teamDirect[i]['image'] == null || teamDirect[i]['image'] == "default.jpg"
-                              ? const Icon(
-                                  Icons.person,
-                                  color: Colors.white,
-                                  size: 20,
-                                )
-                              : null,
-                        ),
-                        title: Text(
-                          teamDirect[i]['name'],
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: fontFamily,
-                          ),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (teamDirect[i]['email'] != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 2),
-                                child: Text(
-                                  teamDirect[i]['email'].toString(),
-                                  style: TextStyle(
-                                    color: Colors.white.withOpacity(0.7),
-                                    fontSize: 12,
-                                    fontFamily: fontFamily,
-                                  ),
-                                ),
-                              ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              child: Text(
-                                "Joined ${_getDaysAgo(teamDirect[i]['days'])}",
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.7),
-                                  fontSize: 12,
-                                  fontFamily: fontFamily,
-                                ),
+                            leading: CircleAvatar(
+                              radius: 20.0,
+                              backgroundColor: const Color(0xFF0B0E11),
+                              backgroundImage: teamDirect[i]['image'] != null &&
+                                      teamDirect[i]['image'] != "default.jpg"
+                                  ? NetworkImage(
+                                      "$imagepath${teamDirect[i]['image']}")
+                                  : null,
+                              child: teamDirect[i]['image'] == null ||
+                                      teamDirect[i]['image'] == "default.jpg"
+                                  ? const Icon(
+                                      Icons.person,
+                                      color: Colors.white,
+                                      size: 20,
+                                    )
+                                  : null,
+                            ),
+                            title: Text(
+                              teamDirect[i]['name'],
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: fontFamily,
                               ),
                             ),
-                          ],
-                        ),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: isActive
-                                ? const Color(0xFF2EBD85).withOpacity(0.1)
-                                : const Color(0xFFE57373).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                isActive ? Icons.check_circle : Icons.cancel,
-                                color: isActive ? const Color(0xFF2EBD85) : const Color(0xFFE57373),
-                                size: 16,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                isActive ? "Active" : "Inactive",
-                                style: TextStyle(
-                                  color: isActive ? const Color(0xFF2EBD85) : const Color(0xFFE57373),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                  fontFamily: fontFamily,
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (teamDirect[i]['email'] != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 2),
+                                    child: Text(
+                                      teamDirect[i]['email'].toString(),
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.7),
+                                        fontSize: 12,
+                                        fontFamily: fontFamily,
+                                      ),
+                                    ),
+                                  ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Text(
+                                    "Joined ${_getDaysAgo(teamDirect[i]['days'])}",
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.7),
+                                      fontSize: 12,
+                                      fontFamily: fontFamily,
+                                    ),
+                                  ),
                                 ),
+                              ],
+                            ),
+                            trailing: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: isActive
+                                    ? const Color(0xFF2EBD85).withOpacity(0.1)
+                                    : const Color(0xFFE57373).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                            ],
-                          ),
-                        ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    isActive
+                                        ? Icons.check_circle
+                                        : Icons.cancel,
+                                    color: isActive
+                                        ? const Color(0xFF2EBD85)
+                                        : const Color(0xFFE57373),
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    isActive ? "Active" : "Inactive",
+                                    style: TextStyle(
+                                      color: isActive
+                                          ? const Color(0xFF2EBD85)
+                                          : const Color(0xFFE57373),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                      fontFamily: fontFamily,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                           // Add View Details button
                           Padding(
-                            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
+                            padding: const EdgeInsets.only(
+                                left: 16, right: 16, bottom: 12),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -412,19 +427,28 @@ class TeamState extends State<Team> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => EnhancedTeamDetail(
+                                        builder: (context) =>
+                                            EnhancedTeamDetail(
                                           data: [teamDirect[i]],
-                                          level: teamDirect[i]['level'] != null ? teamDirect[i]['level'].toString().replaceAll('Level ', '') : '1',
+                                          level: teamDirect[i]['level'] != null
+                                              ? teamDirect[i]['level']
+                                                  .toString()
+                                                  .replaceAll('Level ', '')
+                                              : '1',
                                         ),
                                       ),
                                     );
                                   },
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF4A90E2).withOpacity(0.1),
+                                      color: const Color(0xFF4A90E2)
+                                          .withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(color: const Color(0xFF4A90E2).withOpacity(0.3)),
+                                      border: Border.all(
+                                          color: const Color(0xFF4A90E2)
+                                              .withOpacity(0.3)),
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -464,7 +488,8 @@ class TeamState extends State<Team> {
             decoration: BoxDecoration(
               color: const Color(0xFF1E2329),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFF0B90B).withOpacity(0.3)),
+              border:
+                  Border.all(color: const Color(0xFFF0B90B).withOpacity(0.3)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

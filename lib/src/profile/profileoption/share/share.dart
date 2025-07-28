@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 import 'package:share_plus/share_plus.dart';
 
 class Sharescreen extends StatefulWidget {
@@ -49,15 +50,8 @@ class SharescreenState extends State<Sharescreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0B0E11),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0E11),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: Text(
-          "Invite Friends".tr,
-          style: const TextStyle(
-              fontFamily: fontFamily, fontSize: 20, color: Colors.white),
-        ),
+      appBar: CommonAppBar.basic(
+        title: "Invite Friends".tr,
       ),
       body: SingleChildScrollView(
         child: Column(

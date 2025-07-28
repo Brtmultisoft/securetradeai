@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 class AboutTrustcoin extends StatefulWidget {
   const AboutTrustcoin();
@@ -13,14 +14,8 @@ class _AboutTrustcoinState extends State<AboutTrustcoin> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bg2,
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
-        backgroundColor: appBar,
-        title: const Text("About Us",
-            style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontFamily: fontFamily)),
+      appBar: CommonAppBar.basic(
+        title: "About Us",
       ),
       body: Container(
         margin: EdgeInsets.symmetric(horizontal: 15),

@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/profile/profileoption/APIBinding/notice_carefully_page.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 import 'package:timer_builder/timer_builder.dart';
 
 import '../../../../Data/Api.dart';
@@ -89,14 +90,8 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
         : MediaQuery.of(context).size.height / 5;
     return Scaffold(
       backgroundColor: const Color(0xFF0C0E12),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF161A1E),
-        iconTheme: IconThemeData(color: Colors.white),
-        title: const Text(
-          "Binance Binding",
-          style: TextStyle(
-              fontFamily: fontFamily, fontSize: 20, color: Colors.white),
-        ),
+      appBar: CommonAppBar.basic(
+        title: "Binance Binding".tr,
       ),
       body: SingleChildScrollView(
         child: Column(

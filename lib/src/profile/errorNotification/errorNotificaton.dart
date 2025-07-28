@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:securetradeai/data/api.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 class ErrorNotification extends StatefulWidget {
   const ErrorNotification({Key? key}) : super(key: key);
@@ -65,10 +66,8 @@ class _ErrorNotificationState extends State<ErrorNotification> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bg2,
-      appBar: AppBar(
-        backgroundColor: appBar,
-        title:
-            InkWell(onTap: _getData, child: const Text("Error Notification")),
+      appBar: CommonAppBar.analytics(
+        title: "Error Notification",
       ),
       body: isAPIcalled
           ? const Center(

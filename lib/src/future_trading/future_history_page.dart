@@ -4,6 +4,7 @@ import 'package:securetradeai/model/future_trading_models.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/Service/future_trading_service.dart';
 import 'package:securetradeai/src/future_trading/trading_report_page.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 import 'package:securetradeai/src/widget/trading_widgets.dart';
 
 class FutureHistoryPage extends StatefulWidget {
@@ -549,25 +550,36 @@ class _FutureHistoryPageState extends State<FutureHistoryPage>
               data: ThemeData.dark().copyWith(
                 colorScheme: ColorScheme.dark(
                   brightness: Brightness.dark,
-                  primary: TradingTheme.primaryAccent, // Selected date background (yellow)
-                  onPrimary: Colors.black, // Selected date text (black on yellow)
-                  surface: TradingTheme.cardBackground, // Calendar background (dark)
-                  onSurface: Colors.white, // Calendar dates text (WHITE - force override)
+                  primary: TradingTheme
+                      .primaryAccent, // Selected date background (yellow)
+                  onPrimary:
+                      Colors.black, // Selected date text (black on yellow)
+                  surface:
+                      TradingTheme.cardBackground, // Calendar background (dark)
+                  onSurface: Colors
+                      .white, // Calendar dates text (WHITE - force override)
                   background: TradingTheme.cardBackground, // Dialog background
                   onBackground: Colors.white, // Text on dialog background
-                  secondary: TradingTheme.primaryAccent, // Today's date highlight
+                  secondary:
+                      TradingTheme.primaryAccent, // Today's date highlight
                   onSecondary: Colors.black, // Today's date text
                 ),
                 dialogBackgroundColor: TradingTheme.cardBackground,
                 textTheme: ThemeData.dark().textTheme.copyWith(
-                  headlineSmall: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500), // Month/year header
-                  bodyLarge: const TextStyle(color: Colors.white), // Date numbers - FORCE WHITE
-                  bodyMedium: const TextStyle(color: Colors.white), // Weekday labels - FORCE WHITE
-                  labelLarge: const TextStyle(color: Colors.white), // Button text
-                ),
+                      headlineSmall: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500), // Month/year header
+                      bodyLarge: const TextStyle(
+                          color: Colors.white), // Date numbers - FORCE WHITE
+                      bodyMedium: const TextStyle(
+                          color: Colors.white), // Weekday labels - FORCE WHITE
+                      labelLarge:
+                          const TextStyle(color: Colors.white), // Button text
+                    ),
                 textButtonTheme: TextButtonThemeData(
                   style: TextButton.styleFrom(
-                    foregroundColor: TradingTheme.primaryAccent, // CANCEL/OK button text
+                    foregroundColor:
+                        TradingTheme.primaryAccent, // CANCEL/OK button text
                   ),
                 ),
               ),
@@ -651,6 +663,46 @@ class _FutureHistoryPageState extends State<FutureHistoryPage>
   }
 
   PreferredSizeWidget _buildAppBar() {
+    return CommonAppBar.basic(
+      title: "Trade History",
+      actions: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            gradient: TradingTheme.accentGradient,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.history,
+                color: Colors.black,
+                size: 16,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '${_tradeHistory.length}',
+                style: TradingTypography.bodyMedium.copyWith(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.filter_list,
+            color: _hasActiveFilters()
+                ? TradingTheme.primaryAccent
+                : TradingTheme.primaryText,
+          ),
+          onPressed: _showFilterDialog,
+          tooltip: 'Filter trades',
+        ),
+      ],
+    );
     return AppBar(
       backgroundColor: TradingTheme.secondaryBackground,
       elevation: 0,
@@ -694,18 +746,18 @@ class _FutureHistoryPageState extends State<FutureHistoryPage>
         icon: const Icon(Icons.arrow_back, color: TradingTheme.primaryText),
         onPressed: () => Navigator.pop(context),
       ),
-      actions: [
-        IconButton(
-          icon: Icon(
-            Icons.filter_list,
-            color: _hasActiveFilters()
-                ? TradingTheme.primaryAccent
-                : TradingTheme.primaryText,
-          ),
-          onPressed: _showFilterDialog,
-          tooltip: 'Filter trades',
-        ),
-      ],
+      // actions: [
+      //   IconButton(
+      //     icon: Icon(
+      //       Icons.filter_list,
+      //       color: _hasActiveFilters()
+      //           ? TradingTheme.primaryAccent
+      //           : TradingTheme.primaryText,
+      //     ),
+      //     onPressed: _showFilterDialog,
+      //     tooltip: 'Filter trades',
+      //   ),
+      // ],
     );
   }
 

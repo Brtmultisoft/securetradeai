@@ -2,10 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:securetradeai/data/api.dart';
-import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:securetradeai/data/api.dart';
 import 'package:securetradeai/data/strings.dart';
+import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 class Transfer extends StatefulWidget {
   const Transfer({Key? key, this.balance}) : super(key: key);
@@ -22,8 +23,8 @@ class _TransferState extends State<Transfer> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: Text("transfer".tr),
+      appBar: CommonAppBar.basic(
+        title: "transfer".tr,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),

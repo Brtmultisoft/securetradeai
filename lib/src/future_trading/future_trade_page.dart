@@ -9,6 +9,7 @@ import 'package:securetradeai/model/repoModel.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/Service/future_trading_service.dart';
 import 'package:securetradeai/src/widget/trading_widgets.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 class FutureTradePage extends StatefulWidget {
   const FutureTradePage({Key? key}) : super(key: key);
@@ -463,49 +464,10 @@ class _FutureTradePageState extends State<FutureTradePage>
   }
 
   PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: TradingTheme.secondaryBackground,
-      elevation: 0,
-      title: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              gradient: TradingTheme.accentGradient,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.add_circle,
-                  color: Colors.black,
-                  size: 16,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  'ORDER',
-                  style: TradingTypography.bodyMedium.copyWith(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(
-            width: 15,
-          ),
-          const Text(
-            'New Order',
-            style: TradingTypography.heading3,
-          ),
-        ],
-      ),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: TradingTheme.primaryText),
-        onPressed: () => Navigator.pop(context),
-      ),
+    return CommonAppBar.trading(
+      title: 'New Order',
+      badgeText: 'ORDER',
+      badgeIcon: Icons.add_circle,
     );
   }
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/method/methods.dart';
-import 'package:securetradeai/model/dailyRoiHistoryModel.dart';
 import 'package:securetradeai/src/widget/animated_toast.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 class IncomeDetailsPage extends StatefulWidget {
   final String incomeType;
@@ -119,8 +119,8 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
           final investmentsRes = await CommonMethod().getUserInvestmentsNew();
           if (investmentsRes.status == "success" &&
               investmentsRes.data.arbitrageInvestments.isNotEmpty) {
-
-            final firstInvestment = investmentsRes.data.arbitrageInvestments.first;
+            final firstInvestment =
+                investmentsRes.data.arbitrageInvestments.first;
             final roiRes = await CommonMethod().getDailyRoiHistory(
               investmentId: firstInvestment.id,
               limit: 50, // Get more history
@@ -133,11 +133,13 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                 incomes.add({
                   'id': roi.id.toString(),
                   'amount': roi.roiAmount,
-                  'investment_amount': firstInvestment.investmentAmount.toString(),
+                  'investment_amount':
+                      firstInvestment.investmentAmount.toString(),
                   'From_Users': 'Investment #${firstInvestment.id}',
                   'created_at': roi.createdAt.toIso8601String(),
                   'type': 'Daily ROI',
-                  'description': 'Daily ROI ${roi.roiPercentage}% from ${firstInvestment.packageType} package',
+                  'description':
+                      'Daily ROI ${roi.roiPercentage}% from ${firstInvestment.packageType} package',
                   'status': 'COMPLETED',
                   'roi_date': roi.roiDate.toIso8601String(),
                   'roi_percentage': roi.roiPercentage,
@@ -223,22 +225,9 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A2234), // Binance dark background
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF161A1E), // Binance header color
-        elevation: 0,
-        title: Text(
-          widget.title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-            fontSize: 18,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+      backgroundColor: const Color(0xFF1A2234),
+      appBar: CommonAppBar.analytics(
+        title: widget.title,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
@@ -246,6 +235,28 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
           ),
         ],
       ),
+      // appBar: AppBar(
+      //   backgroundColor: const Color(0xFF161A1E), // Binance header color
+      //   elevation: 0,
+      //   title: Text(
+      //     widget.title,
+      //     style: const TextStyle(
+      //       color: Colors.white,
+      //       fontWeight: FontWeight.w500,
+      //       fontSize: 18,
+      //     ),
+      //   ),
+      //   leading: IconButton(
+      //     icon: const Icon(Icons.arrow_back, color: Colors.white),
+      //     onPressed: () => Navigator.pop(context),
+      //   ),
+      //   actions: [
+      //     IconButton(
+      //       icon: const Icon(Icons.refresh, color: Colors.white),
+      //       onPressed: _loadIncomeData,
+      //     ),
+      //   ],
+      // ),
       body: isLoading
           ? const Center(
               child: CircularProgressIndicator(

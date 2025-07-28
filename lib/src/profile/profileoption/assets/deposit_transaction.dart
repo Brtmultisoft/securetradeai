@@ -1,9 +1,12 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import '../../../../method/methods.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/model/DeposittransactionModel.dart'
     as DepositTransactionModelAlias;
+import 'package:securetradeai/src/widget/common_app_bar.dart';
+
+import '../../../../method/methods.dart';
 
 class DepositTransaction extends StatefulWidget {
   @override
@@ -31,7 +34,8 @@ class _DepositTransactionState extends State<DepositTransaction> {
 
     // Add scroll listener
     scrollController.addListener(() {
-      if (scrollController.position.pixels >= scrollController.position.maxScrollExtent * 0.8) {
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent * 0.8) {
         if (!loading && hasMoreData) {
           _loadMoreDeposits();
         }
@@ -138,23 +142,8 @@ class _DepositTransactionState extends State<DepositTransaction> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: darkBlue,
-        appBar: AppBar(
-          backgroundColor: mediumBlue,
-          elevation: 0,
-          title: const Text(
-            'Deposit Transactions',
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-          ),
-          leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-          ),
+        appBar: CommonAppBar.basic(
+          title: 'Deposit Transactions',
         ),
         body: Column(
           children: [
@@ -247,7 +236,8 @@ class _DepositTransactionState extends State<DepositTransaction> {
     const Color lightBlue = Color(0xFF4A6FA5);
 
     if (loading && depositList.isEmpty) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF4A6FA5)));
+      return const Center(
+          child: CircularProgressIndicator(color: Color(0xFF4A6FA5)));
     }
 
     if (checkdata && depositList.isEmpty) {
@@ -321,7 +311,8 @@ class _DepositTransactionState extends State<DepositTransaction> {
     String statusText = deposit.status ?? "Unknown";
 
     // Format date
-    String formattedDate = "${deposit.createdDate.day}/${deposit.createdDate.month}/${deposit.createdDate.year} ${deposit.createdDate.hour}:${deposit.createdDate.minute.toString().padLeft(2, '0')}";
+    String formattedDate =
+        "${deposit.createdDate.day}/${deposit.createdDate.month}/${deposit.createdDate.year} ${deposit.createdDate.hour}:${deposit.createdDate.minute.toString().padLeft(2, '0')}";
 
     switch (statusText.toLowerCase()) {
       case "confirm":
@@ -399,7 +390,9 @@ class _DepositTransactionState extends State<DepositTransaction> {
                       : "-${deposit.dr} USD",
                   style: TextStyle(
                     color: statusText.toLowerCase() == "confirm"
-                        ? (deposit.cr != "0" ? const Color(0xFF00C853) : Colors.red)
+                        ? (deposit.cr != "0"
+                            ? const Color(0xFF00C853)
+                            : Colors.red)
                         : Colors.grey,
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -434,11 +427,14 @@ class _DepositTransactionState extends State<DepositTransaction> {
                   _buildDetailRow("Charges", "${deposit.charges} USD"),
 
                 // Show hashkey if available
-                if (deposit.hashkey != null && deposit.hashkey.toString() != "null")
-                  _buildDetailRow("Hash Key", deposit.hashkey.toString(), isHashKey: true),
+                if (deposit.hashkey != null &&
+                    deposit.hashkey.toString() != "null")
+                  _buildDetailRow("Hash Key", deposit.hashkey.toString(),
+                      isHashKey: true),
 
                 // Show address if available
-                if (deposit.address != null && deposit.address.toString() != "null")
+                if (deposit.address != null &&
+                    deposit.address.toString() != "null")
                   _buildDetailRow("Address", deposit.address.toString()),
               ],
             ),
@@ -450,7 +446,6 @@ class _DepositTransactionState extends State<DepositTransaction> {
 
   // Helper method to build detail rows
   Widget _buildDetailRow(String label, String value, {bool isHashKey = false}) {
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -505,8 +500,4 @@ class _DepositTransactionState extends State<DepositTransaction> {
       ),
     );
   }
-
-
 }
-
-

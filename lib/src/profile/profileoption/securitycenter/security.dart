@@ -7,6 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/profile/profileoption/securitycenter/aboutTrustcoin.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../data/api.dart';
@@ -167,14 +168,8 @@ class _SystemCenterState extends State<SystemCenter> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFF1A2234),
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
-        backgroundColor: appBar,
-        title: Text("systemSetting".tr,
-            style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontFamily: fontFamily)),
+      appBar: CommonAppBar.basic(
+        title: "systemSetting".tr,
       ),
       body: isAPcalled
           ? Center(

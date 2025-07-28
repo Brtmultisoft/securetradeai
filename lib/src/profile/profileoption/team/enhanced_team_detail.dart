@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../Service/assets_service.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
+
 import '../../../../Data/Api.dart';
+import '../../../Service/assets_service.dart';
 
 class EnhancedTeamDetail extends StatefulWidget {
   const EnhancedTeamDetail({Key? key, required this.data, this.level})
@@ -16,21 +18,10 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0B0E11),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0B0E11),
-        elevation: 0,
-        title: Text(
-          widget.level == null ? "" : "Level ${widget.level}",
-          style: const TextStyle(
-            color: Colors.white,
-            fontFamily: fontFamily,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+      appBar: CommonAppBar.basic(
+        title: widget.level == null ? "" : "Level ${widget.level}",
       ),
-      body: widget.data.isEmpty
-          ? _buildEmptyState()
-          : _buildTeamList(),
+      body: widget.data.isEmpty ? _buildEmptyState() : _buildTeamList(),
     );
   }
 
@@ -71,7 +62,10 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
     int totalMembers = widget.data.length;
     int activeMembers = widget.data.where((e) {
       try {
-        return int.parse(e['days_bal'] != null ? e['days_bal'].toString() : e['days'].toString()) > 0;
+        return int.parse(e['days_bal'] != null
+                ? e['days_bal'].toString()
+                : e['days'].toString()) >
+            0;
       } catch (error) {
         print("Error parsing days: $error");
         return false;
@@ -91,9 +85,9 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF1A237E),  // Deep blue
-                  Color(0xFF0D47A1),  // Royal blue
-                  Color(0xFF0B0E11),  // Dark background
+                  Color(0xFF1A237E), // Deep blue
+                  Color(0xFF0D47A1), // Royal blue
+                  Color(0xFF0B0E11), // Dark background
                 ],
               ),
               borderRadius: BorderRadius.circular(0),
@@ -150,9 +144,12 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildStatCard("Total\nMembers", "$totalMembers", const Color(0xFF4A90E2)),
-                    _buildStatCard("Active\nMembers", "$activeMembers", const Color(0xFF2EBD85)),
-                    _buildStatCard("Inactive\nMembers", "$inactiveMembers", const Color(0xFFE57373)),
+                    _buildStatCard("Total\nMembers", "$totalMembers",
+                        const Color(0xFF4A90E2)),
+                    _buildStatCard("Active\nMembers", "$activeMembers",
+                        const Color(0xFF2EBD85)),
+                    _buildStatCard("Inactive\nMembers", "$inactiveMembers",
+                        const Color(0xFFE57373)),
                   ],
                 ),
               ],
@@ -188,7 +185,8 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                 ),
                 const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: const Color(0xFF1E2329),
                     borderRadius: BorderRadius.circular(16),
@@ -223,9 +221,16 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: widget.data.length,
             itemBuilder: (context, i) {
-              bool isActive = int.parse(widget.data[i]['days_bal'] != null ? widget.data[i]['days_bal'].toString() : widget.data[i]['days'].toString()) > 0;
-              String memberRank = widget.data[i]['rank'] != null ? widget.data[i]['rank'].toString() : "0";
-              String memberEmail = widget.data[i]['email'] != null ? widget.data[i]['email'].toString() : "";
+              bool isActive = int.parse(widget.data[i]['days_bal'] != null
+                      ? widget.data[i]['days_bal'].toString()
+                      : widget.data[i]['days'].toString()) >
+                  0;
+              String memberRank = widget.data[i]['rank'] != null
+                  ? widget.data[i]['rank'].toString()
+                  : "0";
+              String memberEmail = widget.data[i]['email'] != null
+                  ? widget.data[i]['email'].toString()
+                  : "";
 
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -242,10 +247,13 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                           CircleAvatar(
                             radius: 24.0,
                             backgroundColor: const Color(0xFF0B0E11),
-                            backgroundImage: widget.data[i]['image'] != null && widget.data[i]['image'] != "default.jpg"
-                                ? NetworkImage("${imagepath}${widget.data[i]['image']}")
+                            backgroundImage: widget.data[i]['image'] != null &&
+                                    widget.data[i]['image'] != "default.jpg"
+                                ? NetworkImage(
+                                    "${imagepath}${widget.data[i]['image']}")
                                 : null,
-                            child: widget.data[i]['image'] == null || widget.data[i]['image'] == "default.jpg"
+                            child: widget.data[i]['image'] == null ||
+                                    widget.data[i]['image'] == "default.jpg"
                                 ? const Icon(
                                     Icons.person,
                                     color: Colors.white,
@@ -285,9 +293,11 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                           const SizedBox(width: 8),
                           if (memberRank != "0")
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: _getRankColor(memberRank).withOpacity(0.2),
+                                color:
+                                    _getRankColor(memberRank).withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -331,7 +341,8 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                         ],
                       ),
                       trailing: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: isActive
                               ? const Color(0xFF2EBD85).withOpacity(0.1)
@@ -343,14 +354,18 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                           children: [
                             Icon(
                               isActive ? Icons.check_circle : Icons.cancel,
-                              color: isActive ? const Color(0xFF2EBD85) : const Color(0xFFE57373),
+                              color: isActive
+                                  ? const Color(0xFF2EBD85)
+                                  : const Color(0xFFE57373),
                               size: 16,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               isActive ? "Active" : "Inactive",
                               style: TextStyle(
-                                color: isActive ? const Color(0xFF2EBD85) : const Color(0xFFE57373),
+                                color: isActive
+                                    ? const Color(0xFF2EBD85)
+                                    : const Color(0xFFE57373),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
                                 fontFamily: fontFamily,
@@ -365,11 +380,13 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                     ),
                     // Action buttons
                     Padding(
-                      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
+                      padding: const EdgeInsets.only(
+                          left: 16, right: 16, bottom: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          _buildMiniActionButton("Details", Icons.info_outline, const Color(0xFF4A90E2), () {
+                          _buildMiniActionButton("Details", Icons.info_outline,
+                              const Color(0xFF4A90E2), () {
                             _showMemberDetails(widget.data[i]);
                           }),
                           // const SizedBox(width: 8),
@@ -395,7 +412,8 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
             decoration: BoxDecoration(
               color: const Color(0xFF1E2329),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF4A90E2).withOpacity(0.3)),
+              border:
+                  Border.all(color: const Color(0xFF4A90E2).withOpacity(0.3)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -462,20 +480,28 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
         // Safely extract values with proper null checks and defaults
         bool isActive = false;
         try {
-          String daysValue = member['days_bal'] != null ? member['days_bal'].toString() :
-                           (member['days'] != null ? member['days'].toString() : "0");
+          String daysValue = member['days_bal'] != null
+              ? member['days_bal'].toString()
+              : (member['days'] != null ? member['days'].toString() : "0");
           isActive = int.parse(daysValue) > 0;
         } catch (e) {
           print("Error parsing days: $e");
         }
 
         // Extract all member details with proper null checks
-        String memberName = member['name'] != null ? member['name'].toString() : "Unknown";
-        String memberRank = member['rank'] != null ? member['rank'].toString() : "0";
-        String memberEmail = member['email'] != null ? member['email'].toString() : "";
-        String memberMobile = member['mobile'] != null ? member['mobile'].toString() : "";
-        String memberGender = member['gender'] != null ? member['gender'].toString() : "Not specified";
-        String memberId = member['user_id'] != null ? member['user_id'].toString() : "";
+        String memberName =
+            member['name'] != null ? member['name'].toString() : "Unknown";
+        String memberRank =
+            member['rank'] != null ? member['rank'].toString() : "0";
+        String memberEmail =
+            member['email'] != null ? member['email'].toString() : "";
+        String memberMobile =
+            member['mobile'] != null ? member['mobile'].toString() : "";
+        String memberGender = member['gender'] != null
+            ? member['gender'].toString()
+            : "Not specified";
+        String memberId =
+            member['user_id'] != null ? member['user_id'].toString() : "";
 
         return Container(
           padding: const EdgeInsets.all(20),
@@ -499,10 +525,12 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                     CircleAvatar(
                       radius: 50.0,
                       backgroundColor: const Color(0xFF0B0E11),
-                      backgroundImage: member['image'] != null && member['image'] != "default.jpg"
+                      backgroundImage: member['image'] != null &&
+                              member['image'] != "default.jpg"
                           ? NetworkImage("${imagepath}${member['image']}")
                           : null,
-                      child: member['image'] == null || member['image'] == "default.jpg"
+                      child: member['image'] == null ||
+                              member['image'] == "default.jpg"
                           ? const Icon(
                               Icons.person,
                               color: Colors.white,
@@ -513,9 +541,12 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: isActive ? const Color(0xFF2EBD85) : const Color(0xFFE57373),
+                        color: isActive
+                            ? const Color(0xFF2EBD85)
+                            : const Color(0xFFE57373),
                         shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFF1E2329), width: 2),
+                        border: Border.all(
+                            color: const Color(0xFF1E2329), width: 2),
                       ),
                       child: Icon(
                         isActive ? Icons.check : Icons.close,
@@ -549,7 +580,8 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                   ),
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: isActive
                         ? const Color(0xFF2EBD85).withOpacity(0.1)
@@ -559,7 +591,9 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                   child: Text(
                     isActive ? "Active Member" : "Inactive Member",
                     style: TextStyle(
-                      color: isActive ? const Color(0xFF2EBD85) : const Color(0xFFE57373),
+                      color: isActive
+                          ? const Color(0xFF2EBD85)
+                          : const Color(0xFFE57373),
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
                       fontFamily: fontFamily,
@@ -598,13 +632,25 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                       const Divider(color: Color(0xFF2A3A5A), height: 24),
                       _buildDetailRow("Gender", memberGender, Icons.person),
                       const Divider(color: Color(0xFF2A3A5A), height: 24),
-                      _buildDetailRow("Level", "Level ${widget.level}", Icons.layers),
+                      _buildDetailRow(
+                          "Level", "Level ${widget.level}", Icons.layers),
                       const Divider(color: Color(0xFF2A3A5A), height: 24),
-                      _buildDetailRow("Rank", _getRankName(memberRank), Icons.military_tech),
+                      _buildDetailRow("Rank", _getRankName(memberRank),
+                          Icons.military_tech),
                       const Divider(color: Color(0xFF2A3A5A), height: 24),
-                      _buildDetailRow("Joined", _getDaysAgo(member['days_bal'] != null ? member['days_bal'].toString() : (member['days'] != null ? member['days'].toString() : "0")), Icons.calendar_today),
+                      _buildDetailRow(
+                          "Joined",
+                          _getDaysAgo(member['days_bal'] != null
+                              ? member['days_bal'].toString()
+                              : (member['days'] != null
+                                  ? member['days'].toString()
+                                  : "0")),
+                          Icons.calendar_today),
                       const Divider(color: Color(0xFF2A3A5A), height: 24),
-                      _buildDetailRow("Commission Rate", "${_getCommissionRate(widget.level)}%", Icons.attach_money),
+                      _buildDetailRow(
+                          "Commission Rate",
+                          "${_getCommissionRate(widget.level)}%",
+                          Icons.attach_money),
                     ],
                   ),
                 ),
@@ -615,9 +661,12 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildActionButton("Message", Icons.message, const Color(0xFF4A90E2)),
-                    _buildActionButton("Call", Icons.call, const Color(0xFF2EBD85)),
-                    _buildActionButton("Share", Icons.share, const Color(0xFFF0B90B)),
+                    _buildActionButton(
+                        "Message", Icons.message, const Color(0xFF4A90E2)),
+                    _buildActionButton(
+                        "Call", Icons.call, const Color(0xFF2EBD85)),
+                    _buildActionButton(
+                        "Share", Icons.share, const Color(0xFFF0B90B)),
                   ],
                 ),
 
@@ -707,31 +756,48 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
 
   String _getRankName(String rank) {
     switch (rank) {
-      case "0": return "Newcomer";
-      case "1": return "Bronze";
-      case "2": return "Silver";
-      case "3": return "Gold";
-      case "4": return "Platinum";
-      case "5": return "Diamond";
-      case "6": return "Black Diamond";
-      default: return "Newcomer";
+      case "0":
+        return "Newcomer";
+      case "1":
+        return "Bronze";
+      case "2":
+        return "Silver";
+      case "3":
+        return "Gold";
+      case "4":
+        return "Platinum";
+      case "5":
+        return "Diamond";
+      case "6":
+        return "Black Diamond";
+      default:
+        return "Newcomer";
     }
   }
 
   Color _getRankColor(String rank) {
     switch (rank) {
-      case "0": return const Color(0xFF78909C); // Grey
-      case "1": return const Color(0xFFCD7F32); // Bronze
-      case "2": return const Color(0xFFC0C0C0); // Silver
-      case "3": return const Color(0xFFFFD700); // Gold
-      case "4": return const Color(0xFFE5E4E2); // Platinum
-      case "5": return const Color(0xFF40E0D0); // Diamond
-      case "6": return const Color(0xFF212121); // Black Diamond
-      default: return const Color(0xFF78909C); // Grey
+      case "0":
+        return const Color(0xFF78909C); // Grey
+      case "1":
+        return const Color(0xFFCD7F32); // Bronze
+      case "2":
+        return const Color(0xFFC0C0C0); // Silver
+      case "3":
+        return const Color(0xFFFFD700); // Gold
+      case "4":
+        return const Color(0xFFE5E4E2); // Platinum
+      case "5":
+        return const Color(0xFF40E0D0); // Diamond
+      case "6":
+        return const Color(0xFF212121); // Black Diamond
+      default:
+        return const Color(0xFF78909C); // Grey
     }
   }
 
-  Widget _buildMiniActionButton(String label, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildMiniActionButton(
+      String label, IconData icon, Color color, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
       child: Container(

@@ -1,10 +1,12 @@
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
 import 'package:securetradeai/Data/Api.dart';
-import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/data/strings.dart';
+import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 class Withdrawal extends StatefulWidget {
   const Withdrawal({Key? key, this.balance}) : super(key: key);
@@ -22,8 +24,8 @@ class _WithdrawalState extends State<Withdrawal> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.black,
-        appBar: AppBar(
-          title: Text("withdrawal".tr),
+        appBar: CommonAppBar.basic(
+          title: 'withdrawal'.tr,
         ),
         body: Padding(
           padding: const EdgeInsets.only(left: 20.0, right: 10, top: 10),
@@ -221,7 +223,7 @@ class _WithdrawalState extends State<Withdrawal> {
                         )),
                       )
                     ]),
-                    
+
                 SizedBox(
                   height: 40,
                 ),

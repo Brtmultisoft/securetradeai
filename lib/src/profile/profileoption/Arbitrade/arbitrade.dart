@@ -7,6 +7,7 @@ import 'package:securetradeai/model/userInvestmentsModel.dart';
 import 'package:securetradeai/model/userRankModel.dart';
 import 'package:securetradeai/src/profile/profileoption/Arbitrade/income_details.dart';
 import 'package:securetradeai/src/widget/animated_toast.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 class ArbiTradeSection extends StatefulWidget {
   const ArbiTradeSection({Key? key}) : super(key: key);
@@ -227,21 +228,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0C0E12), // Binance dark background
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF161A1E), // Binance header color
-        elevation: 0,
-        title: const Text(
-          'Investment Panel',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-            fontSize: 18,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+      appBar: CommonAppBar.analytics(
+        title: 'Investment Panel',
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),

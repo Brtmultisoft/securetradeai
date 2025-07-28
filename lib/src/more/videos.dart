@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:http/http.dart' as http;
 import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../Data/Api.dart';
@@ -82,14 +83,8 @@ class _VideoScreenState extends State<VideoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: const Color(0xFF0C0E12),
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF161A1E),
-          iconTheme: const IconThemeData(color: Colors.white),
-          title: Text(
-            "Videos".tr,
-            style: const TextStyle(
-                fontFamily: fontFamily, fontSize: 20, color: Colors.white),
-          ),
+        appBar: CommonAppBar.basic(
+          title: "Videos".tr,
         ),
         body: isAPIcalled
             ? Center(

@@ -1,14 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:securetradeai/Data/Api.dart';
+import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/profile/profileoption/assets/swap.dart';
-import 'package:securetradeai/src/profile/profileoption/assets/withdrawal.dart';
 import 'package:securetradeai/src/profile/profileoption/assets/transfer.dart';
-import 'package:http/http.dart' as http;
+import 'package:securetradeai/src/profile/profileoption/assets/withdrawal.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
+
 import '../../../../method/methods.dart';
-import 'package:securetradeai/data/strings.dart';
 
 class Assets extends StatefulWidget {
   @override
@@ -110,23 +112,8 @@ class _AssetsState extends State<Assets> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: darkBlue,
-        appBar: AppBar(
-          backgroundColor: mediumBlue,
-          elevation: 0,
-          title: const Text(
-            'Transaction Record',
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-          ),
-          leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-          ),
+        appBar: CommonAppBar.basic(
+          title: 'Transaction Record',
         ),
         body: Column(
           children: [
@@ -368,7 +355,8 @@ class _AssetsState extends State<Assets> {
               children: [
                 // Section title
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Row(
                     children: [
                       Container(
@@ -400,10 +388,12 @@ class _AssetsState extends State<Assets> {
                       final transaction = detailList[i];
                       final isCredit = transaction.dr == "0";
                       final amount = isCredit ? transaction.cr : transaction.dr;
-                      final formattedDate = transaction.createdDate.toString().substring(0, 16);
+                      final formattedDate =
+                          transaction.createdDate.toString().substring(0, 16);
 
                       return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 6),
                         decoration: BoxDecoration(
                           color: mediumBlue,
                           borderRadius: BorderRadius.circular(8),
@@ -426,7 +416,9 @@ class _AssetsState extends State<Assets> {
                                 ),
                                 child: Center(
                                   child: Icon(
-                                    isCredit ? Icons.arrow_downward : Icons.arrow_upward,
+                                    isCredit
+                                        ? Icons.arrow_downward
+                                        : Icons.arrow_upward,
                                     color: isCredit ? Colors.green : Colors.red,
                                     size: 20,
                                   ),
@@ -440,7 +432,8 @@ class _AssetsState extends State<Assets> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      (transaction.descr == null || transaction.descr == "")
+                                      (transaction.descr == null ||
+                                              transaction.descr == "")
                                           ? "Description not available"
                                           : transaction.descr!,
                                       style: const TextStyle(
@@ -490,8 +483,4 @@ class _AssetsState extends State<Assets> {
             ),
     );
   }
-
-
 }
-
-

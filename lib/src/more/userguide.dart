@@ -6,6 +6,7 @@ import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:http/http.dart' as http;
 import 'package:securetradeai/data/api.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 class UserGuide extends StatefulWidget {
   const UserGuide({Key? key}) : super(key: key);
@@ -50,18 +51,8 @@ class _UserGuideState extends State<UserGuide> {
     return Scaffold(
       backgroundColor:
           const Color(0xFF1A2234), // Dark background to match app theme
-      appBar: AppBar(
-        backgroundColor:
-            const Color(0xFF161A1E), // Dark AppBar to match app theme
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white), // White icons
-        title: Text(
-          "user_guide".tr,
-          style: const TextStyle(
-              fontFamily: fontFamily,
-              fontSize: 20,
-              color: Colors.white), // White text
-        ),
+      appBar: CommonAppBar.basic(
+        title: "user_guide".tr,
       ),
       body: isAPIcalled
           ? const Center(

@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:securetradeai/Data/Api.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 import '../../../method/methods.dart';
 
@@ -70,20 +71,8 @@ class _PersonalInfoState extends State<PersonalInfo> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFF1A2234),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF161A1E),
-        title: Text(
-          "personalinfo".tr,
-          style: TextStyle(color: Colors.white),
-        ),
-        leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            )),
+      appBar: CommonAppBar.basic(
+        title: "personalinfo".tr,
       ),
       body: isAPIcalle
           ? Center(

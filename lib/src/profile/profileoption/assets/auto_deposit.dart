@@ -567,7 +567,21 @@ class _AutoDepositState extends State<AutoDeposit>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0C0E12), // Binance dark background
+      backgroundColor: const Color(0xFF0C0E12),
+      // appBar: CommonAppBar.basic(
+      //   title: "Gas Deposit".tr,
+      //   bottom: TabBar(
+      //     controller: _tabController,
+      //     indicatorColor: const Color(0xFFF0B90B), // Binance yellow
+      //     labelColor: Colors.white,
+      //     unselectedLabelColor: const Color(0xFF848E9C),
+      //     tabs: const [
+      //       Tab(text: 'Deposit'),
+      //       // Tab(text: 'History'),
+      //       Tab(text: 'Gas History'),
+      //     ],
+      //   ),
+      // ),
       appBar: AppBar(
         backgroundColor: const Color(0xFF161A1E), // Binance header color
         elevation: 0,
