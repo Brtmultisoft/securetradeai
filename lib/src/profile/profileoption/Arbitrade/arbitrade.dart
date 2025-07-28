@@ -1,6 +1,19 @@
+import 'dart:io';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:excel/excel.dart' as excel_lib;
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:cross_file/cross_file.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/method/methods.dart';
+import 'package:securetradeai/model/dailyRoiHistoryModel.dart';
 import 'package:securetradeai/model/incomeManagementModel.dart';
 import 'package:securetradeai/model/incomeSummaryModel.dart';
 import 'package:securetradeai/model/userInvestmentsModel.dart';
@@ -51,6 +64,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
 
   // Income summary data
   IncomeSummaryModel? incomeSummaryData;
+
+  // ROI history data for chart
+  DailyRoiHistoryModel? roiHistoryData;
 
   // New Income Management Data
   DirectIncomeModel? directIncomeData;
@@ -108,12 +124,13 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
       await _loadInvestmentData();
 
       // Load new income management data
-      await Future.wait([
+      await Future.wait<void>([
         _loadDirectIncome(),
         _loadLevelROIIncome(),
         _loadSalaryIncome(),
         _loadUserRank(),
         _loadIncomeSummary(),
+        _loadROIHistory(),
       ]);
     } catch (e) {
       print('Error loading data: $e');
@@ -225,10 +242,33 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     }
   }
 
+  Future<void> _loadROIHistory() async {
+    try {
+      // Get the first active investment ID for ROI history
+      final investmentsRes = await CommonMethod().getUserInvestmentsNew();
+      if (investmentsRes.status == "success" &&
+          investmentsRes.data.arbitrageInvestments.isNotEmpty) {
+        final firstInvestment = investmentsRes.data.arbitrageInvestments.first;
+        final roiRes = await CommonMethod().getDailyRoiHistory(
+          investmentId: firstInvestment.id,
+          limit: 30, // Get last 30 days for chart
+        );
+
+        if (roiRes.status == "success") {
+          setState(() {
+            roiHistoryData = roiRes;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error loading ROI history: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0C0E12), // Binance dark background
+      backgroundColor: const Color(0xFF0C0E12),
       appBar: CommonAppBar.analytics(
         title: 'Arbitrade Trading',
         actions: [
@@ -1702,18 +1742,18 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
       backgroundColor: const Color(0xFF161A1E),
       onRefresh: _loadData,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           children: [
             // Summary Cards
             _buildReportSummaryCard(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             // Performance Chart Placeholder
             _buildPerformanceChart(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             // Investment Breakdown
             _buildInvestmentBreakdown(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             // Export Options
             _buildExportOptions(),
           ],
@@ -1826,7 +1866,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   Widget _buildPerformanceChart() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFF1E2026),
         borderRadius: BorderRadius.circular(12),
@@ -1836,45 +1876,55 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Performance Chart',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              const Expanded(
+                child: Text(
+                  'Performance Chart',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                 decoration: BoxDecoration(
                   color: const Color(0xFF0ECB81).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(4),
                   border: Border.all(color: const Color(0xFF0ECB81), width: 1),
                 ),
                 child: const Text(
                   'Live Data',
                   style: TextStyle(
                     color: Color(0xFF0ECB81),
-                    fontSize: 12,
+                    fontSize: 10,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          // Income Overview Cards
           FadeSlideTransition(
             delay: const Duration(milliseconds: 200),
-            child: _buildIncomeBreakdownChart(),
+            child: _buildIncomeOverviewCards(),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
+          // Bar Chart
+          FadeSlideTransition(
+            delay: const Duration(milliseconds: 300),
+            child: _buildIncomeBarChart(),
+          ),
+          const SizedBox(height: 12),
+          // Pie Chart
           FadeSlideTransition(
             delay: const Duration(milliseconds: 400),
-            child: _buildDailyROITrendChart(),
+            child: _buildIncomePieChartSection(),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
+          // Performance Metrics
           FadeSlideTransition(
             delay: const Duration(milliseconds: 600),
             child: _buildPerformanceMetrics(),
@@ -1923,32 +1973,693 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     );
   }
 
-  Widget _buildIncomeBreakdownChart() {
-    // Get income data from the loaded income summary
-    final incomeData = incomeSummaryData?.data;
-    if (incomeData == null) {
-      return const SizedBox(
+  Widget _buildIncomeOverviewCards() {
+    // Use real loaded income data from specific APIs
+    final totalIncome = directTotalIncome +
+        levelROITotalIncome +
+        salaryTotalIncome +
+        totalROIIncome;
+
+    return Row(
+      children: [
+        Expanded(
+          child: _buildOverviewCard(
+            'Total Income',
+            '\$${totalIncome.toStringAsFixed(2)}',
+            const Color(0xFF0ECB81),
+            Icons.account_balance_wallet,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _buildOverviewCard(
+            'Daily ROI',
+            '\$${totalROIIncome.toStringAsFixed(2)}',
+            const Color(0xFFF0B90B),
+            Icons.trending_up,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _buildOverviewCard(
+            'Direct Income',
+            '\$${directTotalIncome.toStringAsFixed(2)}',
+            const Color(0xFF4A90E2),
+            Icons.people,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOverviewCard(
+      String title, String amount, Color color, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color.withOpacity(0.1),
+            color.withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withOpacity(0.3), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Icon(icon, color: color, size: 20),
+              Container(
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+                child: Icon(Icons.arrow_upward, color: color, size: 10),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Color(0xFF848E9C),
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 2),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              amount,
+              style: TextStyle(
+                color: color,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIncomeBarChart() {
+    // Use real loaded income data from specific APIs
+    final totalIncome = directTotalIncome +
+        levelROITotalIncome +
+        salaryTotalIncome +
+        totalROIIncome;
+
+    if (totalIncome <= 0) {
+      return Container(
         height: 200,
-        child: Center(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E2026),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF2A2D35), width: 1),
+        ),
+        child: const Center(
           child: Text(
-            'Loading income data...',
+            'No income data available',
             style: TextStyle(color: Color(0xFF848E9C)),
           ),
         ),
       );
     }
 
-    final breakdown = incomeData.incomeBreakdown;
-    final totalIncome = incomeData.totalIncome;
-
-    // Create chart data
+    // Create chart data using real API values
     final chartData = [
-      {'label': 'Daily ROI', 'value': breakdown.dailyRoi, 'color': const Color(0xFF0ECB81)},
-      {'label': 'Direct Referral', 'value': breakdown.directReferral, 'color': const Color(0xFFF0B90B)},
-      {'label': 'Level ROI', 'value': breakdown.levelRoi, 'color': const Color(0xFF4A90E2)},
-      {'label': 'Salary', 'value': breakdown.salary, 'color': const Color(0xFF9C27B0)},
-      {'label': 'Gas Fee', 'value': breakdown.gasFee, 'color': const Color(0xFFFF5722)},
+      {
+        'label': 'Daily ROI',
+        'value': totalROIIncome,
+        'color': const Color(0xFF0ECB81)
+      },
+      {
+        'label': 'Direct',
+        'value': directTotalIncome,
+        'color': const Color(0xFFF0B90B)
+      },
+      {
+        'label': 'Level ROI',
+        'value': levelROITotalIncome,
+        'color': const Color(0xFF4A90E2)
+      },
+      {
+        'label': 'Salary',
+        'value': salaryTotalIncome,
+        'color': const Color(0xFF9C27B0)
+      },
+    ].where((data) => (data['value'] as double) > 0).toList();
+
+    final maxValue = chartData
+        .map((e) => e['value'] as double)
+        .reduce((a, b) => a > b ? a : b);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E2026),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF2A2D35), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Income Breakdown',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            height: 150,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: chartData.asMap().entries.map((entry) {
+                final index = entry.key;
+                final data = entry.value;
+                final value = data['value'] as double;
+                final color = data['color'] as Color;
+                final label = data['label'] as String;
+                final heightRatio = value / maxValue;
+
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          '\$${value.toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        AnimatedContainer(
+                          duration: Duration(milliseconds: 800 + (index * 100)),
+                          curve: Curves.easeOutCubic,
+                          height: 100 * heightRatio,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [
+                                color,
+                                color.withOpacity(0.7),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(6),
+                            boxShadow: [
+                              BoxShadow(
+                                color: color.withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          label,
+                          style: const TextStyle(
+                            color: Color(0xFF848E9C),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIncomePieChartSection() {
+    // Use ONLY real loaded income data from specific APIs - NO DUMMY DATA
+    final totalIncome = directTotalIncome +
+        levelROITotalIncome +
+        salaryTotalIncome +
+        totalROIIncome;
+
+    if (totalIncome <= 0) {
+      return Container(
+        height: 300,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E2026),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF2A2D35), width: 1),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.pie_chart,
+                size: 48,
+                color: Color(0xFF848E9C),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'No Income Data Available',
+                style: TextStyle(
+                  color: Color(0xFF848E9C),
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Create pie chart data using ONLY real API values - NO DUMMY DATA
+    final pieData = [
+      if (totalROIIncome > 0)
+        {
+          'label': 'Daily ROI',
+          'value': totalROIIncome,
+          'color': const Color(0xFF0ECB81)
+        },
+      if (directTotalIncome > 0)
+        {
+          'label': 'Direct Income',
+          'value': directTotalIncome,
+          'color': const Color(0xFFF0B90B)
+        },
+      if (levelROITotalIncome > 0)
+        {
+          'label': 'Level ROI',
+          'value': levelROITotalIncome,
+          'color': const Color(0xFF4A90E2)
+        },
+      if (salaryTotalIncome > 0)
+        {
+          'label': 'Salary',
+          'value': salaryTotalIncome,
+          'color': const Color(0xFF9C27B0)
+        },
     ];
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E2026),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF2A2D35), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Income Distribution',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  'Total: \$${totalIncome.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    color: Color(0xFF0ECB81),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildBeautifulPieChart(pieData, totalIncome),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBeautifulPieChart(
+      List<Map<String, dynamic>> pieData, double totalIncome) {
+    if (pieData.isEmpty) {
+      return const SizedBox(
+        height: 200,
+        child: Center(
+          child: Text(
+            'No data to display',
+            style: TextStyle(color: Color(0xFF848E9C)),
+          ),
+        ),
+      );
+    }
+
+    // Convert to Syncfusion chart data
+    final List<IncomeChartData> chartData = pieData.map((data) {
+      return IncomeChartData(
+        category: data['label'] as String,
+        value: data['value'] as double,
+        color: data['color'] as Color,
+      );
+    }).toList();
+
+    return SizedBox(
+      height: 280,
+      child: SfCircularChart(
+        backgroundColor: Colors.transparent,
+        margin: const EdgeInsets.all(0),
+        legend: Legend(
+          isVisible: true,
+          position: LegendPosition.bottom,
+          overflowMode: LegendItemOverflowMode.wrap,
+          textStyle: const TextStyle(
+            color: Colors.white,
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+          ),
+          itemPadding: 4,
+          padding: 8,
+        ),
+        tooltipBehavior: TooltipBehavior(
+          enable: true,
+          format: 'point.x: \$point.y (point.percentage%)',
+          textStyle: const TextStyle(
+            color: Colors.white,
+            fontSize: 11,
+          ),
+          color: const Color(0xFF2A2D35),
+          borderColor: const Color(0xFF0ECB81),
+          borderWidth: 1,
+        ),
+        series: <CircularSeries>[
+          DoughnutSeries<IncomeChartData, String>(
+            dataSource: chartData,
+            xValueMapper: (IncomeChartData data, _) => data.category,
+            yValueMapper: (IncomeChartData data, _) => data.value,
+            pointColorMapper: (IncomeChartData data, _) => data.color,
+            innerRadius: '55%',
+            radius: '80%',
+            strokeColor: const Color(0xFF1E2026),
+            strokeWidth: 2,
+            dataLabelSettings: const DataLabelSettings(
+              isVisible: false,
+            ),
+            enableTooltip: true,
+            animationDuration: 1000,
+            explode: false,
+          ),
+        ],
+        annotations: <CircularChartAnnotation>[
+          CircularChartAnnotation(
+            widget: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2A2D35).withOpacity(0.9),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: const Color(0xFF0ECB81).withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Total',
+                    style: TextStyle(
+                      color: Color(0xFF848E9C),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '\$${totalIncome.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      color: Color(0xFF0ECB81),
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMainPerformanceChart() {
+    // Use real loaded income data from specific APIs
+    final totalIncome = directTotalIncome +
+        levelROITotalIncome +
+        salaryTotalIncome +
+        totalROIIncome;
+
+    if (totalIncome <= 0) {
+      return Container(
+        height: 300,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E2026),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF2A2D35), width: 1),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Icon(
+                Icons.bar_chart,
+                size: 48,
+                color: Color(0xFF848E9C),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'No Income Data Available',
+                style: TextStyle(
+                  color: Color(0xFF848E9C),
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E2026),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF2A2D35), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Income Distribution',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                'Total: \$${totalIncome.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  color: Color(0xFF0ECB81),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          _buildEnhancedPieChart(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnhancedPieChart() {
+    // Use real loaded income data from specific APIs
+    final totalIncome = directTotalIncome +
+        levelROITotalIncome +
+        salaryTotalIncome +
+        totalROIIncome;
+
+    // Create pie chart data using real API values
+    final pieData = [
+      {
+        'label': 'Daily ROI',
+        'value': totalROIIncome,
+        'color': const Color(0xFF0ECB81)
+      },
+      {
+        'label': 'Direct Income',
+        'value': directTotalIncome,
+        'color': const Color(0xFFF0B90B)
+      },
+      {
+        'label': 'Level ROI',
+        'value': levelROITotalIncome,
+        'color': const Color(0xFF4A90E2)
+      },
+      {
+        'label': 'Salary',
+        'value': salaryTotalIncome,
+        'color': const Color(0xFF9C27B0)
+      },
+    ].where((data) => (data['value'] as double) > 0).toList();
+
+    return SizedBox(
+      height: 250,
+      child: Row(
+        children: [
+          // Pie Chart
+          Expanded(
+            flex: 2,
+            child: CustomPaint(
+              painter: EnhancedPieChartPainter(pieData, totalIncome),
+              child: const SizedBox.expand(),
+            ),
+          ),
+          const SizedBox(width: 20),
+          // Legend
+          Expanded(
+            flex: 1,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: pieData.map((data) {
+                final percentage =
+                    ((data['value'] as double) / totalIncome * 100);
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 6),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: data['color'] as Color,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              data['label'] as String,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '\$${(data['value'] as double).toStringAsFixed(2)} (${percentage.toStringAsFixed(1)}%)',
+                              style: const TextStyle(
+                                color: Color(0xFF848E9C),
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIncomeBreakdownChart() {
+    // Use real loaded income data from specific APIs
+    final totalIncome = directTotalIncome +
+        levelROITotalIncome +
+        salaryTotalIncome +
+        totalROIIncome;
+
+    if (totalIncome <= 0) {
+      return const SizedBox(
+        height: 200,
+        child: Center(
+          child: Text(
+            'No income data available',
+            style: TextStyle(color: Color(0xFF848E9C)),
+          ),
+        ),
+      );
+    }
+
+    // Create chart data using real API values
+    final chartData = [
+      {
+        'label': 'Daily ROI',
+        'value': totalROIIncome,
+        'color': const Color(0xFF0ECB81)
+      },
+      {
+        'label': 'Direct Income',
+        'value': directTotalIncome,
+        'color': const Color(0xFFF0B90B)
+      },
+      {
+        'label': 'Level ROI',
+        'value': levelROITotalIncome,
+        'color': const Color(0xFF4A90E2)
+      },
+      {
+        'label': 'Salary',
+        'value': salaryTotalIncome,
+        'color': const Color(0xFF9C27B0)
+      },
+    ]
+        .where((data) => (data['value'] as double) > 0)
+        .toList(); // Only show categories with actual income
 
     return SizedBox(
       height: 200,
@@ -1960,7 +2671,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: chartData.map((data) {
-                final percentage = totalIncome > 0 ? (data['value'] as double) / totalIncome : 0.0;
+                final percentage = totalIncome > 0
+                    ? (data['value'] as double) / totalIncome
+                    : 0.0;
                 final height = (percentage * 150).clamp(10.0, 150.0);
 
                 return Column(
@@ -1981,7 +2694,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                       height: height,
                       decoration: BoxDecoration(
                         color: data['color'] as Color,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(4)),
                         gradient: LinearGradient(
                           begin: Alignment.bottomCenter,
                           end: Alignment.topCenter,
@@ -2011,30 +2725,206 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     );
   }
 
+  Widget _buildIncomePieChart() {
+    // Use real loaded income data from specific APIs
+    final totalIncome = directTotalIncome +
+        levelROITotalIncome +
+        salaryTotalIncome +
+        totalROIIncome;
+
+    if (totalIncome <= 0) {
+      return Container(
+        height: 200,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF2A2D35).withOpacity(0.5),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF3A3D45), width: 1),
+        ),
+        child: const Center(
+          child: Text(
+            'No income data',
+            style: TextStyle(color: Color(0xFF848E9C)),
+          ),
+        ),
+      );
+    }
+
+    // Create pie chart data using real API values
+    final pieData = [
+      {
+        'label': 'Daily ROI',
+        'value': totalROIIncome,
+        'color': const Color(0xFF0ECB81)
+      },
+      {
+        'label': 'Direct',
+        'value': directTotalIncome,
+        'color': const Color(0xFFF0B90B)
+      },
+      {
+        'label': 'Level ROI',
+        'value': levelROITotalIncome,
+        'color': const Color(0xFF4A90E2)
+      },
+      {
+        'label': 'Salary',
+        'value': salaryTotalIncome,
+        'color': const Color(0xFF9C27B0)
+      },
+    ].where((data) => (data['value'] as double) > 0).toList();
+
+    return Container(
+      height: 200,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A2D35).withOpacity(0.5),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF3A3D45), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Income Distribution',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: Row(
+              children: [
+                // Pie Chart
+                Expanded(
+                  flex: 3,
+                  child: CustomPaint(
+                    painter: PieChartPainter(pieData, totalIncome),
+                    child: const SizedBox.expand(),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Legend
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: pieData.map((data) {
+                      final percentage =
+                          ((data['value'] as double) / totalIncome * 100);
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: data['color'] as Color,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    data['label'] as String,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${percentage.toStringAsFixed(1)}%',
+                                    style: const TextStyle(
+                                      color: Color(0xFF848E9C),
+                                      fontSize: 9,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDailyROITrendChart() {
-    // Create sample trend data based on income history
-    final incomeData = incomeSummaryData?.data;
-    if (incomeData == null) {
+    // Use real ROI history data from API
+    if (roiHistoryData == null || roiHistoryData!.data.roiHistory.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF2A2D35).withOpacity(0.5),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF3A3D45), width: 1),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Text(
+              'Daily ROI Trend',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 20),
+            Center(
+              child: Text(
+                'No ROI history data available',
+                style: TextStyle(
+                  color: Color(0xFF848E9C),
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Use actual ROI history data from API
+    final roiHistory = roiHistoryData!.data.roiHistory;
+    final trendData = roiHistory.take(7).map((roi) {
+      return {
+        'date': roi.roiDate,
+        'value': roi.roiAmount,
+        'day': [
+          'Mon',
+          'Tue',
+          'Wed',
+          'Thu',
+          'Fri',
+          'Sat',
+          'Sun'
+        ][roi.roiDate.weekday - 1],
+      };
+    }).toList();
+
+    if (trendData.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    // Generate last 7 days of sample data for trend visualization
-    final now = DateTime.now();
-    final trendData = List.generate(7, (index) {
-      final date = now.subtract(Duration(days: 6 - index));
-      final baseROI = incomeData.incomeBreakdown.dailyRoi;
-      // Add some variation to make it look realistic
-      final variation = (index % 3 == 0) ? 0.8 : (index % 2 == 0) ? 1.2 : 1.0;
-      final value = baseROI * variation;
-
-      return {
-        'date': date,
-        'value': value,
-        'day': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][date.weekday - 1],
-      };
-    });
-
-    final maxValue = trendData.map((e) => e['value'] as double).reduce((a, b) => a > b ? a : b);
+    final maxValue = trendData
+        .map((e) => e['value'] as double)
+        .reduce((a, b) => a > b ? a : b);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -2084,7 +2974,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                 final index = entry.key;
                 final data = entry.value;
                 final value = data['value'] as double;
-                final height = maxValue > 0 ? (value / maxValue * 80).clamp(10.0, 80.0) : 10.0;
+                final height = maxValue > 0
+                    ? (value / maxValue * 80).clamp(10.0, 80.0)
+                    : 10.0;
 
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -2099,12 +2991,14 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     ),
                     const SizedBox(height: 4),
                     AnimatedContainer(
-                      duration: Duration(milliseconds: 800 + (index * 100)),
+                      duration:
+                          Duration(milliseconds: 800 + (index * 100).toInt()),
                       curve: Curves.easeOutCubic,
                       width: 20,
                       height: height,
                       decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(3)),
                         gradient: LinearGradient(
                           begin: Alignment.bottomCenter,
                           end: Alignment.topCenter,
@@ -2142,18 +3036,23 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   }
 
   Widget _buildPerformanceMetrics() {
-    final incomeData = incomeSummaryData?.data;
-    if (incomeData == null) {
+    // Use real loaded income data from specific APIs
+    final totalIncome = directTotalIncome +
+        levelROITotalIncome +
+        salaryTotalIncome +
+        totalROIIncome;
+
+    if (totalIncome <= 0) {
       return const SizedBox.shrink();
     }
 
-    final totalIncome = incomeData.totalIncome;
-    final breakdown = incomeData.incomeBreakdown;
-
-    // Calculate performance metrics
+    // Calculate performance metrics using real data
     final totalInvested = investmentSummary?.totalInvestment ?? 0.0;
-    final roiPercentage = totalInvested > 0 ? (totalIncome / totalInvested) * 100 : 0.0;
-    final dailyAverage = breakdown.dailyRoi;
+    final roiPercentage =
+        totalInvested > 0 ? (totalIncome / totalInvested) * 100 : 0.0;
+
+    // Use REAL daily ROI from income summary API - NOT total cumulative
+    final dailyAverage = incomeSummaryData?.data.incomeBreakdown.dailyRoi ?? 0.0;
     final monthlyProjection = dailyAverage * 30;
 
     return Row(
@@ -2162,7 +3061,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
           child: _buildMetricCard(
             'ROI %',
             '${roiPercentage.toStringAsFixed(1)}%',
-            roiPercentage >= 0 ? const Color(0xFF0ECB81) : const Color(0xFFFF5722),
+            roiPercentage >= 0
+                ? const Color(0xFF0ECB81)
+                : const Color(0xFFFF5722),
             Icons.trending_up,
           ),
         ),
@@ -2188,7 +3089,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     );
   }
 
-  Widget _buildMetricCard(String title, String value, Color color, IconData icon) {
+  Widget _buildMetricCard(
+      String title, String value, Color color, IconData icon) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -2372,7 +3274,1100 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     );
   }
 
-  void _exportReport(String format) {
-    _showSuccessToast('$format export feature coming soon!');
+  Future<void> _exportReport(String format) async {
+    try {
+      if (format == 'PDF') {
+        await _downloadPDF();
+      } else if (format == 'Excel') {
+        await _downloadExcel();
+      }
+    } catch (e) {
+      print('Export error: $e');
+      _showErrorToast('Failed to export $format. Please try again.');
+    }
   }
+
+  Future<void> _downloadPDF() async {
+    try {
+      // Create PDF document
+      final pdf = pw.Document();
+
+      // Get current date for filename
+      final now = DateTime.now();
+      final dateStr = '${now.day}-${now.month}-${now.year}';
+
+      // Calculate totals
+      final totalIncome = directTotalIncome + levelROITotalIncome + salaryTotalIncome + totalROIIncome;
+      final totalInvested = investmentSummary?.totalInvestment ?? 0.0;
+      final dailyROIValue = incomeSummaryData?.data.incomeBreakdown.dailyRoi ?? 0.0;
+
+      // Add page to PDF
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Header
+                pw.Container(
+                  width: double.infinity,
+                  padding: const pw.EdgeInsets.all(20),
+                  decoration: pw.BoxDecoration(
+                    color: PdfColors.grey800,
+                    borderRadius: pw.BorderRadius.circular(8),
+                  ),
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'Arbitrade Trading Report',
+                        style: pw.TextStyle(
+                          fontSize: 24,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.white,
+                        ),
+                      ),
+                      pw.SizedBox(height: 8),
+                      pw.Text(
+                        'Generated on: ${now.day}/${now.month}/${now.year}',
+                        style: pw.TextStyle(
+                          fontSize: 12,
+                          color: PdfColors.grey300,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                pw.SizedBox(height: 20),
+
+                // Summary Section
+                pw.Text(
+                  'Income Summary',
+                  style: pw.TextStyle(
+                    fontSize: 18,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.SizedBox(height: 10),
+
+                // Income breakdown table
+                pw.Table(
+                  border: pw.TableBorder.all(color: PdfColors.grey400),
+                  children: [
+                    // Header row
+                    pw.TableRow(
+                      decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(8),
+                          child: pw.Text('Income Type', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(8),
+                          child: pw.Text('Amount (USD)', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                    // Data rows
+                    if (dailyROIValue > 0)
+                      pw.TableRow(children: [
+                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Daily ROI')),
+                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('\$${dailyROIValue.toStringAsFixed(2)}')),
+                      ]),
+                    if (directTotalIncome > 0)
+                      pw.TableRow(children: [
+                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Direct Income')),
+                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('\$${directTotalIncome.toStringAsFixed(2)}')),
+                      ]),
+                    if (levelROITotalIncome > 0)
+                      pw.TableRow(children: [
+                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Level ROI Income')),
+                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('\$${levelROITotalIncome.toStringAsFixed(2)}')),
+                      ]),
+                    if (salaryTotalIncome > 0)
+                      pw.TableRow(children: [
+                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Salary Income')),
+                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('\$${salaryTotalIncome.toStringAsFixed(2)}')),
+                      ]),
+                    // Total row
+                    pw.TableRow(
+                      decoration: const pw.BoxDecoration(color: PdfColors.grey100),
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(8),
+                          child: pw.Text('Total Income', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(8),
+                          child: pw.Text('\$${totalIncome.toStringAsFixed(2)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                pw.SizedBox(height: 20),
+
+                // Investment Summary
+                pw.Text(
+                  'Investment Summary',
+                  style: pw.TextStyle(
+                    fontSize: 18,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.SizedBox(height: 10),
+
+                pw.Table(
+                  border: pw.TableBorder.all(color: PdfColors.grey400),
+                  children: [
+                    pw.TableRow(
+                      decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+                      children: [
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(8),
+                          child: pw.Text('Metric', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                        ),
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(8),
+                          child: pw.Text('Value', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(children: [
+                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Total Invested')),
+                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('\$${totalInvested.toStringAsFixed(2)}')),
+                    ]),
+                    pw.TableRow(children: [
+                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Daily Average ROI')),
+                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('\$${dailyROIValue.toStringAsFixed(2)}')),
+                    ]),
+                    pw.TableRow(children: [
+                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Monthly Projection')),
+                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('\$${(dailyROIValue * 30).toStringAsFixed(2)}')),
+                    ]),
+                    pw.TableRow(children: [
+                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('ROI Percentage')),
+                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('${totalInvested > 0 ? ((totalIncome / totalInvested) * 100).toStringAsFixed(1) : '0.0'}%')),
+                    ]),
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
+      );
+
+      // Save PDF to Downloads folder
+      final directory = await _getDownloadsDirectory();
+      final fileName = 'arbitrade_report_$dateStr.pdf';
+      final file = File('${directory.path}/$fileName');
+      await file.writeAsBytes(await pdf.save());
+
+      // Show download notification and success message
+      await _showDownloadNotification(fileName, file.path, 'PDF');
+      _showSuccessToast('PDF downloaded successfully! Tap notification for options.');
+    } catch (e) {
+      print('PDF download error: $e');
+      _showErrorToast('Failed to download PDF. Please try again.');
+    }
+  }
+
+  Future<void> _downloadExcel() async {
+    try {
+      // Create Excel workbook
+      final excel = excel_lib.Excel.createExcel();
+      final sheet = excel['Arbitrade Report'];
+
+      // Get current date for filename
+      final now = DateTime.now();
+      final dateStr = '${now.day}-${now.month}-${now.year}';
+
+      // Calculate totals
+      final totalIncome = directTotalIncome + levelROITotalIncome + salaryTotalIncome + totalROIIncome;
+      final totalInvested = investmentSummary?.totalInvestment ?? 0.0;
+      final dailyROIValue = incomeSummaryData?.data.incomeBreakdown.dailyRoi ?? 0.0;
+
+      // Add header
+      sheet.cell(excel_lib.CellIndex.indexByString('A1')).value = 'Arbitrade Trading Report';
+      sheet.cell(excel_lib.CellIndex.indexByString('A2')).value = 'Generated on: ${now.day}/${now.month}/${now.year}';
+
+      // Income Summary Section
+      sheet.cell(excel_lib.CellIndex.indexByString('A4')).value = 'INCOME SUMMARY';
+      sheet.cell(excel_lib.CellIndex.indexByString('A5')).value = 'Income Type';
+      sheet.cell(excel_lib.CellIndex.indexByString('B5')).value = 'Amount (USD)';
+
+      int row = 6;
+      if (dailyROIValue > 0) {
+        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Daily ROI';
+        sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${dailyROIValue.toStringAsFixed(2)}';
+        row++;
+      }
+
+      if (directTotalIncome > 0) {
+        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Direct Income';
+        sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${directTotalIncome.toStringAsFixed(2)}';
+        row++;
+      }
+
+      if (levelROITotalIncome > 0) {
+        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Level ROI Income';
+        sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${levelROITotalIncome.toStringAsFixed(2)}';
+        row++;
+      }
+
+      if (salaryTotalIncome > 0) {
+        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Salary Income';
+        sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${salaryTotalIncome.toStringAsFixed(2)}';
+        row++;
+      }
+
+      // Total row
+      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'TOTAL INCOME';
+      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${totalIncome.toStringAsFixed(2)}';
+      row += 2;
+
+      // Investment Summary Section
+      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'INVESTMENT SUMMARY';
+      row++;
+      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Metric';
+      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = 'Value';
+      row++;
+
+      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Total Invested';
+      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${totalInvested.toStringAsFixed(2)}';
+      row++;
+
+      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Daily Average ROI';
+      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${dailyROIValue.toStringAsFixed(2)}';
+      row++;
+
+      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Monthly Projection';
+      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${(dailyROIValue * 30).toStringAsFixed(2)}';
+      row++;
+
+      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'ROI Percentage';
+      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '${totalInvested > 0 ? ((totalIncome / totalInvested) * 100).toStringAsFixed(1) : '0.0'}%';
+      row += 2;
+
+      // Investment Details Section
+      if (arbitrageInvestments.isNotEmpty) {
+        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'ACTIVE INVESTMENTS';
+        row++;
+        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Investment Amount';
+        sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = 'Daily ROI %';
+        sheet.cell(excel_lib.CellIndex.indexByString('C$row')).value = 'Total Earned';
+        sheet.cell(excel_lib.CellIndex.indexByString('D$row')).value = 'Status';
+        sheet.cell(excel_lib.CellIndex.indexByString('E$row')).value = 'Days Running';
+        row++;
+
+        for (final investment in arbitrageInvestments) {
+          sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = '\$${investment.investmentAmount.toStringAsFixed(2)}';
+          sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '${investment.dailyRoiPercentage}%';
+          sheet.cell(excel_lib.CellIndex.indexByString('C$row')).value = '\$${investment.totalRoiEarned.toStringAsFixed(2)}';
+          sheet.cell(excel_lib.CellIndex.indexByString('D$row')).value = investment.status;
+          sheet.cell(excel_lib.CellIndex.indexByString('E$row')).value = '${investment.daysRunning}/30';
+          row++;
+        }
+      }
+
+      // Save Excel file to Downloads folder
+      final directory = await _getDownloadsDirectory();
+      final fileName = 'arbitrade_report_$dateStr.xlsx';
+      final file = File('${directory.path}/$fileName');
+      final bytes = excel.encode();
+      if (bytes != null) {
+        await file.writeAsBytes(bytes);
+
+        // Show download notification and success message
+        await _showDownloadNotification(fileName, file.path, 'Excel');
+        _showSuccessToast('Excel downloaded successfully! Tap notification for options.');
+      } else {
+        _showErrorToast('Failed to generate Excel file');
+      }
+    } catch (e) {
+      print('Excel download error: $e');
+      _showErrorToast('Failed to download Excel. Please try again.');
+    }
+  }
+
+  // Helper method to get Downloads directory - No permissions needed
+  Future<Directory> _getDownloadsDirectory() async {
+    if (Platform.isAndroid) {
+      // Use app's external files directory - no permissions needed
+      try {
+        final directory = await getExternalStorageDirectory();
+        if (directory != null) {
+          // Create Downloads subfolder in app's external directory
+          final downloadsDir = Directory('${directory.path}/Downloads');
+          if (!await downloadsDir.exists()) {
+            await downloadsDir.create(recursive: true);
+          }
+          return downloadsDir;
+        }
+      } catch (e) {
+        print('External storage error: $e');
+      }
+    }
+    // Fallback to app documents directory
+    return await getApplicationDocumentsDirectory();
+  }
+
+  // Show download notification with click to open functionality
+  Future<void> _showDownloadNotification(String fileName, String filePath, String fileType) async {
+    try {
+      // Create a simple notification using ScaffoldMessenger
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(
+                  fileType == 'PDF' ? Icons.picture_as_pdf : Icons.table_chart,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '$fileType Downloaded',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        fileName,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFF0ECB81),
+            duration: const Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'VIEW',
+              textColor: Colors.white,
+              onPressed: () => _showFileOptionsDialog(filePath, fileType),
+            ),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Notification error: $e');
+    }
+  }
+
+  // Show file options dialog with OPEN and SHARE buttons
+  void _showFileOptionsDialog(String filePath, String fileType) {
+    print('Showing file options dialog for: $filePath');
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF2A2D35),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                fileType == 'PDF' ? Icons.picture_as_pdf : Icons.table_chart,
+                color: const Color(0xFF0ECB81),
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '$fileType Downloaded',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Your report is ready! Choose an option:',
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              // File path info
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E2026),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFF0ECB81).withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.folder,
+                      color: Color(0xFF0ECB81),
+                      size: 16,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        filePath.split('/').last,
+                        style: const TextStyle(
+                          color: Color(0xFF0ECB81),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            // OPEN Button
+            TextButton.icon(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _openFileDirectly(filePath);
+              },
+              icon: const Icon(
+                Icons.open_in_new,
+                color: Color(0xFF0ECB81),
+                size: 18,
+              ),
+              label: const Text(
+                'OPEN',
+                style: TextStyle(
+                  color: Color(0xFF0ECB81),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            // SHARE Button
+            TextButton.icon(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _shareFile(filePath);
+              },
+              icon: const Icon(
+                Icons.share,
+                color: Color(0xFF0ECB81),
+                size: 18,
+              ),
+              label: const Text(
+                'SHARE',
+                style: TextStyle(
+                  color: Color(0xFF0ECB81),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Open file directly - Simple approach
+  Future<void> _openFileDirectly(String filePath) async {
+    try {
+      // For Android, use a simple file:// URI approach
+      if (Platform.isAndroid) {
+        // Try with content:// URI first for Android 11+
+        try {
+          final fileName = filePath.split('/').last;
+          final mimeType = fileName.toLowerCase().endsWith('.pdf')
+              ? 'application/pdf'
+              : 'application/vnd.ms-excel';
+
+          // Use Intent.ACTION_VIEW with FileProvider
+          await launchUrl(
+            Uri.parse('content://${filePath.replaceAll(' ', '%20')}'),
+            mode: LaunchMode.externalApplication,
+          );
+          _showSuccessToast('Opening file...');
+          return;
+        } catch (e) {
+          // Fallback to file:// URI
+          try {
+            final uri = Uri.parse('file://$filePath');
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+            _showSuccessToast('Opening file...');
+            return;
+          } catch (e) {
+            // Show error dialog with options
+            _showOpenErrorDialog(filePath);
+          }
+        }
+      } else {
+        // For iOS, use Uri.file
+        final uri = Uri.file(filePath);
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        _showSuccessToast('Opening file...');
+      }
+    } catch (e) {
+      // Show error dialog with options
+      _showOpenErrorDialog(filePath);
+    }
+  }
+
+  // Show error dialog with options to share or view location
+  void _showOpenErrorDialog(String filePath) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF2A2D35),
+          title: Row(
+            children: const [
+              Icon(Icons.error_outline, color: Colors.red),
+              SizedBox(width: 10),
+              Text('Cannot Open File', style: TextStyle(color: Colors.white)),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Unable to open file directly. Would you like to share it instead?',
+                style: TextStyle(color: Colors.white70),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'File: ${filePath.split('/').last}',
+                style: const TextStyle(color: Color(0xFF0ECB81), fontSize: 12),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _showFileLocationDialog(filePath);
+              },
+              child: const Text('VIEW LOCATION', style: TextStyle(color: Colors.white70)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _shareFile(filePath);
+              },
+              child: const Text('SHARE', style: TextStyle(color: Color(0xFF0ECB81))),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Share file using share_plus
+  Future<void> _shareFile(String filePath) async {
+    try {
+      final file = XFile(filePath);
+      await Share.shareXFiles(
+        [file],
+        text: 'Arbitrade Trading Report',
+        subject: 'Your trading report is ready!',
+      );
+    } catch (e) {
+      print('Share file error: $e');
+      _showErrorToast('Cannot share file');
+      _showFileLocationDialog(filePath);
+    }
+  }
+
+  // Show file location dialog as fallback
+  void _showFileLocationDialog(String filePath) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF2A2D35),
+          title: const Text(
+            'File Downloaded',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Your report has been saved to:',
+                style: TextStyle(color: Colors.white70),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E2026),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  filePath,
+                  style: const TextStyle(
+                    color: Color(0xFF0ECB81),
+                    fontSize: 12,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'You can find this file in your device\'s file manager.',
+                style: TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'OK',
+                style: TextStyle(color: Color(0xFF0ECB81)),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+// Custom Pie Chart Painter
+class PieChartPainter extends CustomPainter {
+  final List<Map<String, dynamic>> data;
+  final double total;
+
+  PieChartPainter(this.data, this.total);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius =
+        (size.width < size.height ? size.width : size.height) / 2 - 10;
+
+    double startAngle = -90 * (3.14159 / 180); // Start from top
+
+    for (var item in data) {
+      final value = item['value'] as double;
+      final color = item['color'] as Color;
+      final sweepAngle = (value / total) * 2 * 3.14159;
+
+      final paint = Paint()
+        ..color = color
+        ..style = PaintingStyle.fill;
+
+      // Draw pie slice
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        true,
+        paint,
+      );
+
+      // Draw border
+      final borderPaint = Paint()
+        ..color = const Color(0xFF1E2026)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2;
+
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        true,
+        borderPaint,
+      );
+
+      startAngle += sweepAngle;
+    }
+
+    // Draw center circle for donut effect
+    final centerPaint = Paint()
+      ..color = const Color(0xFF2A2D35)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(center, radius * 0.4, centerPaint);
+
+    // Draw total amount in center
+    final textPainter = TextPainter(
+      text: TextSpan(
+        children: [
+          const TextSpan(
+            text: 'Total\n',
+            style: TextStyle(
+              color: Color(0xFF848E9C),
+              fontSize: 10,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          TextSpan(
+            text: '\$${total.toStringAsFixed(0)}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        center.dx - textPainter.width / 2,
+        center.dy - textPainter.height / 2,
+      ),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+// Enhanced Pie Chart Painter with better design
+class EnhancedPieChartPainter extends CustomPainter {
+  final List<Map<String, dynamic>> data;
+  final double total;
+
+  EnhancedPieChartPainter(this.data, this.total);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius =
+        (size.width < size.height ? size.width : size.height) / 2 - 20;
+
+    double startAngle = -90 * (3.14159 / 180); // Start from top
+
+    // Draw shadow
+    final shadowPaint = Paint()
+      ..color = Colors.black.withOpacity(0.3)
+      ..style = PaintingStyle.fill
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+
+    canvas.drawCircle(
+      Offset(center.dx + 4, center.dy + 4),
+      radius,
+      shadowPaint,
+    );
+
+    for (var item in data) {
+      final value = item['value'] as double;
+      final color = item['color'] as Color;
+      final sweepAngle = (value / total) * 2 * 3.14159;
+
+      // Draw pie slice with gradient
+      final paint = Paint()
+        ..shader = RadialGradient(
+          colors: [
+            color,
+            color.withOpacity(0.7),
+          ],
+        ).createShader(Rect.fromCircle(center: center, radius: radius))
+        ..style = PaintingStyle.fill;
+
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        true,
+        paint,
+      );
+
+      // Draw border
+      final borderPaint = Paint()
+        ..color = const Color(0xFF1E2026)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3;
+
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        true,
+        borderPaint,
+      );
+
+      startAngle += sweepAngle;
+    }
+
+    // Draw center circle for donut effect with gradient
+    final centerPaint = Paint()
+      ..shader = RadialGradient(
+        colors: const [
+          Color(0xFF2A2D35),
+          Color(0xFF1E2026),
+        ],
+      ).createShader(Rect.fromCircle(center: center, radius: radius * 0.5))
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(center, radius * 0.5, centerPaint);
+
+    // Draw center border
+    final centerBorderPaint = Paint()
+      ..color = const Color(0xFF3A3D45)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    canvas.drawCircle(center, radius * 0.5, centerBorderPaint);
+
+    // Draw total amount in center
+    final textPainter = TextPainter(
+      text: TextSpan(
+        children: [
+          const TextSpan(
+            text: 'Total Income\n',
+            style: TextStyle(
+              color: Color(0xFF848E9C),
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          TextSpan(
+            text: '\$${total.toStringAsFixed(2)}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        center.dx - textPainter.width / 2,
+        center.dy - textPainter.height / 2,
+      ),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+// Beautiful Pie Chart Painter - Modern Design with NO DUMMY DATA
+class BeautifulPieChartPainter extends CustomPainter {
+  final List<Map<String, dynamic>> data;
+  final double total;
+
+  BeautifulPieChartPainter(this.data, this.total);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (data.isEmpty || total <= 0) return;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius =
+        (size.width < size.height ? size.width : size.height) / 2 - 30;
+    final innerRadius = radius * 0.6; // For donut effect
+
+    double startAngle = -90 * (3.14159 / 180); // Start from top
+
+    // Draw outer shadow
+    final shadowPaint = Paint()
+      ..color = Colors.black.withOpacity(0.2)
+      ..style = PaintingStyle.fill
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+
+    canvas.drawCircle(
+      Offset(center.dx + 6, center.dy + 6),
+      radius,
+      shadowPaint,
+    );
+
+    // Draw each segment
+    for (int i = 0; i < data.length; i++) {
+      final item = data[i];
+      final value = item['value'] as double;
+      final color = item['color'] as Color;
+      final sweepAngle = (value / total) * 2 * 3.14159;
+
+      // Create gradient for each segment
+      final gradient = SweepGradient(
+        startAngle: startAngle,
+        endAngle: startAngle + sweepAngle,
+        colors: [
+          color,
+          color.withOpacity(0.8),
+          color,
+        ],
+        stops: const [0.0, 0.5, 1.0],
+      );
+
+      // Draw main segment
+      final paint = Paint()
+        ..shader = gradient
+            .createShader(Rect.fromCircle(center: center, radius: radius))
+        ..style = PaintingStyle.fill;
+
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        true,
+        paint,
+      );
+
+      // Draw inner border for donut effect
+      final innerBorderPaint = Paint()
+        ..color = const Color(0xFF1E2026)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 4;
+
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: innerRadius),
+        startAngle,
+        sweepAngle,
+        false,
+        innerBorderPaint,
+      );
+
+      // Draw outer border
+      final outerBorderPaint = Paint()
+        ..color = const Color(0xFF1E2026)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3;
+
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        false,
+        outerBorderPaint,
+      );
+
+      // Draw segment separators
+      if (data.length > 1) {
+        final separatorPaint = Paint()
+          ..color = const Color(0xFF1E2026)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2;
+
+        final endX = center.dx + radius * cos(startAngle + sweepAngle);
+        final endY = center.dy + radius * sin(startAngle + sweepAngle);
+        final innerEndX =
+            center.dx + innerRadius * cos(startAngle + sweepAngle);
+        final innerEndY =
+            center.dy + innerRadius * sin(startAngle + sweepAngle);
+
+        canvas.drawLine(
+          Offset(innerEndX, innerEndY),
+          Offset(endX, endY),
+          separatorPaint,
+        );
+      }
+
+      startAngle += sweepAngle;
+    }
+
+    // Draw center circle with gradient
+    final centerGradient = RadialGradient(
+      colors: [
+        const Color(0xFF2A2D35),
+        const Color(0xFF1E2026),
+      ],
+    );
+
+    final centerPaint = Paint()
+      ..shader = centerGradient
+          .createShader(Rect.fromCircle(center: center, radius: innerRadius))
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(center, innerRadius, centerPaint);
+
+    // Draw center border
+    final centerBorderPaint = Paint()
+      ..color = const Color(0xFF3A3D45)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+
+    canvas.drawCircle(center, innerRadius, centerBorderPaint);
+
+    // Draw total amount in center
+    final textPainter = TextPainter(
+      text: TextSpan(
+        children: [
+          const TextSpan(
+            text: 'Total Income\n',
+            style: TextStyle(
+              color: Color(0xFF848E9C),
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          TextSpan(
+            text: '\$${total.toStringAsFixed(2)}',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        center.dx - textPainter.width / 2,
+        center.dy - textPainter.height / 2,
+      ),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+// Data model for Syncfusion pie chart - NO DUMMY DATA
+class IncomeChartData {
+  final String category;
+  final double value;
+  final Color color;
+
+  IncomeChartData({
+    required this.category,
+    required this.value,
+    required this.color,
+  });
 }

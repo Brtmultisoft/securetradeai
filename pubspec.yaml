@@ -79,6 +79,10 @@ dependencies:
   intl: ^0.17.0
   web_socket_channel : any
   youtube_player_iframe: any
+  # Export functionality
+  pdf: ^3.8.4
+  excel: ^2.0.4
+  path_provider: ^2.0.11
 
 dev_dependencies:
   flutter_test:
