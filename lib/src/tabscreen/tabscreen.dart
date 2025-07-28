@@ -6,6 +6,7 @@ import 'package:securetradeai/src/homepage/home.dart';
 import 'package:securetradeai/src/news/newspage.dart';
 import 'package:securetradeai/src/profile/profile.dart';
 import 'package:securetradeai/src/quantitative/quatitativepage.dart';
+import 'package:securetradeai/src/widget/trading_animations.dart';
 
 import '../../model/repoModel.dart';
 
@@ -161,30 +162,49 @@ class _TabscreenState extends State<Tabscreen> {
 
   Widget _buildNavItem(int index, IconData icon, String label) {
     final isSelected = currentPage == index;
-    return GestureDetector(
+    return RippleAnimation(
+      rippleColor: const Color(0xFF4A90E2),
       onTap: () => changePage(index),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: AnimatedContainer(
+        duration: TradingAnimations.normalAnimation,
+        curve: TradingAnimations.defaultCurve,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: isSelected ? Color(0xFF1A2234) : Colors.transparent,
+          color: isSelected ? const Color(0xFF1A2234) : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: const Color(0xFF4A90E2).withOpacity(0.2),
+              spreadRadius: 0,
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ] : null,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: isSelected ? Color(0xFF4A90E2) : Colors.white70,
-              size: 20,
+            AnimatedContainer(
+              duration: TradingAnimations.normalAnimation,
+              curve: TradingAnimations.defaultCurve,
+              transform: Matrix4.identity()
+                ..scale(isSelected ? 1.1 : 1.0),
+              child: Icon(
+                icon,
+                color: isSelected ? const Color(0xFF4A90E2) : Colors.white70,
+                size: 20,
+              ),
             ),
-            SizedBox(height: 2),
-            Text(
-              label,
+            const SizedBox(height: 2),
+            AnimatedDefaultTextStyle(
+              duration: TradingAnimations.normalAnimation,
+              curve: TradingAnimations.defaultCurve,
               style: TextStyle(
-                color: isSelected ? Color(0xFF4A90E2) : Colors.white70,
+                color: isSelected ? const Color(0xFF4A90E2) : Colors.white70,
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
+              child: Text(label),
             ),
           ],
         ),

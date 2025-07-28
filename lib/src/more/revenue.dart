@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../method/methods.dart';
 import '../../model/revenueModel.dart';
 import '../Service/assets_service.dart';
+import '../widget/common_app_bar.dart';
 import 'revenueDetailBydate.dart';
 
 class Revenue extends StatefulWidget {
@@ -154,23 +155,15 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF1E2329),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF1E2329),
-        title: Text(
-          'revenue_detail'.tr,
-          style: const TextStyle(color: Colors.white),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+      appBar: CommonAppBar.basic(
+        title: 'revenue_detail'.tr,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: _getRevenueData,
           ),
         ],
-        bottom: TabBar(
+        tabBar: TabBar(
           controller: _tabController,
           indicatorColor: const Color(0xFFF0B90B),
           labelColor: Colors.white,

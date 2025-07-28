@@ -553,16 +553,20 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
   Widget _buildAccountSummaryCard() {
     if (_accountSummary == null) return const SizedBox.shrink();
 
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 0.2),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: _fadeController,
-          curve: Curves.easeOutCubic,
-        )),
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        final opacity = (_fadeAnimation.value).clamp(0.0, 1.0);
+        return Opacity(
+          opacity: opacity,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.2),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: _fadeController,
+              curve: Curves.easeOutCubic,
+            )),
         child: AnimatedTradingCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -728,7 +732,9 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
             ],
           ),
         ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -933,9 +939,13 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
   Widget _buildQuickActionsCard() {
     return ScaleTransition(
       scale: _scaleAnimation,
-      child: FadeTransition(
-        opacity: _fadeAnimation,
-        child: AnimatedTradingCard(
+      child: AnimatedBuilder(
+        animation: _fadeAnimation,
+        builder: (context, child) {
+          final opacity = (_fadeAnimation.value).clamp(0.0, 1.0);
+          return Opacity(
+            opacity: opacity,
+            child: AnimatedTradingCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1123,7 +1133,9 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
               ),
             ],
           ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -1140,12 +1152,15 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
       tween: Tween(begin: 0.0, end: 1.0),
       curve: Curves.elasticOut,
       builder: (context, value, child) {
+        // Ensure value is within valid range
+        final safeValue = value.clamp(0.0, 1.0);
+
         return Transform.scale(
-          scale: value,
+          scale: safeValue,
           child: Transform.translate(
-            offset: Offset(0, 20 * (1 - value)),
+            offset: Offset(0, 20 * (1 - safeValue)),
             child: Opacity(
-              opacity: value,
+              opacity: safeValue,
               child: TradingButton(
                 text: text,
                 onPressed: onPressed,

@@ -4,6 +4,7 @@ import 'package:securetradeai/method/methods.dart';
 import 'package:securetradeai/model/TradeHistoryModel.dart' as trade;
 import 'package:securetradeai/model/incomeManagementModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../widget/common_app_bar.dart';
 
 class AllIncome extends StatefulWidget {
   final int initialTabIndex;
@@ -296,92 +297,41 @@ class _AllIncomeState extends State<AllIncome>
       length: 4,
       child: Scaffold(
         backgroundColor: backgroundColor,
-        appBar: AppBar(
-          backgroundColor: backgroundColor,
-          elevation: 0,
-          title: Text(
-            'All Income',
-            style: TextStyle(
-              color: textColor,
-              fontSize: 20,
+        appBar: CommonAppBar.basic(
+          title: 'All Income',
+          tabBar: TabBar(
+            controller: _tabController,
+            isScrollable: true,
+            indicatorColor: primaryColor,
+            indicatorWeight: 3,
+            labelColor: primaryColor,
+            unselectedLabelColor: secondaryTextColor,
+            labelStyle: const TextStyle(
               fontWeight: FontWeight.bold,
+              fontSize: 14,
             ),
-          ),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: textColor),
-            onPressed: () => Navigator.pop(context),
-          ),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(48),
-            child: Container(
-              color: backgroundColor,
-              child: TabBar(
-                controller: _tabController,
-                isScrollable: true,
-                indicatorColor: primaryColor,
-                indicatorWeight: 3,
-                labelColor: primaryColor,
-                unselectedLabelColor: secondaryTextColor,
-                labelStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-                unselectedLabelStyle: const TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 14,
-                ),
-                tabs: const [
-                  Tab(
-                    icon: Icon(Icons.dashboard, size: 20),
-                    text: 'All',
-                  ),
-                  // Tab(
-                  //   icon: Icon(Icons.attach_money, size: 20),
-                  //   text: 'Profit Sharing',
-                  // ),
-                  // Tab(
-                  //   icon: Icon(Icons.card_giftcard, size: 20),
-                  //   text: 'Rewards',
-                  // ),
-                  // Tab(
-                  //   icon: Icon(Icons.workspace_premium, size: 20),
-                  //   text: 'Royalty',
-                  // ),
-                  // Tab(
-                  //   icon: Icon(Icons.people, size: 20),
-                  //   text: 'Club',
-                  // ),
-                  // Tab(
-                  //   icon: Icon(Icons.star, size: 20),
-                  //   text: 'Level',
-                  // ),
-                  // Tab(
-                  //   icon: Icon(Icons.group_add, size: 20),
-                  //   text: 'Referral',
-                  // ),
-                  // Tab(
-                  //   icon: Icon(Icons.trending_up, size: 20),
-                  //   text: 'Trading',
-                  // ),
-                  // Tab(
-                  //   icon: Icon(Icons.water_drop, size: 20),
-                  //   text: 'Pool',
-                  // ),
-                  Tab(
-                    icon: Icon(Icons.person_add, size: 20),
-                    text: 'Direct',
-                  ),
-                  Tab(
-                    icon: Icon(Icons.layers, size: 20),
-                    text: 'Level ROI',
-                  ),
-                  Tab(
-                    icon: Icon(Icons.account_balance_wallet, size: 20),
-                    text: 'Salary',
-                  ),
-                ],
+            unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.normal,
+              fontSize: 14,
+            ),
+            tabs: const [
+              Tab(
+                icon: Icon(Icons.dashboard, size: 20),
+                text: 'All',
               ),
-            ),
+              Tab(
+                icon: Icon(Icons.person_add, size: 20),
+                text: 'Direct',
+              ),
+              Tab(
+                icon: Icon(Icons.layers, size: 20),
+                text: 'Level ROI',
+              ),
+              Tab(
+                icon: Icon(Icons.account_balance_wallet, size: 20),
+                text: 'Salary',
+              ),
+            ],
           ),
         ),
         body: isLoading

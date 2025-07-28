@@ -23,8 +23,10 @@ import 'package:securetradeai/src/profile/profileoption/Arbitrade/arbitrade.dart
 import 'package:securetradeai/src/profile/profileoption/Team/team.dart';
 import 'package:securetradeai/src/quantitative/quatitativepage.dart';
 import 'package:securetradeai/src/widget/animated_toast.dart';
+import 'package:securetradeai/src/widget/trading_animations.dart';
+import 'package:securetradeai/src/widget/page_transitions.dart';
+import 'package:securetradeai/src/widget/enhanced_loading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shimmer/shimmer.dart';
 
 import '../future_trading/future_trading_section.dart';
 import '../profile/profileoption/Transaction/payment_section.dart';
@@ -409,45 +411,48 @@ class _HomepageState extends State<Homepage> {
                       delegate: SliverChildListDelegate([
                         const SizedBox(height: 15.0),
                         // Enhanced banner carousel with better styling
-                        Consumer<HomePageProvider>(
-                            builder: (context, banner, child) {
-                          return CarouselSlider.builder(
-                            itemCount: banner.bannerList.length,
-                            itemBuilder: (context, index, realIndex) {
-                              return banner.bannerList.isEmpty
-                                  ? Shimmer.fromColors(
-                                      baseColor: const Color(0xFF1A2234),
-                                      highlightColor: const Color(0xFF2A3A5A),
-                                      child: Container(
-                                        width:
-                                            MediaQuery.of(context).size.width -
-                                                30,
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.5,
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF1A2234),
-                                          borderRadius:
-                                              BorderRadius.circular(20.0),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: const Color(0xFFF0B90B)
-                                                  .withOpacity(0.1),
-                                              spreadRadius: 0,
-                                              blurRadius: 20,
-                                              offset: const Offset(0, 8),
-                                            ),
-                                            BoxShadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.4),
-                                              spreadRadius: 0,
-                                              blurRadius: 15,
-                                              offset: const Offset(0, 5),
-                                            ),
-                                          ],
+                        FadeSlideTransition(
+                          delay: const Duration(milliseconds: 200),
+                          child: Consumer<HomePageProvider>(
+                              builder: (context, banner, child) {
+                            return CarouselSlider.builder(
+                              itemCount: banner.bannerList.length,
+                              itemBuilder: (context, index, realIndex) {
+                                return banner.bannerList.isEmpty
+                                    ? EnhancedShimmer(
+                                        baseColor: const Color(0xFF1A2234),
+                                        highlightColor: const Color(0xFF2A3A5A),
+                                        direction: ShimmerDirection.leftToRight,
+                                        child: Container(
+                                          width:
+                                              MediaQuery.of(context).size.width -
+                                                  30,
+                                          height:
+                                              MediaQuery.of(context).size.height *
+                                                  0.5,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF1A2234),
+                                            borderRadius:
+                                                BorderRadius.circular(20.0),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: const Color(0xFFF0B90B)
+                                                    .withOpacity(0.1),
+                                                spreadRadius: 0,
+                                                blurRadius: 20,
+                                                offset: const Offset(0, 8),
+                                              ),
+                                              BoxShadow(
+                                                color:
+                                                    Colors.black.withOpacity(0.4),
+                                                spreadRadius: 0,
+                                                blurRadius: 15,
+                                                offset: const Offset(0, 5),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    )
+                                      )
                                   : Container(
                                       width: MediaQuery.of(context).size.width -
                                           30,
@@ -559,6 +564,7 @@ class _HomepageState extends State<Homepage> {
                             ),
                           );
                         }),
+                        ),
                         const SizedBox(height: 10),
                         options(),
                       ]),
@@ -1631,45 +1637,47 @@ class _HomepageState extends State<Homepage> {
                 childAspectRatio: 1.3,
                 children: [
                   /// Arbitrade
-                  _buildGridOptionItem(
-                    icon: "assets/img/stock.png",
-                    label: "Arbitrade Trading",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ArbiTradeSection())),
+                  FadeSlideTransition(
+                    delay: const Duration(milliseconds: 100),
+                    child: _buildGridOptionItem(
+                      icon: "assets/img/stock.png",
+                      label: "Arbitrade Trading",
+                      onTap: () => AnimatedNavigator.pushFadeScale(
+                          context, const ArbiTradeSection()),
+                    ),
                   ),
 
                   /// Spot trading
-                  _buildGridOptionItem(
-                    icon: "assets/img/spot_trading.png",
-                    label: "Spot Trading",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SpotTradingService(),
-                        )),
+                  FadeSlideTransition(
+                    delay: const Duration(milliseconds: 200),
+                    child: _buildGridOptionItem(
+                      icon: "assets/img/spot_trading.png",
+                      label: "Spot Trading",
+                      onTap: () => AnimatedNavigator.pushFadeScale(
+                          context, const SpotTradingService()),
+                    ),
                   ),
 
                   /// future trading
-                  _buildGridOptionItem(
-                    icon: "assets/img/future_trading.png",
-                    label: "Future Trading",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const FutureTradingSection())),
+                  FadeSlideTransition(
+                    delay: const Duration(milliseconds: 300),
+                    child: _buildGridOptionItem(
+                      icon: "assets/img/future_trading.png",
+                      label: "Future Trading",
+                      onTap: () => AnimatedNavigator.pushFadeScale(
+                          context, const FutureTradingSection()),
+                    ),
                   ),
 
                   ///  Api Binding
-                  _buildGridOptionItem(
-                    icon: "assets/img/api.png",
-                    label: "API Binding",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ApiBinding())),
+                  FadeSlideTransition(
+                    delay: const Duration(milliseconds: 400),
+                    child: _buildGridOptionItem(
+                      icon: "assets/img/api.png",
+                      label: "API Binding",
+                      onTap: () => AnimatedNavigator.pushFromBottom(
+                          context, const ApiBinding()),
+                    ),
                   ),
                 ],
               ),
@@ -1796,42 +1804,54 @@ class _HomepageState extends State<Homepage> {
                 childAspectRatio: 1.3,
                 children: [
                   /// Trading Revenue
-                  _buildGridOptionItem(
-                    icon: "assets/img/cycle.png",
-                    label: "Trading Revenue",
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Revenue())),
+                  FadeSlideTransition(
+                    delay: const Duration(milliseconds: 600),
+                    child: _buildGridOptionItem(
+                      icon: "assets/img/cycle.png",
+                      label: "Trading Revenue",
+                      onTap: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => Revenue())),
+                    ),
                   ),
 
                   /// Reward Details
-                  _buildGridOptionItem(
-                    icon: "assets/img/user.png",
-                    label: "Reward Details",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                const AllIncome(initialTabIndex: 2))),
+                  FadeSlideTransition(
+                    delay: const Duration(milliseconds: 700),
+                    child: _buildGridOptionItem(
+                      icon: "assets/img/user.png",
+                      label: "Reward Details",
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const AllIncome(initialTabIndex: 2))),
+                    ),
                   ),
 
                   /// Transactions
-                  _buildGridOptionItem(
-                    icon: "assets/img/transaction.png",
-                    label: "Transactions",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const PaymentSection())),
+                  FadeSlideTransition(
+                    delay: const Duration(milliseconds: 800),
+                    child: _buildGridOptionItem(
+                      icon: "assets/img/transaction.png",
+                      label: "Transactions",
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const PaymentSection())),
+                    ),
                   ),
 
                   /// My Team
-                  _buildGridOptionItem(
-                    icon: "assets/img/team.png",
-                    label: "My Team",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const Team(image: null))),
+                  FadeSlideTransition(
+                    delay: const Duration(milliseconds: 900),
+                    child: _buildGridOptionItem(
+                      icon: "assets/img/team.png",
+                      label: "My Team",
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Team(image: null))),
+                    ),
                   ),
                 ],
               ),
@@ -2153,133 +2173,134 @@ class _HomepageState extends State<Homepage> {
     const Color yellow = Color(0xFFF0B90B);
     const Color cardBorder = Color(0xFF2A3A5A);
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: onTap,
-          splashColor: yellow.withOpacity(0.2),
-          highlightColor: yellow.withOpacity(0.1),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF1E2329),
-                  Color(0xFF181C22),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: cardBorder.withOpacity(0.5),
-                width: 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  spreadRadius: 0,
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                ),
-                BoxShadow(
-                  color: yellow.withOpacity(0.05),
-                  spreadRadius: 0,
-                  blurRadius: 20,
-                  offset: const Offset(0, 0),
-                ),
+    return RippleAnimation(
+      rippleColor: yellow,
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: TradingAnimations.normalAnimation,
+        curve: TradingAnimations.defaultCurve,
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF1E2329),
+                Color(0xFF181C22),
               ],
             ),
-            child: Stack(
-              children: [
-                // Animated background glow effect
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      gradient: RadialGradient(
-                        center: Alignment.center,
-                        radius: 1.0,
-                        colors: [
-                          yellow.withOpacity(0.02),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                // Decorative corner accent with glow
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    height: 8,
-                    width: 8,
-                    decoration: BoxDecoration(
-                      color: yellow.withOpacity(0.6),
-                      borderRadius: BorderRadius.circular(4),
-                      boxShadow: [
-                        BoxShadow(
-                          color: yellow.withOpacity(0.4),
-                          spreadRadius: 0,
-                          blurRadius: 4,
-                          offset: const Offset(0, 0),
-                        ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: cardBorder.withOpacity(0.5),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                spreadRadius: 0,
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+              BoxShadow(
+                color: yellow.withOpacity(0.05),
+                spreadRadius: 0,
+                blurRadius: 20,
+                offset: const Offset(0, 0),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Animated background glow effect
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: RadialGradient(
+                      center: Alignment.center,
+                      radius: 1.0,
+                      colors: [
+                        yellow.withOpacity(0.02),
+                        Colors.transparent,
                       ],
                     ),
                   ),
                 ),
-                // Main content with enhanced styling
-                Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Enhanced icon container with multiple layers
-                      Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              yellow.withOpacity(0.2),
-                              yellow.withOpacity(0.05),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: yellow.withOpacity(0.4),
-                            width: 1.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: yellow.withOpacity(0.15),
-                              spreadRadius: 0,
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              spreadRadius: 0,
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
+              ),
+              // Decorative corner accent with glow
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  height: 8,
+                  width: 8,
+                  decoration: BoxDecoration(
+                    color: yellow.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(4),
+                    boxShadow: [
+                      BoxShadow(
+                        color: yellow.withOpacity(0.4),
+                        spreadRadius: 0,
+                        blurRadius: 4,
+                        offset: const Offset(0, 0),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Main content with enhanced styling
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Enhanced icon container with multiple layers
+                    Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            yellow.withOpacity(0.2),
+                            yellow.withOpacity(0.05),
                           ],
                         ),
-                        child: Center(
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: yellow.withOpacity(0.4),
+                          width: 1.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: yellow.withOpacity(0.15),
+                            spreadRadius: 0,
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            spreadRadius: 0,
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: PulseAnimation(
+                          duration: const Duration(seconds: 2),
+                          minScale: 0.95,
+                          maxScale: 1.05,
                           child: Image.asset(
                             icon,
                             color: yellow,
                             height: 28,
                             width: 28,
                             errorBuilder: (context, error, stackTrace) {
-                              return Icon(
+                              return const Icon(
                                 Icons.apps,
                                 color: yellow,
                                 size: 28,
@@ -2288,26 +2309,26 @@ class _HomepageState extends State<Homepage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      // Enhanced text with better typography
-                      Text(
-                        label,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          letterSpacing: 0.2,
-                          height: 1.2,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 12),
+                    // Enhanced text with better typography
+                    Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        letterSpacing: 0.2,
+                        height: 1.2,
                       ),
-                    ],
-                  ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
