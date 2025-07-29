@@ -456,6 +456,135 @@ class FutureTradingService {
     }
   }
 
+  /// Get future trading revenue data (today's profit and cumulative profit)
+  static Future<FutureTradingRevenueData?> getFutureTradingRevenue({
+    required String userId,
+  }) async {
+    try {
+      print('🔄 Fetching future trading revenue for user: $userId');
+
+      // Get today's date for filtering today's trades
+      final today = DateTime.now();
+      final todayStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+      // Fetch all trade history to calculate cumulative profit
+      final allTradesResponse = await getDualSideTradeHistory(
+        userId: userId,
+        limit: 1000, // Get a large number to calculate total
+      );
+
+      // Fetch today's trades for today's profit
+      final todayTradesResponse = await getDualSideTradeHistory(
+        userId: userId,
+        dateFrom: todayStr,
+        dateTo: todayStr,
+        limit: 1000,
+      );
+
+      if (allTradesResponse?.isSuccess == true && todayTradesResponse?.isSuccess == true) {
+        final allTrades = allTradesResponse!.data?.trades ?? [];
+        final todayTrades = todayTradesResponse!.data?.trades ?? [];
+
+        // Calculate today's profit from today's closed trades
+        double todayProfit = 0.0;
+        final todayDetails = <FutureTradingRevenueDetail>[];
+
+        print('🔍 Processing ${todayTrades.length} today trades for profit calculation');
+        for (final trade in todayTrades) {
+          print('📊 Trade ${trade.id}: status=${trade.status}, netPnl=${trade.netPnl}, realizedPnl=${trade.realizedPnl}');
+
+          // Check for closed trades - use more flexible status checking
+          if (trade.status.toUpperCase() == 'CLOSED' ||
+              trade.status.toUpperCase() == 'COMPLETED' ||
+              trade.status.toUpperCase() == 'FILLED' ||
+              (trade.exitPrice != null && trade.exitTime != null)) {
+
+            // Use realizedPnl if available, otherwise use netPnl
+            final profitValue = trade.realizedPnl != 0.0 ? trade.realizedPnl : trade.netPnl;
+            todayProfit += profitValue;
+
+            print('✅ Adding trade ${trade.id} profit: ${profitValue}');
+
+            // Convert BUY/SELL to LONG/SHORT for UI display
+            String uiSide = trade.side.toUpperCase() == 'BUY' ? 'LONG' :
+                           trade.side.toUpperCase() == 'SELL' ? 'SHORT' : trade.side;
+
+            todayDetails.add(FutureTradingRevenueDetail(
+              id: trade.id.toString(),
+              symbol: trade.symbol,
+              side: uiSide, // Use converted side
+              profit: profitValue,
+              entryPrice: trade.entryPrice,
+              exitPrice: trade.exitPrice ?? trade.entryPrice,
+              quantity: trade.quantity,
+              createDate: trade.entryTime,
+              closeDate: trade.exitTime,
+            ));
+          } else {
+            print('⏭️ Skipping trade ${trade.id} - not closed (status: ${trade.status})');
+          }
+        }
+
+        // Calculate cumulative profit from all closed trades
+        double cumulativeProfit = 0.0;
+        final allDetails = <FutureTradingRevenueDetail>[];
+
+        print('🔍 Processing ${allTrades.length} total trades for cumulative profit calculation');
+        for (final trade in allTrades) {
+          // Check for closed trades - use more flexible status checking
+          if (trade.status.toUpperCase() == 'CLOSED' ||
+              trade.status.toUpperCase() == 'COMPLETED' ||
+              trade.status.toUpperCase() == 'FILLED' ||
+              (trade.exitPrice != null && trade.exitTime != null)) {
+
+            // Use realizedPnl if available, otherwise use netPnl
+            final profitValue = trade.realizedPnl != 0.0 ? trade.realizedPnl : trade.netPnl;
+            cumulativeProfit += profitValue;
+
+            // Convert BUY/SELL to LONG/SHORT for UI display
+            String uiSide = trade.side.toUpperCase() == 'BUY' ? 'LONG' :
+                           trade.side.toUpperCase() == 'SELL' ? 'SHORT' : trade.side;
+
+            allDetails.add(FutureTradingRevenueDetail(
+              id: trade.id.toString(),
+              symbol: trade.symbol,
+              side: uiSide, // Use converted side
+              profit: profitValue,
+              entryPrice: trade.entryPrice,
+              exitPrice: trade.exitPrice ?? trade.entryPrice,
+              quantity: trade.quantity,
+              createDate: trade.entryTime,
+              closeDate: trade.exitTime,
+            ));
+          }
+        }
+
+        // Sort details by date (newest first)
+        allDetails.sort((a, b) => b.createDate.compareTo(a.createDate));
+        todayDetails.sort((a, b) => b.createDate.compareTo(a.createDate));
+
+        print('📊 Future Trading Revenue Calculated:');
+        print('   Today\'s Profit: \$${todayProfit.toStringAsFixed(2)}');
+        print('   Cumulative Profit: \$${cumulativeProfit.toStringAsFixed(2)}');
+        print('   Today\'s Trades: ${todayDetails.length}');
+        print('   Total Trades: ${allDetails.length}');
+
+        return FutureTradingRevenueData(
+          todayProfit: todayProfit,
+          cumulativeProfit: cumulativeProfit,
+          todayDetails: todayDetails,
+          allDetails: allDetails,
+        );
+      } else {
+        print('❌ Failed to fetch future trading revenue data');
+        return null;
+      }
+    } catch (e) {
+      print('❌ Error fetching future trading revenue: $e');
+      return null;
+    }
+  }
+
   /// Get dual-side strategy monitoring data
   static Future<DualSideMonitorResponse?> getDualSideMonitor({
     required String userId,

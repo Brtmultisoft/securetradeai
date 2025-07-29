@@ -4,6 +4,7 @@ import 'package:securetradeai/method/methods.dart';
 import 'package:securetradeai/model/TradeHistoryModel.dart' as trade;
 import 'package:securetradeai/model/incomeManagementModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../widget/common_app_bar.dart';
 
 class AllIncome extends StatefulWidget {
@@ -640,104 +641,104 @@ class _AllIncomeState extends State<AllIncome>
             ),
           ),
         ),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: details.length,
-          itemBuilder: (context, index) {
-            final detail = details[index];
-            double amount;
-            DateTime? date;
-            String type;
-
-            if (_currentIndex == 0) {
-              // All tab
-              final item = detail as Map<String, dynamic>;
-              type = item['type'];
-              if (item['detail'] != null) {
-                amount = double.tryParse(
-                        item['detail'].totalbal?.toString() ?? '0') ??
-                    0.0;
-                date = item['detail'].createdDate;
-              } else if (item['detail'] != null) {
-                amount = double.tryParse(
-                        item['detail'].totalbal?.toString() ?? '0') ??
-                    0.0;
-                date = item['detail'].createdDate;
-              } else {
-                amount = 0.0;
-                date = null;
-              }
-            } else if (_currentIndex == 1) {
-              // Profit Sharing
-              if (detail is trade.Detail) {
-                amount = double.tryParse(detail.totalbal) ?? 0.0;
-                date = detail.createdDate;
-                type = 'Profit Sharing';
-              } else {
-                amount = 0.0;
-                date = null;
-                type = 'Invalid Data';
-              }
-            } else {
-              if (detail != null) {
-                amount =
-                    double.tryParse(detail.totalbal?.toString() ?? '0') ?? 0.0;
-                date = detail.createdDate;
-                type = _getTransactionType();
-              } else {
-                amount = 0.0;
-                date = null;
-                type = 'Invalid Data';
-              }
-            }
-
-            return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: cardColor,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderColor),
-              ),
-              child: ListTile(
-                contentPadding: const EdgeInsets.all(16),
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      type,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Text(
-                      '${(amount * totalCurrency).toStringAsFixed(2)} $currentCurrency',
-                      style: TextStyle(
-                        color: successColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                subtitle: Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    date != null
-                        ? DateFormat('MMM dd, yyyy HH:mm').format(date)
-                        : 'Invalid Date',
-                    style: TextStyle(
-                      color: secondaryTextColor,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
+        // ListView.builder(
+        //   shrinkWrap: true,
+        //   physics: const NeverScrollableScrollPhysics(),
+        //   itemCount: details.length,
+        //   itemBuilder: (context, index) {
+        //     final detail = details[index];
+        //     double amount;
+        //     DateTime? date;
+        //     String type;
+        //
+        //     if (_currentIndex == 0) {
+        //       // All tab
+        //       final item = detail as Map<String, dynamic>;
+        //       type = item['type'];
+        //       if (item['detail'] != null) {
+        //         amount = double.tryParse(
+        //                 item['detail'].totalbal?.toString() ?? '0') ??
+        //             0.0;
+        //         date = item['detail'].createdDate;
+        //       } else if (item['detail'] != null) {
+        //         amount = double.tryParse(
+        //                 item['detail'].totalbal?.toString() ?? '0') ??
+        //             0.0;
+        //         date = item['detail'].createdDate;
+        //       } else {
+        //         amount = 0.0;
+        //         date = null;
+        //       }
+        //     } else if (_currentIndex == 1) {
+        //       // Profit Sharing
+        //       if (detail is trade.Detail) {
+        //         amount = double.tryParse(detail.totalbal) ?? 0.0;
+        //         date = detail.createdDate;
+        //         type = 'Profit Sharing';
+        //       } else {
+        //         amount = 0.0;
+        //         date = null;
+        //         type = 'Invalid Data';
+        //       }
+        //     } else {
+        //       if (detail != null) {
+        //         amount =
+        //             double.tryParse(detail.totalbal?.toString() ?? '0') ?? 0.0;
+        //         date = detail.createdDate;
+        //         type = _getTransactionType();
+        //       } else {
+        //         amount = 0.0;
+        //         date = null;
+        //         type = 'Invalid Data';
+        //       }
+        //     }
+        //
+        //     return Container(
+        //       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        //       decoration: BoxDecoration(
+        //         color: cardColor,
+        //         borderRadius: BorderRadius.circular(12),
+        //         border: Border.all(color: borderColor),
+        //       ),
+        //       child: ListTile(
+        //         contentPadding: const EdgeInsets.all(16),
+        //         title: Row(
+        //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //           children: [
+        //             Text(
+        //               type,
+        //               style: TextStyle(
+        //                 color: textColor,
+        //                 fontSize: 16,
+        //                 fontWeight: FontWeight.w500,
+        //               ),
+        //             ),
+        //             Text(
+        //               '${(amount * totalCurrency).toStringAsFixed(2)} $currentCurrency',
+        //               style: TextStyle(
+        //                 color: successColor,
+        //                 fontSize: 16,
+        //                 fontWeight: FontWeight.bold,
+        //               ),
+        //             ),
+        //           ],
+        //         ),
+        //         subtitle: Padding(
+        //           padding: const EdgeInsets.only(top: 8),
+        //           child: Text(
+        //             date != null
+        //                 ? DateFormat('MMM dd, yyyy HH:mm').format(date)
+        //                 : 'Invalid Date',
+        //             style: TextStyle(
+        //               color: secondaryTextColor,
+        //               fontSize: 14,
+        //             ),
+        //           ),
+        //         ),
+        //       ),
+        //     );
+        //   },
+        // ),
       ],
     );
   }

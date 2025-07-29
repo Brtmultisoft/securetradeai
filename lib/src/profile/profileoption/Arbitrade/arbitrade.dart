@@ -1,16 +1,12 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cross_file/cross_file.dart';
+import 'package:excel/excel.dart' as excel_lib;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:excel/excel.dart' as excel_lib;
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:cross_file/cross_file.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/method/methods.dart';
 import 'package:securetradeai/model/dailyRoiHistoryModel.dart';
@@ -22,6 +18,9 @@ import 'package:securetradeai/src/profile/profileoption/Arbitrade/income_details
 import 'package:securetradeai/src/widget/animated_toast.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
 import 'package:securetradeai/src/widget/trading_animations.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ArbiTradeSection extends StatefulWidget {
   const ArbiTradeSection({Key? key}) : super(key: key);
@@ -352,7 +351,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Text(
-                        'Top-Up Balance',
+                        'Gas Wallet',
                         style: TextStyle(
                           color: Colors.yellow,
                           fontSize: 16,
@@ -3052,7 +3051,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         totalInvested > 0 ? (totalIncome / totalInvested) * 100 : 0.0;
 
     // Use REAL daily ROI from income summary API - NOT total cumulative
-    final dailyAverage = incomeSummaryData?.data.incomeBreakdown.dailyRoi ?? 0.0;
+    final dailyAverage =
+        incomeSummaryData?.data.incomeBreakdown.dailyRoi ?? 0.0;
     final monthlyProjection = dailyAverage * 30;
 
     return Row(
@@ -3297,9 +3297,13 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
       final dateStr = '${now.day}-${now.month}-${now.year}';
 
       // Calculate totals
-      final totalIncome = directTotalIncome + levelROITotalIncome + salaryTotalIncome + totalROIIncome;
+      final totalIncome = directTotalIncome +
+          levelROITotalIncome +
+          salaryTotalIncome +
+          totalROIIncome;
       final totalInvested = investmentSummary?.totalInvestment ?? 0.0;
-      final dailyROIValue = incomeSummaryData?.data.incomeBreakdown.dailyRoi ?? 0.0;
+      final dailyROIValue =
+          incomeSummaryData?.data.incomeBreakdown.dailyRoi ?? 0.0;
 
       // Add page to PDF
       pdf.addPage(
@@ -3358,50 +3362,80 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                   children: [
                     // Header row
                     pw.TableRow(
-                      decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+                      decoration:
+                          const pw.BoxDecoration(color: PdfColors.grey200),
                       children: [
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
-                          child: pw.Text('Income Type', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                          child: pw.Text('Income Type',
+                              style:
+                                  pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                         ),
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
-                          child: pw.Text('Amount (USD)', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                          child: pw.Text('Amount (USD)',
+                              style:
+                                  pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                         ),
                       ],
                     ),
                     // Data rows
                     if (dailyROIValue > 0)
                       pw.TableRow(children: [
-                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Daily ROI')),
-                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('\$${dailyROIValue.toStringAsFixed(2)}')),
+                        pw.Padding(
+                            padding: const pw.EdgeInsets.all(8),
+                            child: pw.Text('Daily ROI')),
+                        pw.Padding(
+                            padding: const pw.EdgeInsets.all(8),
+                            child: pw.Text(
+                                '\$${dailyROIValue.toStringAsFixed(2)}')),
                       ]),
                     if (directTotalIncome > 0)
                       pw.TableRow(children: [
-                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Direct Income')),
-                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('\$${directTotalIncome.toStringAsFixed(2)}')),
+                        pw.Padding(
+                            padding: const pw.EdgeInsets.all(8),
+                            child: pw.Text('Direct Income')),
+                        pw.Padding(
+                            padding: const pw.EdgeInsets.all(8),
+                            child: pw.Text(
+                                '\$${directTotalIncome.toStringAsFixed(2)}')),
                       ]),
                     if (levelROITotalIncome > 0)
                       pw.TableRow(children: [
-                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Level ROI Income')),
-                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('\$${levelROITotalIncome.toStringAsFixed(2)}')),
+                        pw.Padding(
+                            padding: const pw.EdgeInsets.all(8),
+                            child: pw.Text('Level ROI Income')),
+                        pw.Padding(
+                            padding: const pw.EdgeInsets.all(8),
+                            child: pw.Text(
+                                '\$${levelROITotalIncome.toStringAsFixed(2)}')),
                       ]),
                     if (salaryTotalIncome > 0)
                       pw.TableRow(children: [
-                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Salary Income')),
-                        pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('\$${salaryTotalIncome.toStringAsFixed(2)}')),
+                        pw.Padding(
+                            padding: const pw.EdgeInsets.all(8),
+                            child: pw.Text('Salary Income')),
+                        pw.Padding(
+                            padding: const pw.EdgeInsets.all(8),
+                            child: pw.Text(
+                                '\$${salaryTotalIncome.toStringAsFixed(2)}')),
                       ]),
                     // Total row
                     pw.TableRow(
-                      decoration: const pw.BoxDecoration(color: PdfColors.grey100),
+                      decoration:
+                          const pw.BoxDecoration(color: PdfColors.grey100),
                       children: [
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
-                          child: pw.Text('Total Income', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                          child: pw.Text('Total Income',
+                              style:
+                                  pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                         ),
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
-                          child: pw.Text('\$${totalIncome.toStringAsFixed(2)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                          child: pw.Text('\$${totalIncome.toStringAsFixed(2)}',
+                              style:
+                                  pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                         ),
                       ],
                     ),
@@ -3424,33 +3458,58 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                   border: pw.TableBorder.all(color: PdfColors.grey400),
                   children: [
                     pw.TableRow(
-                      decoration: const pw.BoxDecoration(color: PdfColors.grey200),
+                      decoration:
+                          const pw.BoxDecoration(color: PdfColors.grey200),
                       children: [
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
-                          child: pw.Text('Metric', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                          child: pw.Text('Metric',
+                              style:
+                                  pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                         ),
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
-                          child: pw.Text('Value', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                          child: pw.Text('Value',
+                              style:
+                                  pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                         ),
                       ],
                     ),
                     pw.TableRow(children: [
-                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Total Invested')),
-                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('\$${totalInvested.toStringAsFixed(2)}')),
+                      pw.Padding(
+                          padding: const pw.EdgeInsets.all(8),
+                          child: pw.Text('Total Invested')),
+                      pw.Padding(
+                          padding: const pw.EdgeInsets.all(8),
+                          child:
+                              pw.Text('\$${totalInvested.toStringAsFixed(2)}')),
                     ]),
                     pw.TableRow(children: [
-                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Daily Average ROI')),
-                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('\$${dailyROIValue.toStringAsFixed(2)}')),
+                      pw.Padding(
+                          padding: const pw.EdgeInsets.all(8),
+                          child: pw.Text('Daily Average ROI')),
+                      pw.Padding(
+                          padding: const pw.EdgeInsets.all(8),
+                          child:
+                              pw.Text('\$${dailyROIValue.toStringAsFixed(2)}')),
                     ]),
                     pw.TableRow(children: [
-                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('Monthly Projection')),
-                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('\$${(dailyROIValue * 30).toStringAsFixed(2)}')),
+                      pw.Padding(
+                          padding: const pw.EdgeInsets.all(8),
+                          child: pw.Text('Monthly Projection')),
+                      pw.Padding(
+                          padding: const pw.EdgeInsets.all(8),
+                          child: pw.Text(
+                              '\$${(dailyROIValue * 30).toStringAsFixed(2)}')),
                     ]),
                     pw.TableRow(children: [
-                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('ROI Percentage')),
-                      pw.Padding(padding: const pw.EdgeInsets.all(8), child: pw.Text('${totalInvested > 0 ? ((totalIncome / totalInvested) * 100).toStringAsFixed(1) : '0.0'}%')),
+                      pw.Padding(
+                          padding: const pw.EdgeInsets.all(8),
+                          child: pw.Text('ROI Percentage')),
+                      pw.Padding(
+                          padding: const pw.EdgeInsets.all(8),
+                          child: pw.Text(
+                              '${totalInvested > 0 ? ((totalIncome / totalInvested) * 100).toStringAsFixed(1) : '0.0'}%')),
                     ]),
                   ],
                 ),
@@ -3468,7 +3527,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
 
       // Show download notification and success message
       await _showDownloadNotification(fileName, file.path, 'PDF');
-      _showSuccessToast('PDF downloaded successfully! Tap notification for options.');
+      _showSuccessToast(
+          'PDF downloaded successfully! Tap notification for options.');
     } catch (e) {
       print('PDF download error: $e');
       _showErrorToast('Failed to download PDF. Please try again.');
@@ -3486,89 +3546,126 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
       final dateStr = '${now.day}-${now.month}-${now.year}';
 
       // Calculate totals
-      final totalIncome = directTotalIncome + levelROITotalIncome + salaryTotalIncome + totalROIIncome;
+      final totalIncome = directTotalIncome +
+          levelROITotalIncome +
+          salaryTotalIncome +
+          totalROIIncome;
       final totalInvested = investmentSummary?.totalInvestment ?? 0.0;
-      final dailyROIValue = incomeSummaryData?.data.incomeBreakdown.dailyRoi ?? 0.0;
+      final dailyROIValue =
+          incomeSummaryData?.data.incomeBreakdown.dailyRoi ?? 0.0;
 
       // Add header
-      sheet.cell(excel_lib.CellIndex.indexByString('A1')).value = 'Arbitrade Trading Report';
-      sheet.cell(excel_lib.CellIndex.indexByString('A2')).value = 'Generated on: ${now.day}/${now.month}/${now.year}';
+      sheet.cell(excel_lib.CellIndex.indexByString('A1')).value =
+          'Arbitrade Trading Report';
+      sheet.cell(excel_lib.CellIndex.indexByString('A2')).value =
+          'Generated on: ${now.day}/${now.month}/${now.year}';
 
       // Income Summary Section
-      sheet.cell(excel_lib.CellIndex.indexByString('A4')).value = 'INCOME SUMMARY';
+      sheet.cell(excel_lib.CellIndex.indexByString('A4')).value =
+          'INCOME SUMMARY';
       sheet.cell(excel_lib.CellIndex.indexByString('A5')).value = 'Income Type';
-      sheet.cell(excel_lib.CellIndex.indexByString('B5')).value = 'Amount (USD)';
+      sheet.cell(excel_lib.CellIndex.indexByString('B5')).value =
+          'Amount (USD)';
 
       int row = 6;
       if (dailyROIValue > 0) {
-        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Daily ROI';
-        sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${dailyROIValue.toStringAsFixed(2)}';
+        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
+            'Daily ROI';
+        sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
+            '\$${dailyROIValue.toStringAsFixed(2)}';
         row++;
       }
 
       if (directTotalIncome > 0) {
-        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Direct Income';
-        sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${directTotalIncome.toStringAsFixed(2)}';
+        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
+            'Direct Income';
+        sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
+            '\$${directTotalIncome.toStringAsFixed(2)}';
         row++;
       }
 
       if (levelROITotalIncome > 0) {
-        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Level ROI Income';
-        sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${levelROITotalIncome.toStringAsFixed(2)}';
+        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
+            'Level ROI Income';
+        sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
+            '\$${levelROITotalIncome.toStringAsFixed(2)}';
         row++;
       }
 
       if (salaryTotalIncome > 0) {
-        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Salary Income';
-        sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${salaryTotalIncome.toStringAsFixed(2)}';
+        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
+            'Salary Income';
+        sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
+            '\$${salaryTotalIncome.toStringAsFixed(2)}';
         row++;
       }
 
       // Total row
-      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'TOTAL INCOME';
-      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${totalIncome.toStringAsFixed(2)}';
+      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
+          'TOTAL INCOME';
+      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
+          '\$${totalIncome.toStringAsFixed(2)}';
       row += 2;
 
       // Investment Summary Section
-      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'INVESTMENT SUMMARY';
+      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
+          'INVESTMENT SUMMARY';
       row++;
       sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Metric';
       sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = 'Value';
       row++;
 
-      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Total Invested';
-      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${totalInvested.toStringAsFixed(2)}';
+      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
+          'Total Invested';
+      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
+          '\$${totalInvested.toStringAsFixed(2)}';
       row++;
 
-      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Daily Average ROI';
-      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${dailyROIValue.toStringAsFixed(2)}';
+      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
+          'Daily Average ROI';
+      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
+          '\$${dailyROIValue.toStringAsFixed(2)}';
       row++;
 
-      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Monthly Projection';
-      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '\$${(dailyROIValue * 30).toStringAsFixed(2)}';
+      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
+          'Monthly Projection';
+      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
+          '\$${(dailyROIValue * 30).toStringAsFixed(2)}';
       row++;
 
-      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'ROI Percentage';
-      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '${totalInvested > 0 ? ((totalIncome / totalInvested) * 100).toStringAsFixed(1) : '0.0'}%';
+      sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
+          'ROI Percentage';
+      sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
+          '${totalInvested > 0 ? ((totalIncome / totalInvested) * 100).toStringAsFixed(1) : '0.0'}%';
       row += 2;
 
       // Investment Details Section
       if (arbitrageInvestments.isNotEmpty) {
-        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'ACTIVE INVESTMENTS';
+        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
+            'ACTIVE INVESTMENTS';
         row++;
-        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = 'Investment Amount';
-        sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = 'Daily ROI %';
-        sheet.cell(excel_lib.CellIndex.indexByString('C$row')).value = 'Total Earned';
+        sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
+            'Investment Amount';
+        sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
+            'Daily ROI %';
+        sheet.cell(excel_lib.CellIndex.indexByString('C$row')).value =
+            'Total Earned';
         sheet.cell(excel_lib.CellIndex.indexByString('D$row')).value = 'Status';
-        sheet.cell(excel_lib.CellIndex.indexByString('E$row')).value = 'Days Running';
+        sheet.cell(excel_lib.CellIndex.indexByString('E$row')).value =
+            'Days Running';
         row++;
 
         for (final investment in arbitrageInvestments) {
-          sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value = '\$${investment.investmentAmount.toStringAsFixed(2)}';
-          sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value = '${investment.dailyRoiPercentage}%';
-          sheet.cell(excel_lib.CellIndex.indexByString('C$row')).value = '\$${investment.totalRoiEarned.toStringAsFixed(2)}';
-          sheet.cell(excel_lib.CellIndex.indexByString('D$row')).value = investment.status;
-          sheet.cell(excel_lib.CellIndex.indexByString('E$row')).value = '${investment.daysRunning}/30';
+          sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
+              '\$${investment.investmentAmount.toStringAsFixed(2)}';
+          sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
+              '${investment.dailyRoiPercentage}%';
+          sheet.cell(excel_lib.CellIndex.indexByString('C$row')).value =
+              '\$${investment.totalRoiEarned.toStringAsFixed(2)}';
+          sheet.cell(excel_lib.CellIndex.indexByString('D$row')).value =
+              investment.status;
+          sheet.cell(excel_lib.CellIndex.indexByString('E$row')).value =
+              '${investment.daysRunning}/30';
           row++;
         }
       }
@@ -3583,7 +3680,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
 
         // Show download notification and success message
         await _showDownloadNotification(fileName, file.path, 'Excel');
-        _showSuccessToast('Excel downloaded successfully! Tap notification for options.');
+        _showSuccessToast(
+            'Excel downloaded successfully! Tap notification for options.');
       } else {
         _showErrorToast('Failed to generate Excel file');
       }
@@ -3616,7 +3714,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   }
 
   // Show download notification with click to open functionality
-  Future<void> _showDownloadNotification(String fileName, String filePath, String fileType) async {
+  Future<void> _showDownloadNotification(
+      String fileName, String filePath, String fileType) async {
     try {
       // Create a simple notification using ScaffoldMessenger
       if (mounted) {
@@ -3721,7 +3820,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                 decoration: BoxDecoration(
                   color: const Color(0xFF1E2026),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF0ECB81).withOpacity(0.3)),
+                  border: Border.all(
+                      color: const Color(0xFF0ECB81).withOpacity(0.3)),
                 ),
                 child: Row(
                   children: [
@@ -3869,14 +3969,16 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                 Navigator.of(context).pop();
                 _showFileLocationDialog(filePath);
               },
-              child: const Text('VIEW LOCATION', style: TextStyle(color: Colors.white70)),
+              child: const Text('VIEW LOCATION',
+                  style: TextStyle(color: Colors.white70)),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 _shareFile(filePath);
               },
-              child: const Text('SHARE', style: TextStyle(color: Color(0xFF0ECB81))),
+              child: const Text('SHARE',
+                  style: TextStyle(color: Color(0xFF0ECB81))),
             ),
           ],
         );

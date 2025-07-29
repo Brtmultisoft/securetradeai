@@ -23,9 +23,9 @@ import 'package:securetradeai/src/profile/profileoption/Arbitrade/arbitrade.dart
 import 'package:securetradeai/src/profile/profileoption/Team/team.dart';
 import 'package:securetradeai/src/quantitative/quatitativepage.dart';
 import 'package:securetradeai/src/widget/animated_toast.dart';
-import 'package:securetradeai/src/widget/trading_animations.dart';
-import 'package:securetradeai/src/widget/page_transitions.dart';
 import 'package:securetradeai/src/widget/enhanced_loading.dart';
+import 'package:securetradeai/src/widget/page_transitions.dart';
+import 'package:securetradeai/src/widget/trading_animations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../future_trading/future_trading_section.dart';
@@ -424,12 +424,14 @@ class _HomepageState extends State<Homepage> {
                                         highlightColor: const Color(0xFF2A3A5A),
                                         direction: ShimmerDirection.leftToRight,
                                         child: Container(
-                                          width:
-                                              MediaQuery.of(context).size.width -
-                                                  30,
-                                          height:
-                                              MediaQuery.of(context).size.height *
-                                                  0.5,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width -
+                                              30,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.5,
                                           decoration: BoxDecoration(
                                             color: const Color(0xFF1A2234),
                                             borderRadius:
@@ -443,8 +445,8 @@ class _HomepageState extends State<Homepage> {
                                                 offset: const Offset(0, 8),
                                               ),
                                               BoxShadow(
-                                                color:
-                                                    Colors.black.withOpacity(0.4),
+                                                color: Colors.black
+                                                    .withOpacity(0.4),
                                                 spreadRadius: 0,
                                                 blurRadius: 15,
                                                 offset: const Offset(0, 5),
@@ -453,117 +455,123 @@ class _HomepageState extends State<Homepage> {
                                           ),
                                         ),
                                       )
-                                  : Container(
-                                      width: MediaQuery.of(context).size.width -
-                                          30,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.5,
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(20.0),
-                                      ),
-                                      child: ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(20.0),
-                                        child: Stack(
-                                          children: [
-                                            // Background image
-                                            Positioned.fill(
-                                              child: Image.network(
-                                                path +
-                                                    banner.bannerList[index]
-                                                        .bannerImage,
-                                                fit: BoxFit.fill,
-                                                errorBuilder: (context, error,
-                                                    stackTrace) {
-                                                  return Container(
-                                                    color:
-                                                        const Color(0xFF1A2234),
-                                                    child: const Center(
-                                                      child: Icon(
-                                                        Icons
-                                                            .image_not_supported,
-                                                        color:
-                                                            Color(0xFF848E9C),
-                                                        size: 50,
+                                    : Container(
+                                        width:
+                                            MediaQuery.of(context).size.width -
+                                                30,
+                                        height:
+                                            MediaQuery.of(context).size.height *
+                                                0.5,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20.0),
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(20.0),
+                                          child: Stack(
+                                            children: [
+                                              // Background image
+                                              Positioned.fill(
+                                                child: Image.network(
+                                                  path +
+                                                      banner.bannerList[index]
+                                                          .bannerImage,
+                                                  fit: BoxFit.fill,
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Container(
+                                                      color: const Color(
+                                                          0xFF1A2234),
+                                                      child: const Center(
+                                                        child: Icon(
+                                                          Icons
+                                                              .image_not_supported,
+                                                          color:
+                                                              Color(0xFF848E9C),
+                                                          size: 50,
+                                                        ),
                                                       ),
-                                                    ),
-                                                  );
-                                                },
+                                                    );
+                                                  },
+                                                ),
                                               ),
-                                            ),
-                                            // Gradient overlay for better text readability
-                                            Positioned.fill(
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  gradient: LinearGradient(
-                                                    begin: Alignment.topCenter,
-                                                    end: Alignment.bottomCenter,
-                                                    colors: [
-                                                      Colors.transparent,
-                                                      Colors.black
-                                                          .withOpacity(0.3),
+                                              // Gradient overlay for better text readability
+                                              Positioned.fill(
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                      begin:
+                                                          Alignment.topCenter,
+                                                      end: Alignment
+                                                          .bottomCenter,
+                                                      colors: [
+                                                        Colors.transparent,
+                                                        Colors.black
+                                                            .withOpacity(0.3),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              // Decorative corner accent
+                                              Positioned(
+                                                top: 15,
+                                                right: 15,
+                                                child: Container(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 6,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        const Color(0xFFF0B90B)
+                                                            .withOpacity(0.9),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: const Color(
+                                                                0xFFF0B90B)
+                                                            .withOpacity(0.3),
+                                                        spreadRadius: 0,
+                                                        blurRadius: 8,
+                                                        offset:
+                                                            const Offset(0, 2),
+                                                      ),
                                                     ],
                                                   ),
-                                                ),
-                                              ),
-                                            ),
-                                            // Decorative corner accent
-                                            Positioned(
-                                              top: 15,
-                                              right: 15,
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 12,
-                                                  vertical: 6,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: const Color(0xFFF0B90B)
-                                                      .withOpacity(0.9),
-                                                  borderRadius:
-                                                      BorderRadius.circular(20),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: const Color(
-                                                              0xFFF0B90B)
-                                                          .withOpacity(0.3),
-                                                      spreadRadius: 0,
-                                                      blurRadius: 8,
-                                                      offset:
-                                                          const Offset(0, 2),
+                                                  child: const Text(
+                                                    'Featured',
+                                                    style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 12,
                                                     ),
-                                                  ],
-                                                ),
-                                                child: const Text(
-                                                  'Featured',
-                                                  style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 12,
                                                   ),
                                                 ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    );
-                            },
-                            options: CarouselOptions(
-                              initialPage: 0,
-                              aspectRatio: 16 / 8,
-                              viewportFraction: 1.0,
-                              autoPlay: true,
-                              autoPlayAnimationDuration:
-                                  const Duration(milliseconds: 1000),
-                              autoPlayCurve: Curves.easeInOutCubic,
-                              enlargeCenterPage: false,
-                              scrollDirection: Axis.horizontal,
-                            ),
-                          );
-                        }),
+                                      );
+                              },
+                              options: CarouselOptions(
+                                initialPage: 0,
+                                aspectRatio: 16 / 8,
+                                viewportFraction: 1.0,
+                                autoPlay: true,
+                                autoPlayAnimationDuration:
+                                    const Duration(milliseconds: 1000),
+                                autoPlayCurve: Curves.easeInOutCubic,
+                                enlargeCenterPage: false,
+                                scrollDirection: Axis.horizontal,
+                              ),
+                            );
+                          }),
                         ),
                         const SizedBox(height: 10),
                         options(),

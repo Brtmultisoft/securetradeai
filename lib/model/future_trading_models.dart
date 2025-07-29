@@ -1278,6 +1278,102 @@ class DualSidePnlTrackingResponse {
   bool get isSuccess => status == 'success';
 }
 
+// Future Trading Revenue Models (similar to spot trading revenue)
+class FutureTradingRevenueData {
+  final double todayProfit;
+  final double cumulativeProfit;
+  final List<FutureTradingRevenueDetail> todayDetails;
+  final List<FutureTradingRevenueDetail> allDetails;
+
+  FutureTradingRevenueData({
+    required this.todayProfit,
+    required this.cumulativeProfit,
+    required this.todayDetails,
+    required this.allDetails,
+  });
+
+  factory FutureTradingRevenueData.fromJson(Map<String, dynamic> json) {
+    return FutureTradingRevenueData(
+      todayProfit: (json['today_profit'] ?? 0).toDouble(),
+      cumulativeProfit: (json['cumulative_profit'] ?? 0).toDouble(),
+      todayDetails: json['today_details'] != null
+          ? List<FutureTradingRevenueDetail>.from(
+              json['today_details'].map((x) => FutureTradingRevenueDetail.fromJson(x)))
+          : [],
+      allDetails: json['all_details'] != null
+          ? List<FutureTradingRevenueDetail>.from(
+              json['all_details'].map((x) => FutureTradingRevenueDetail.fromJson(x)))
+          : [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'today_profit': todayProfit,
+        'cumulative_profit': cumulativeProfit,
+        'today_details': List<dynamic>.from(todayDetails.map((x) => x.toJson())),
+        'all_details': List<dynamic>.from(allDetails.map((x) => x.toJson())),
+      };
+}
+
+class FutureTradingRevenueDetail {
+  final String id;
+  final String symbol;
+  final String side;
+  final double profit;
+  final double entryPrice;
+  final double exitPrice;
+  final double quantity;
+  final DateTime createDate;
+  final DateTime? closeDate;
+
+  FutureTradingRevenueDetail({
+    required this.id,
+    required this.symbol,
+    required this.side,
+    required this.profit,
+    required this.entryPrice,
+    required this.exitPrice,
+    required this.quantity,
+    required this.createDate,
+    this.closeDate,
+  });
+
+  factory FutureTradingRevenueDetail.fromJson(Map<String, dynamic> json) {
+    // Convert BUY/SELL to LONG/SHORT for futures trading UI
+    String apiSide = json['side']?.toString() ?? '';
+    String uiSide = apiSide.toUpperCase() == 'BUY' ? 'LONG' :
+                   apiSide.toUpperCase() == 'SELL' ? 'SHORT' : apiSide;
+
+    return FutureTradingRevenueDetail(
+      id: json['id']?.toString() ?? '',
+      symbol: json['symbol']?.toString() ?? '',
+      side: uiSide, // Use converted side for UI display
+      profit: (json['profit'] ?? 0).toDouble(),
+      entryPrice: (json['entry_price'] ?? 0).toDouble(),
+      exitPrice: (json['exit_price'] ?? 0).toDouble(),
+      quantity: (json['quantity'] ?? 0).toDouble(),
+      createDate: json['create_date'] != null
+          ? DateTime.parse(json['create_date'])
+          : DateTime.now(),
+      closeDate: json['close_date'] != null
+          ? DateTime.parse(json['close_date'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'symbol': symbol,
+        'side': side,
+        'profit': profit,
+        'entry_price': entryPrice,
+        'exit_price': exitPrice,
+        'quantity': quantity,
+        'create_date': createDate.toIso8601String(),
+        'close_date': closeDate?.toIso8601String(),
+      };
+}
+
 // PnL Tracking Data Model
 class PnlTrackingData {
   final String period;

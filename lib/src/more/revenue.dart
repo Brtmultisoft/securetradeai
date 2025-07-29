@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:securetradeai/data/strings.dart';
+import 'package:securetradeai/model/future_trading_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../method/methods.dart';
 import '../../model/revenueModel.dart';
 import '../Service/assets_service.dart';
+import '../Service/future_trading_service.dart';
 import '../widget/common_app_bar.dart';
 import 'revenueDetailBydate.dart';
 
@@ -26,6 +28,13 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
   double todayincr = 0.000;
   double comulativeincr = 0.000;
 
+  // Future Trading Revenue Variables
+  FutureTradingRevenueData? futureTradingRevenue;
+  bool isFutureAPIcalled = false;
+  bool checkFutureData = false;
+  double futureTodayincr = 0.0;
+  double futureCumulativeincr = 0.0;
+
   Future<void> _loadCurrentCurrency() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -43,16 +52,7 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
       getRevenueDetail = [];
     });
     try {
-      print("🔄 Starting to fetch revenue data...");
-      print(
-          "🌐 API ENDPOINT: https://securetradeai.com/myrest/user/revenue_details");
-      print("📤 API REQUEST: POST with body: {\"user_id\": \"$commonuserId\"}");
-
       final data = await CommonMethod().getRevenueDetail();
-      print("📊 API Response Status: ${data.status}");
-      print("📊 API Response Message: ${data.message}");
-      print("📊 API Response Code: ${data.responsecode}");
-
       if (data.status == "success" && data.data != null) {
         var a = data.data.cumulativeProfit;
         var b = data.data.profitToday;
@@ -62,8 +62,6 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
           cumulative = a != 0 ? a.toStringAsFixed(6) : "0.000000";
           if (data.data.details != null) {
             List<Detail> details = [];
-            print(
-                "🔍 Processing ${data.data.details.length} transaction details...");
 
             for (int i = 0; i < data.data.details.length; i++) {
               var detail = data.data.details[i];
@@ -79,17 +77,12 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
                           double.tryParse(balanceStr.replaceAll(',', '')) ??
                               0.0;
                     }
-                  } catch (e) {
-                    print("Error parsing balance value: $e");
-                  }
+                  } catch (e) {}
                 }
-                print("Parsed Balance Value: $balanceValue");
-
                 details.add(Detail(
                   id: detail.id,
                   cryptoPair: detail.cryptoPair,
-                  profit:
-                      balanceValue.toStringAsFixed(6), // Use balance as profit
+                  profit: balanceValue.toStringAsFixed(6),
                   sellOrBuy: detail.sellOrBuy,
                   exchanger: detail.exchanger,
                   createdate: detail.createdate,
@@ -113,7 +106,6 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
         showtoast(data.message, context);
       }
     } catch (e) {
-      print("Error fetching revenue data: $e");
       setState(() {
         checkData = true;
       });
@@ -132,9 +124,7 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
         todayincr = double.parse(today) * totalcurrency;
         comulativeincr = double.parse(cumulative) * totalcurrency;
       });
-    } catch (e) {
-      print("Error updating currency values: $e");
-    }
+    } catch (e) {}
   }
 
   @override
@@ -143,6 +133,63 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
     _tabController = TabController(length: 2, vsync: this);
     _loadCurrentCurrency();
     _getRevenueData();
+    _getFutureTradingRevenue();
+  }
+
+  // Fetch Future Trading Revenue Data
+  Future<void> _getFutureTradingRevenue() async {
+    setState(() {
+      isFutureAPIcalled = true;
+    });
+
+    try {
+      print("🔄 Starting to fetch future trading revenue data...");
+
+      final data = await FutureTradingService.getFutureTradingRevenue(
+        userId: commonuserId,
+      );
+
+      if (data != null) {
+        setState(() {
+          futureTradingRevenue = data;
+          checkFutureData = data.allDetails.isEmpty;
+        });
+        await _updateFutureCurrencyValues();
+        print("✅ Future trading revenue data loaded successfully");
+        print("   Today's Profit: \$${data.todayProfit.toStringAsFixed(2)}");
+        print(
+            "   Cumulative Profit: \$${data.cumulativeProfit.toStringAsFixed(2)}");
+      } else {
+        setState(() {
+          checkFutureData = true;
+        });
+        print("❌ Failed to load future trading revenue data");
+      }
+    } catch (e) {
+      print("❌ Error fetching future trading revenue: $e");
+      setState(() {
+        checkFutureData = true;
+      });
+    } finally {
+      setState(() {
+        isFutureAPIcalled = false;
+      });
+    }
+  }
+
+  Future<void> _updateFutureCurrencyValues() async {
+    try {
+      if (futureTradingRevenue != null) {
+        var totalcurrency = await CommonMethod().getCurrency(0.0);
+        setState(() {
+          futureTodayincr = futureTradingRevenue!.todayProfit * totalcurrency;
+          futureCumulativeincr =
+              futureTradingRevenue!.cumulativeProfit * totalcurrency;
+        });
+      }
+    } catch (e) {
+      print("Error updating future currency values: $e");
+    }
   }
 
   @override
@@ -168,14 +215,22 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
           indicatorColor: const Color(0xFFF0B90B),
           labelColor: Colors.white,
           unselectedLabelColor: Colors.grey,
-          tabs: [
-            const Tab(
+          tabs: const [
+            Tab(
               text: 'Spot Trading',
-              icon: Icon(Icons.trending_up, size: 20),
+              icon: Icon(
+                Icons.trending_up,
+                size: 20,
+                color: Colors.green,
+              ),
             ),
-            const Tab(
+            Tab(
               text: 'Future Trading',
-              icon: Icon(Icons.show_chart, size: 20),
+              icon: Icon(
+                Icons.show_chart,
+                size: 20,
+                color: Colors.green,
+              ),
             ),
           ],
         ),
@@ -188,7 +243,10 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
             onRefresh: _getRevenueData,
             child: isAPIcalled
                 ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFFF0B90B)))
+                    child: CircularProgressIndicator(
+                      color: Color(0xFFF0B90B),
+                    ),
+                  )
                 : SingleChildScrollView(
                     child: Column(
                       children: [
@@ -199,7 +257,8 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
                     ),
                   ),
           ),
-          // Future Trading Tab
+
+          /// Future Trading Tab
           _buildFutureTradingTab(),
         ],
       ),
@@ -216,14 +275,14 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
         border: Border.all(color: const Color(0xFFF0B90B).withOpacity(0.3)),
       ),
       child: Row(
-        children: [
-          const Icon(
+        children: const [
+          Icon(
             Icons.trending_up,
             color: Color(0xFFF0B90B),
             size: 20,
           ),
-          const SizedBox(width: 8),
-          const Text(
+          SizedBox(width: 8),
+          Text(
             'Spot Trading Revenue',
             style: TextStyle(
               color: Colors.white,
@@ -237,51 +296,375 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildFutureTradingTab() {
-    return SingleChildScrollView(
+    return RefreshIndicator(
+      onRefresh: _getFutureTradingRevenue,
+      child: isFutureAPIcalled
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFFF0B90B)))
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildFutureTradingHeader(),
+                  _buildFutureSummaryCard(),
+                  _buildFutureTransactionsList(),
+                ],
+              ),
+            ),
+    );
+  }
+
+  Widget _buildFutureTradingHeader() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2B3139),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFF0B90B).withOpacity(0.3)),
+      ),
+      child: Row(
+        children: const [
+          Icon(
+            Icons.show_chart,
+            color: Color(0xFFF0B90B),
+            size: 20,
+          ),
+          SizedBox(width: 12),
+          Text(
+            'Future Trading Revenue',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFutureSummaryCard() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2B3139),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+      ),
       child: Column(
         children: [
-          Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2B3139),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.withOpacity(0.1)),
+          _buildFutureProfitSection(
+            "Today's Profit",
+            futureTradingRevenue?.todayProfit.toStringAsFixed(6) ?? "0.000000",
+            futureTodayincr.toStringAsFixed(4),
+            Icons.today,
+          ),
+          Divider(color: Colors.grey.withOpacity(0.2), height: 24),
+          _buildFutureProfitSection(
+            "Total Profit",
+            futureTradingRevenue?.cumulativeProfit.toStringAsFixed(6) ??
+                "0.000000",
+            futureCumulativeincr.toStringAsFixed(4),
+            Icons.account_balance_wallet,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFutureTransactionsList() {
+    if (checkFutureData) {
+      return Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: const Color(0xFF2B3139),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons.show_chart,
+              size: 48,
+              color: Colors.grey[400],
             ),
-            child: Column(
+            const SizedBox(height: 16),
+            const Text(
+              'No Future Trading Data',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Start future trading to see your revenue here',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey[400],
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final allDetails = futureTradingRevenue?.allDetails ?? [];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...allDetails
+            .take(10)
+            .map((detail) => _buildFutureTransactionItem(detail)),
+        if (allDetails.length > 10)
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              'Showing latest 10 transactions',
+              style: TextStyle(
+                color: Colors.grey[400],
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildFutureTransactionItem(FutureTradingRevenueDetail detail) {
+    final isProfit = detail.profit >= 0;
+    final tradingPair = detail.symbol.toUpperCase();
+    final isLong = detail.side.toUpperCase() == 'LONG';
+
+    return InkWell(
+      onTap: () {
+        // Show detailed view when clicked
+        _showFutureTradeDetails(detail);
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Colors.grey.withOpacity(0.1)),
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    tradingPair,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Qty: ${detail.quantity.toStringAsFixed(4)}',
+                    style: TextStyle(
+                      color: Colors.grey[400],
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Icon(
-                  Icons.show_chart,
-                  size: 64,
-                  color: Colors.grey[400],
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Future Trading Revenue',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
                 Text(
-                  'Coming Soon',
+                  '${detail.profit >= 0 ? '+' : ''}${detail.profit.toStringAsFixed(4)} USDT',
                   style: TextStyle(
-                    color: Colors.grey[400],
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Future trading revenue tracking will be available soon. Stay tuned for updates!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.grey[500],
+                    color: isProfit ? Colors.green : Colors.red,
                     fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: isLong
+                        ? Colors.green.withOpacity(0.1)
+                        : Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    detail.side.toUpperCase(),
+                    style: TextStyle(
+                      color: isLong ? Colors.green : Colors.red,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
+  void _showFutureTradeDetails(FutureTradingRevenueDetail detail) {
+    final entryDate = _formatDate(detail.createDate);
+    final exitDate =
+        detail.closeDate != null ? _formatDate(detail.closeDate!) : 'Open';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: const Color(0xFF2B3139),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Trade Details',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close, color: Colors.white),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                /// Symbol and Side
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: detail.side.toUpperCase() == 'LONG'
+                            ? Colors.green.withOpacity(0.1)
+                            : Colors.red.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        detail.side.toUpperCase(),
+                        style: TextStyle(
+                          color: detail.side.toUpperCase() == 'LONG'
+                              ? Colors.green
+                              : Colors.red,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      detail.symbol.toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+
+                // Profit/Loss
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E2329),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Profit/Loss',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        '${detail.profit >= 0 ? '+' : ''}${detail.profit.toStringAsFixed(4)} USDT',
+                        style: TextStyle(
+                          color: detail.profit >= 0 ? Colors.green : Colors.red,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Trade Details
+                _buildDetailRow(
+                    'Entry Price', '\$${detail.entryPrice.toStringAsFixed(4)}'),
+                _buildDetailRow(
+                    'Exit Price', '\$${detail.exitPrice.toStringAsFixed(4)}'),
+                _buildDetailRow('Quantity', detail.quantity.toStringAsFixed(4)),
+                _buildDetailRow('Entry Date', entryDate),
+                _buildDetailRow('Exit Date', exitDate),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.grey[400],
+              fontSize: 14,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -365,6 +748,60 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
     );
   }
 
+  Widget _buildFutureProfitSection(
+      String title, String usdtAmount, String currencyAmount, IconData icon) {
+    final isProfit =
+        double.tryParse(usdtAmount) != null && double.parse(usdtAmount) > 0;
+
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF0B90B).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            color: const Color(0xFFF0B90B),
+            size: 20,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '$usdtAmount USDT',
+                style: TextStyle(
+                  color: isProfit ? Colors.green : Colors.red,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                '$currencyAmount $currentCurrency',
+                style: const TextStyle(
+                  color: Colors.white54,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildTransactionsList() {
     if (checkData) {
       return Center(
@@ -393,7 +830,6 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
         }
         groupedTransactions[formattedDate]!.add(item);
       } catch (e) {
-        print("Error processing transaction date: $e");
         continue;
       }
     }
@@ -413,17 +849,13 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
         for (var item in transactions) {
           try {
             var profitStr = item.profit;
-            if (profitStr != null && profitStr.isNotEmpty) {
-              print("Processing profit value: $profitStr for date: $date");
+            if (profitStr.isNotEmpty) {
               double profit =
                   double.tryParse(profitStr.replaceAll(',', '')) ?? 0.0;
               totalProfit += profit;
             }
-          } catch (e) {
-            print("Error parsing profit: $e");
-          }
+          } catch (e) {}
         }
-        print("Total profit for date $date: $totalProfit");
 
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -470,7 +902,6 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
                   double profit = 0.0;
                   var profitStr = item.profit;
                   if (profitStr != null && profitStr.isNotEmpty) {
-                    print("Processing individual profit: $profitStr");
                     profit =
                         double.tryParse(profitStr.replaceAll(',', '')) ?? 0.0;
                   }
