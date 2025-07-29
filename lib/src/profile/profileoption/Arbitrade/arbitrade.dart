@@ -290,6 +290,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                   if (userRankData != null) _buildUserRankBanner(),
                   // Balance Card
                   _buildBalanceCard(),
+                  if (userRankData != null) _buildRankBanner(),
                   // Tab Bar
                   Container(
                     color: const Color(0xFF161A1E),
@@ -351,7 +352,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Text(
-                        'Gas Wallet',
+                        'Top-Up Balance',
                         style: TextStyle(
                           color: Colors.yellow,
                           fontSize: 16,
@@ -395,7 +396,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
               ],
             ),
           ),
-          Divider(
+          const Divider(
             color: Colors.yellow,
           ),
           // Income Breakdown Section
@@ -559,6 +560,257 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Investment Stats Section
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.black.withOpacity(0.1),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: const [
+                    Icon(
+                      Icons.account_balance_wallet,
+                      color: Colors.black,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Investment Summary',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildInvestmentStat(
+                        'Total \nInvestment',
+                        '\$${(investmentSummary?.totalInvestment ?? 0.0).toStringAsFixed(0)}',
+                        Icons.trending_up,
+                        Colors.green,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildInvestmentStat(
+                        'Arbitrage Investment',
+                        '\$${(investmentSummary?.totalArbitrageInvestment ?? 0.0).toStringAsFixed(0)}',
+                        Icons.swap_horiz,
+                        Colors.blue,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Team Stats Section
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.black.withOpacity(0.1),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: const [
+                    Icon(
+                      Icons.groups,
+                      color: Colors.black,
+                      size: 20,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Team Performance',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildTeamStat(
+                        'Team Business',
+                        '\$${rankData.teamBusiness.toStringAsFixed(0)}',
+                        Icons.business,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildTeamStat(
+                        'Team Members',
+                        '${rankData.teamMembers}',
+                        Icons.group,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildTeamStat(
+                        'Total Earnings',
+                        '\$${rankData.totalEarnings.toStringAsFixed(0)}',
+                        Icons.account_balance_wallet,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInvestmentStat(
+      String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            color: color,
+            size: 20,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.black.withOpacity(0.7),
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeamStat(String title, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Colors.black.withOpacity(0.1),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            color: Colors.black.withOpacity(0.8),
+            size: 18,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.black.withOpacity(0.6),
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRankBanner() {
+    if (userRankData == null) return const SizedBox.shrink();
+
+    final rankData = userRankData!.data;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFF0B90B), // Golden yellow
+            Color(0xFFFFD700), // Bright gold
+            Color(0xFFF0B90B), // Golden yellow
+          ],
+          stops: [0.0, 0.5, 1.0],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFF0B90B).withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           // Header with rank and crown icon
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -572,7 +824,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
-                      Icons.diamond,
+                      Icons.military_tech,
                       color: Colors.black,
                       size: 24,
                     ),
@@ -623,7 +875,6 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
 
           const SizedBox(height: 16),
 
-          // Progress to next rank
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -665,37 +916,6 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                       borderRadius: BorderRadius.circular(3),
                     ),
                   ),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // Quick stats row
-          Row(
-            children: [
-              Expanded(
-                child: _buildQuickStat(
-                  'Team Business',
-                  '\$${rankData.teamBusiness.toStringAsFixed(0)}',
-                  Icons.business,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildQuickStat(
-                  'Team Members',
-                  '${rankData.teamMembers}',
-                  Icons.group,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildQuickStat(
-                  'Total Earnings',
-                  '\$${rankData.totalEarnings.toStringAsFixed(0)}',
-                  Icons.account_balance_wallet,
                 ),
               ),
             ],
@@ -1115,8 +1335,6 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
           print('📥 Response: $data');
 
           if (data['status'] == 'success') {
-            print('✅ Package purchased successfully');
-
             // Update local balance
             setState(() {
               gasBalance -= amount;
@@ -1133,11 +1351,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
             _amountController.clear();
             _tabController.animateTo(1);
           } else {
-            print('❌ Purchase failed: ${data['message']}');
             _showErrorToast(data['message'] ?? 'Failed to purchase package.');
           }
         } catch (e) {
-          print('❌ Exception during purchase: $e');
           _showErrorToast('Network error. Please check your connection.');
         }
       }
@@ -1155,44 +1371,16 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
       print('🔄 Loading user rank data for user: $commonuserId');
 
       final data = await CommonMethod().getUserRank();
-      print('📤 User Rank API Request: getUserRank()');
-      print('📥 Response Status: ${data.status}');
-
-      // Print detailed rank data
-      print('🏆 ===== USER RANK DATA =====');
-      print('📊 Status: ${data.status}');
-
       if (data.status == 'success') {
-        final rankData = data.data;
-        print('👤 User Name: ${rankData.name}');
-        print('🎖️ Current Rank: ${rankData.currentRank}');
-        print('⬆️ Next Rank: ${rankData.nextRank}');
-        print(
-            '💼 Team Business: \$${rankData.teamBusiness.toStringAsFixed(2)}');
-        print('👥 Team Members: ${rankData.teamMembers}');
-        print(
-            '💰 Total Earnings: \$${rankData.totalEarnings.toStringAsFixed(2)}');
-        print(
-            '📈 Progress Percentage: ${rankData.progressPercentage.toStringAsFixed(1)}%');
-        print(
-            '🎯 Next Rank Requirement: \$${rankData.nextRankRequirement.toStringAsFixed(2)}');
-        print('🏆 ===========================');
-
         setState(() {
           userRankData = data;
         });
-
-        print('✅ User rank loaded successfully: ${data.data.currentRank}');
         return; // Success, exit early
       }
-
-      print('⚠️ User rank API failed with status: ${data.status}');
       setState(() {
         userRankData = null;
       });
     } catch (e) {
-      print('❌ Exception loading user rank data: $e');
-      print('❌ Exception type: ${e.runtimeType}');
       setState(() {
         userRankData = null;
       });
@@ -1201,46 +1389,18 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
 
   Future<void> _loadIncomeSummary() async {
     try {
-      print('🔄 Loading income summary data for user: $commonuserId');
-
       final data = await CommonMethod().getIncomeSummary();
-      print('📤 Income Summary API Request: getIncomeSummary()');
-      print('📥 Response Status: ${data.status}');
-
-      // Print detailed income summary data
-      print('💰 ===== INCOME SUMMARY DATA =====');
-      print('📊 Status: ${data.status}');
 
       if (data.status == 'success') {
-        final incomeData = data.data;
-        final breakdown = incomeData.incomeBreakdown;
-
-        print(
-            '💵 Total Income: \$${incomeData.totalIncome.toStringAsFixed(2)}');
-        print('📈 Income Breakdown:');
-        print('  📊 Daily ROI: \$${breakdown.dailyRoi.toStringAsFixed(2)}');
-        print(
-            '  👥 Direct Referral: \$${breakdown.directReferral.toStringAsFixed(2)}');
-        print('  🔗 Level ROI: \$${breakdown.levelRoi.toStringAsFixed(2)}');
-        print('  ⛽ Gas Fee: \$${breakdown.gasFee.toStringAsFixed(2)}');
-        print('  💼 Salary: \$${breakdown.salary.toStringAsFixed(2)}');
-        print('💰 ===============================');
-
         setState(() {
           incomeSummaryData = data;
         });
-
-        print(
-            '✅ Income summary loaded successfully: Total \$${data.data.totalIncome.toStringAsFixed(2)}');
         return; // Success, exit early
       }
-
-      print('⚠️ Income summary API failed, setting empty data');
       setState(() {
         incomeSummaryData = null;
       });
     } catch (e) {
-      print('❌ Exception loading income summary data: $e');
       setState(() {
         incomeSummaryData = null;
       });
@@ -1250,17 +1410,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   /// Get Daily ROI value from income summary API data
   double _getTotalROIFromIncomeSummary() {
     if (incomeSummaryData == null) {
-      // Fallback to old data if income summary is not available
       return totalROIIncome;
     }
-
-    // Use the daily_roi from the API response (0.49)
     final dailyROIValue = incomeSummaryData!.data.incomeBreakdown.dailyRoi;
-
-    print('🔢 Using Daily ROI from API:');
-    print('  📊 Daily ROI: \$${dailyROIValue.toStringAsFixed(2)}');
-    print('  🎯 This is the ROI income value from API');
-
     return dailyROIValue;
   }
 
@@ -1376,32 +1528,32 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Progress',
-                style: TextStyle(
-                  color: Color(0xFF848E9C),
-                  fontSize: 12,
-                ),
-              ),
-              Text(
-                '$daysRemaining days remaining',
-                style: const TextStyle(
-                  color: Color(0xFF848E9C),
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          LinearProgressIndicator(
-            value: progress,
-            backgroundColor: const Color(0xFF2A2D35),
-            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF0ECB81)),
-          ),
+          // const SizedBox(height: 16),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     const Text(
+          //       'Progress',
+          //       style: TextStyle(
+          //         color: Color(0xFF848E9C),
+          //         fontSize: 12,
+          //       ),
+          //     ),
+          //     Text(
+          //       '$daysRemaining days remaining',
+          //       style: const TextStyle(
+          //         color: Color(0xFF848E9C),
+          //         fontSize: 12,
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          // const SizedBox(height: 8),
+          // LinearProgressIndicator(
+          //   value: progress,
+          //   backgroundColor: const Color(0xFF2A2D35),
+          //   valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF0ECB81)),
+          // ),
         ],
       ),
     );
@@ -2238,7 +2390,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: const [
               Icon(
                 Icons.pie_chart,
                 size: 48,
@@ -3335,7 +3487,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                       pw.SizedBox(height: 8),
                       pw.Text(
                         'Generated on: ${now.day}/${now.month}/${now.year}',
-                        style: pw.TextStyle(
+                        style: const pw.TextStyle(
                           fontSize: 12,
                           color: PdfColors.grey300,
                         ),
@@ -4225,8 +4377,8 @@ class EnhancedPieChartPainter extends CustomPainter {
 
     // Draw center circle for donut effect with gradient
     final centerPaint = Paint()
-      ..shader = RadialGradient(
-        colors: const [
+      ..shader = const RadialGradient(
+        colors: [
           Color(0xFF2A2D35),
           Color(0xFF1E2026),
         ],
@@ -4399,10 +4551,10 @@ class BeautifulPieChartPainter extends CustomPainter {
     }
 
     // Draw center circle with gradient
-    final centerGradient = RadialGradient(
+    final centerGradient = const RadialGradient(
       colors: [
-        const Color(0xFF2A2D35),
-        const Color(0xFF1E2026),
+        Color(0xFF2A2D35),
+        Color(0xFF1E2026),
       ],
     );
 

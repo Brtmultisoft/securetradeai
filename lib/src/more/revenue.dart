@@ -540,11 +540,11 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// Header
+                // Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Trade Details',
                       style: TextStyle(
                         color: Colors.white,
@@ -560,14 +560,12 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
                 ),
                 const SizedBox(height: 20),
 
-                /// Symbol and Side
+                // Symbol and Side
                 Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: detail.side.toUpperCase() == 'LONG'
                             ? Colors.green.withOpacity(0.1)
@@ -758,12 +756,14 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFFF0B90B).withOpacity(0.1),
+            color: isProfit
+                ? Colors.green.withOpacity(0.1)
+                : Colors.red.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: const Color(0xFFF0B90B),
+            color: isProfit ? Colors.green : Colors.red,
             size: 20,
           ),
         ),

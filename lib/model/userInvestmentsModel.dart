@@ -50,7 +50,8 @@ class UserInvestmentsData {
             ? List<ArbitrageInvestment>.from(json["arbitrage_investments"]
                 .map((x) => ArbitrageInvestment.fromJson(x)))
             : [],
-        summary: InvestmentSummary.fromJson(json["summary"] ?? {}),
+        // Pass the root json data to InvestmentSummary since totals are at root level
+        summary: InvestmentSummary.fromJson(json),
       );
 
   Map<String, dynamic> toJson() => {
@@ -128,12 +129,14 @@ class InvestmentSummary {
     required this.totalArbitrageInvestment,
     required this.totalBotInvestment,
     required this.totalInvestment,
+    required this.total_arbitrage_investment,
     required this.totalRoiEarned,
   });
 
   double totalArbitrageInvestment;
   double totalBotInvestment;
   double totalInvestment;
+  double total_arbitrage_investment;
   double totalRoiEarned;
 
   factory InvestmentSummary.fromJson(Map<String, dynamic> json) =>
@@ -146,6 +149,9 @@ class InvestmentSummary {
                 0.0,
         totalInvestment:
             double.tryParse(json["total_investment"]?.toString() ?? "0") ?? 0.0,
+        total_arbitrage_investment: double.tryParse(
+                json["total_arbitrage_investment"]?.toString() ?? "0") ??
+            0.0,
         // Handle both possible field names for ROI earned
         totalRoiEarned: double.tryParse(
                 (json["total_roi_earned"] ?? json["total_profit_earned"] ?? "0")
@@ -157,6 +163,7 @@ class InvestmentSummary {
         "total_arbitrage_investment": totalArbitrageInvestment,
         "total_bot_investment": totalBotInvestment,
         "total_investment": totalInvestment,
+        "total_arbitrage_investment": total_arbitrage_investment,
         "total_roi_earned": totalRoiEarned,
       };
 }

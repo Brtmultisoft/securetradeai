@@ -9,13 +9,13 @@ import 'package:securetradeai/model/MineModel.dart';
 import 'package:securetradeai/model/NewsModel.dart';
 import 'package:securetradeai/model/RevenueDetailBydate.dart';
 import 'package:securetradeai/model/TradeHistoryModel.dart';
+import 'package:securetradeai/model/dailyRoiHistoryModel.dart';
 import 'package:securetradeai/model/incomeManagementModel.dart';
+import 'package:securetradeai/model/incomeSummaryModel.dart';
 import 'package:securetradeai/model/levelIncomeModel.dart';
 import 'package:securetradeai/model/revenueModel.dart';
 import 'package:securetradeai/model/userInvestmentsModel.dart';
-import 'package:securetradeai/model/dailyRoiHistoryModel.dart';
 import 'package:securetradeai/model/userRankModel.dart';
-import 'package:securetradeai/model/incomeSummaryModel.dart';
 
 import '../model/AssettransactionModel.dart';
 import '../model/DeposittransactionModel.dart';
@@ -532,13 +532,11 @@ class CommonMethod {
       print('🔄 Making API call to: $getUserInvestmentsUrl');
       print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
 
-      final res = await http.post(
-        Uri.parse(getUserInvestmentsUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({"user_id": commonuserId})
-      );
+      final res = await http.post(Uri.parse(getUserInvestmentsUrl),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({"user_id": commonuserId}));
 
       print('📥 Response status: ${res.statusCode}');
       print('📥 Response body: "${res.body}"');
@@ -546,10 +544,12 @@ class CommonMethod {
 
       // Check HTTP status code first
       if (res.statusCode == 500) {
-        print('🚨 Server Error (500): User investments API endpoint may not be implemented yet');
+        print(
+            '🚨 Server Error (500): User investments API endpoint may not be implemented yet');
         return UserInvestmentsModel(
           status: "success",
-          message: "Investment data is being prepared. Please check back later.",
+          message:
+              "Investment data is being prepared. Please check back later.",
           responsecode: "200",
           data: UserInvestmentsData(
             arbitrageInvestments: [],
@@ -557,6 +557,7 @@ class CommonMethod {
               totalArbitrageInvestment: 0.0,
               totalBotInvestment: 0.0,
               totalInvestment: 0.0,
+              total_arbitrage_investment: 0.0,
               totalRoiEarned: 0.0,
             ),
           ),
@@ -574,6 +575,7 @@ class CommonMethod {
             summary: InvestmentSummary(
               totalArbitrageInvestment: 0.0,
               totalBotInvestment: 0.0,
+              total_arbitrage_investment: 0.0,
               totalInvestment: 0.0,
               totalRoiEarned: 0.0,
             ),
@@ -594,6 +596,7 @@ class CommonMethod {
               totalArbitrageInvestment: 0.0,
               totalBotInvestment: 0.0,
               totalInvestment: 0.0,
+              total_arbitrage_investment: 0.0,
               totalRoiEarned: 0.0,
             ),
           ),
@@ -618,6 +621,7 @@ class CommonMethod {
               totalArbitrageInvestment: 0.0,
               totalBotInvestment: 0.0,
               totalInvestment: 0.0,
+              total_arbitrage_investment: 0.0,
               totalRoiEarned: 0.0,
             ),
           ),
@@ -635,6 +639,7 @@ class CommonMethod {
             totalArbitrageInvestment: 0.0,
             totalBotInvestment: 0.0,
             totalInvestment: 0.0,
+            total_arbitrage_investment: 0.0,
             totalRoiEarned: 0.0,
           ),
         ),
@@ -646,18 +651,17 @@ class CommonMethod {
   Future<Map<String, dynamic>> buyArbitragePackage(double packageAmount) async {
     try {
       print('🔄 Making API call to: $buyArbitragePackageUrl');
-      print('📤 Request body: ${jsonEncode({"user_id": commonuserId, "package_amount": packageAmount})}');
+      print('📤 Request body: ${jsonEncode({
+            "user_id": commonuserId,
+            "package_amount": packageAmount
+          })}');
 
-      final res = await http.post(
-        Uri.parse(buyArbitragePackageUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          "user_id": commonuserId,
-          "package_amount": packageAmount
-        })
-      );
+      final res = await http.post(Uri.parse(buyArbitragePackageUrl),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(
+              {"user_id": commonuserId, "package_amount": packageAmount}));
 
       print('📥 Response status: ${res.statusCode}');
       print('📥 Response body: "${res.body}"');
@@ -681,8 +685,6 @@ class CommonMethod {
     }
   }
 
-
-
   /// Get Daily ROI History
   Future<DailyRoiHistoryModel> getDailyRoiHistory({
     required int investmentId,
@@ -691,22 +693,20 @@ class CommonMethod {
     try {
       print('🔄 Making API call to: $getDailyRoiHistoryUrl');
       print('📤 Request body: ${jsonEncode({
-        "user_id": commonuserId,
-        "investment_id": investmentId,
-        "limit": limit
-      })}');
+            "user_id": commonuserId,
+            "investment_id": investmentId,
+            "limit": limit
+          })}');
 
-      final res = await http.post(
-        Uri.parse(getDailyRoiHistoryUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          "user_id": commonuserId,
-          "investment_id": investmentId,
-          "limit": limit
-        })
-      );
+      final res = await http.post(Uri.parse(getDailyRoiHistoryUrl),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({
+            "user_id": commonuserId,
+            "investment_id": investmentId,
+            "limit": limit
+          }));
 
       print('📥 Response status: ${res.statusCode}');
       print('📥 Response body: "${res.body}"');
@@ -714,10 +714,12 @@ class CommonMethod {
 
       // Check HTTP status code first
       if (res.statusCode == 500) {
-        print('🚨 Server Error (500): Daily ROI history API endpoint may not be implemented yet');
+        print(
+            '🚨 Server Error (500): Daily ROI history API endpoint may not be implemented yet');
         return DailyRoiHistoryModel(
           status: "success",
-          message: "ROI history data is being prepared. Please check back later.",
+          message:
+              "ROI history data is being prepared. Please check back later.",
           responsecode: "200",
           data: DailyRoiHistoryData(
             investmentId: investmentId,
@@ -806,13 +808,11 @@ class CommonMethod {
       print('🔄 Making API call to: $getUserRankUrl');
       print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
 
-      final res = await http.post(
-        Uri.parse(getUserRankUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({"user_id": commonuserId})
-      );
+      final res = await http.post(Uri.parse(getUserRankUrl),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({"user_id": commonuserId}));
 
       print('📥 Response status: ${res.statusCode}');
       print('📥 Response body: "${res.body}"');
@@ -820,7 +820,8 @@ class CommonMethod {
 
       // Check HTTP status code first
       if (res.statusCode == 500) {
-        print('🚨 Server Error (500): User rank API endpoint may not be implemented yet');
+        print(
+            '🚨 Server Error (500): User rank API endpoint may not be implemented yet');
         return UserRankModel(
           status: "success",
           message: "Rank data is being prepared. Please check back later.",
@@ -942,13 +943,11 @@ class CommonMethod {
       print('🔄 Making API call to: $getIncomeSummaryUrl');
       print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
 
-      final res = await http.post(
-        Uri.parse(getIncomeSummaryUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({"user_id": commonuserId})
-      );
+      final res = await http.post(Uri.parse(getIncomeSummaryUrl),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({"user_id": commonuserId}));
 
       print('📥 Response status: ${res.statusCode}');
       print('📥 Response body: "${res.body}"');
@@ -956,7 +955,8 @@ class CommonMethod {
 
       // Check HTTP status code first
       if (res.statusCode == 500) {
-        print('🚨 Server Error (500): Income summary API endpoint may not be implemented yet');
+        print(
+            '🚨 Server Error (500): Income summary API endpoint may not be implemented yet');
         return IncomeSummaryModel(
           status: "success",
           data: IncomeSummaryData(
