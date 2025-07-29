@@ -100,29 +100,10 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         isLoading = true;
       });
 
-      // Load user balance data and income totals
-      final userData = await CommonMethod().getMineData();
-      if (userData.status == "success" && userData.data.isNotEmpty) {
-        final userInfo = userData.data[0];
-        setState(() {
-          gasBalance = double.tryParse(userInfo.balance) ?? 0.0;
-
-          bonusBalance = double.tryParse(userInfo.incomeBalance) ?? 0.0;
-          totalBalance = gasBalance + bonusBalance;
-
-          // Extract income totals from mine API response
-          totalROIIncome = double.tryParse(userInfo.totalRoiIncome) ?? 0.0;
-          totalDirectROIIncome =
-              double.tryParse(userInfo.totalDirectRoiIncome) ?? 0.0;
-          totalBusinessIncome =
-              double.tryParse(userInfo.totalBusinessIncome) ?? 0.0;
-        });
-      }
-
-      // Load investment data
+      // Load investment data first
       await _loadInvestmentData();
 
-      // Load new income management data
+      // Load income management data using only the 6 specific APIs
       await Future.wait<void>([
         _loadDirectIncome(),
         _loadLevelROIIncome(),
@@ -131,6 +112,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         _loadIncomeSummary(),
         _loadROIHistory(),
       ]);
+
+      // Calculate totals from the loaded data instead of mine API
+      _calculateTotalsFromLoadedData();
     } catch (e) {
       print('Error loading data: $e');
       _showErrorToast('Failed to load data. Please try again.');
@@ -139,6 +123,34 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         isLoading = false;
       });
     }
+  }
+
+  /// Calculate totals from loaded data instead of using mine API for reports only
+  void _calculateTotalsFromLoadedData() async {
+    // Load gas wallet data separately to maintain gas wallet functionality
+    try {
+      final userData = await CommonMethod().getMineData();
+      if (userData.status == "success" && userData.data.isNotEmpty) {
+        final userInfo = userData.data[0];
+        setState(() {
+          // Keep gas wallet values intact
+          gasBalance = double.tryParse(userInfo.balance) ?? 0.0;
+          bonusBalance = double.tryParse(userInfo.incomeBalance) ?? 0.0;
+          totalBalance = gasBalance + bonusBalance;
+        });
+      }
+    } catch (e) {
+      print('Error loading gas wallet data: $e');
+    }
+
+    setState(() {
+      // Only calculate ROI income from the income summary API for reports
+      totalROIIncome = _getTotalROIFromIncomeSummary();
+
+      // Set these to 0 since we're not using mine API for report calculations
+      totalDirectROIIncome = 0.0;
+      totalBusinessIncome = 0.0;
+    });
   }
 
   Future<void> _loadInvestmentData() async {
@@ -1976,12 +1988,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     '${arbitrageInvestments.where((inv) => inv.status == 'ACTIVE').length}',
                     const Color(0xFF4A90E2)),
               ),
-              Expanded(
-                child: _buildSummaryItem(
-                    'Today\'s Income',
-                    '\$${totalIncome.toStringAsFixed(2)}',
-                    const Color(0xFFE53935)),
-              ),
+              // Today's Income hidden as requested
+              Expanded(child: Container()),
             ],
           ),
         ],
