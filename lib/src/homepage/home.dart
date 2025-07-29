@@ -21,6 +21,7 @@ import 'package:securetradeai/src/profile/profileoption/APIBinding/apibinding.da
 import 'package:securetradeai/src/profile/profileoption/Allincome.dart';
 import 'package:securetradeai/src/profile/profileoption/Arbitrade/arbitrade.dart';
 import 'package:securetradeai/src/profile/profileoption/Team/team.dart';
+import 'package:securetradeai/src/profile/profileoption/assets/assets.dart';
 import 'package:securetradeai/src/quantitative/quatitativepage.dart';
 import 'package:securetradeai/src/widget/animated_toast.dart';
 import 'package:securetradeai/src/widget/enhanced_loading.dart';
@@ -2004,7 +2005,7 @@ class _HomepageState extends State<Homepage> {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AutoDeposit(),
+                        builder: (context) => Assets(),
                       ),
                     ),
                   ),
