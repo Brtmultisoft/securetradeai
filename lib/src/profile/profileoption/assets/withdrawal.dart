@@ -5,10 +5,9 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:securetradeai/Data/Api.dart';
 import 'package:securetradeai/data/strings.dart';
+import 'package:securetradeai/method/methods.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
-import 'package:securetradeai/model/mineModel.dart';
-import 'package:securetradeai/method/methods.dart';
 
 class Withdrawal extends StatefulWidget {
   const Withdrawal({Key? key, this.balance}) : super(key: key);
@@ -44,8 +43,10 @@ class _WithdrawalState extends State<Withdrawal> {
       if (data.status == "success" && data.data.isNotEmpty) {
         setState(() {
           walletAddress = data.data[0].walletAddress;
-          earningBalance = data.data[0].incomeBalance; // Get earning balance from profile
-          address.text = walletAddress; // Set the wallet address in the controller
+          earningBalance =
+              data.data[0].incomeBalance; // Get earning balance from profile
+          address.text =
+              walletAddress; // Set the wallet address in the controller
           isLoadingProfile = false;
         });
       } else {
@@ -74,7 +75,8 @@ class _WithdrawalState extends State<Withdrawal> {
         double maxBalance = double.parse(earningBalance);
 
         if (enteredAmount > maxBalance) {
-          amountError = "Amount cannot exceed earning balance ($earningBalance USDT)";
+          amountError =
+              "Amount cannot exceed earning balance ($earningBalance USDT)";
           isAmountValid = false;
         } else if (enteredAmount <= 0) {
           amountError = "Amount must be greater than 0";
@@ -93,7 +95,7 @@ class _WithdrawalState extends State<Withdrawal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: const Color(0xFF0A0E17),
         appBar: CommonAppBar.basic(
           title: 'withdrawal'.tr,
         ),
@@ -180,11 +182,13 @@ class _WithdrawalState extends State<Withdrawal> {
                               color: Color(0xfff3f3f4),
                             ),
                             borderRadius: BorderRadius.all(Radius.circular(10)),
-                            color: Color(0xFF2A2A2A), // Darker background to indicate non-editable
+                            color: Color(
+                                0xFF2A2A2A), // Darker background to indicate non-editable
                           ),
                           child: Center(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12.0),
                               child: Row(
                                 children: [
                                   Expanded(
@@ -344,28 +348,40 @@ class _WithdrawalState extends State<Withdrawal> {
                   height: 40,
                 ),
                 InkWell(
-                  onTap: isAmountValid && amountError == null ? () {
-                    _checkWithdrawalAbleOrNot();
-                  } : null,
+                  onTap: isAmountValid && amountError == null
+                      ? () {
+                          _checkWithdrawalAbleOrNot();
+                        }
+                      : null,
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     padding: EdgeInsets.symmetric(vertical: 15),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        stops: [0.0, 1.0],
-                        colors: isAmountValid && amountError == null
-                            ? [
-                                Colors.green,
-                                Colors.blue,
-                              ]
-                            : [
-                                Colors.grey.shade600,
-                                Colors.grey.shade700,
-                              ],
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFFF0B90B), // Golden yellow
+                          Color(0xFFFFD700), // Bright gold
+                          Color(0xFFF0B90B), // Golden yellow
+                        ],
+                        stops: [0.0, 0.5, 1.0],
                       ),
+                      // gradient: LinearGradient(
+                      //   begin: Alignment.topCenter,
+                      //   end: Alignment.bottomCenter,
+                      //   stops: [0.0, 1.0],
+                      //   colors: isAmountValid && amountError == null
+                      //       ? [
+                      //           Colors.green,
+                      //           Colors.blue,
+                      //         ]
+                      //       : [
+                      //           Colors.grey.shade600,
+                      //           Colors.grey.shade700,
+                      //         ],
+                      // ),
                       borderRadius: const BorderRadius.all(Radius.circular(5)),
                       boxShadow: const <BoxShadow>[
                         BoxShadow(
@@ -377,7 +393,11 @@ class _WithdrawalState extends State<Withdrawal> {
                     ),
                     child: Text(
                       "withdrawal".tr,
-                      style: TextStyle(fontSize: 20, color: Colors.white),
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 )
@@ -391,7 +411,8 @@ class _WithdrawalState extends State<Withdrawal> {
     try {
       showLoading(context);
       if (walletAddress.isEmpty) {
-        showtoast("Wallet Address not found. Please update your profile.", context);
+        showtoast(
+            "Wallet Address not found. Please update your profile.", context);
         Navigator.pop(context);
       } else if (amount.text == "") {
         showtoast("Amount Field is Empty", context);

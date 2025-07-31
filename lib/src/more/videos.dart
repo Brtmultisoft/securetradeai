@@ -5,6 +5,7 @@ import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:http/http.dart' as http;
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
+import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../Data/Api.dart';
@@ -87,9 +88,7 @@ class _VideoScreenState extends State<VideoScreen> {
           title: "Videos".tr,
         ),
         body: isAPIcalled
-            ? Center(
-                child: CircularProgressIndicator(color: securetradeaicolor),
-              )
+            ? const Center(child: LottieLoadingWidget.fullScreen())
             : checkdata
                 ? Center(
                     child: Column(
@@ -129,8 +128,8 @@ class _VideoScreenState extends State<VideoScreen> {
     // Comprehensive null safety check
     if (finaldata == null) {
       return const Center(
-        child: CircularProgressIndicator(
-          color: Colors.amber,
+        child: const Center(
+          child: LottieLoadingWidget.fullScreen(),
         ),
       );
     }

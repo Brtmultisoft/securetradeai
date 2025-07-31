@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/model/repoModel.dart';
 import 'package:securetradeai/src/homepage/SubbinMode.dart';
+import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 
 import '../../method/homepageProvider.dart';
 import '../Service/assets_service.dart';
@@ -25,8 +26,7 @@ class _CycleState extends State<Cycle> {
         return cycle.circledata
             ? Image.asset("assets/img/logo.png", height: 200)
             : cycle.finalTransactionData.isEmpty
-                ? Center(
-                    child: CircularProgressIndicator(color: securetradeaicolor))
+                ? const Center(child: LottieLoadingWidget.fullScreen())
                 : exchanger != "Binance"
                     ? Consumer<HomePageProvider>(
                         builder: (context, list, child) {

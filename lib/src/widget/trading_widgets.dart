@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 
 // Animated Trading Card Widget
 class AnimatedTradingCard extends StatefulWidget {
@@ -283,12 +284,7 @@ class _TradingButtonState extends State<TradingButton>
                   ? SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          widget.textColor ?? Colors.black,
-                        ),
-                      ),
+                      child: const LottieLoadingWidget.small(),
                     )
                   : Row(
                       mainAxisSize: MainAxisSize.min,
@@ -372,10 +368,7 @@ class _TradingLoadingIndicatorState extends State<TradingLoadingIndicator>
               scale: _pulseAnimation.value,
               child: Transform.rotate(
                 angle: _rotationController.value * 2 * 3.14159,
-                child: CircularProgressIndicator(
-                  color: widget.color ?? TradingTheme.primaryAccent,
-                  strokeWidth: 3,
-                ),
+                child: const LottieLoadingWidget.medium(),
               ),
             );
           },
@@ -444,10 +437,7 @@ class TradingPairSelector extends StatelessWidget {
             SizedBox(
               width: 20,
               height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: TradingTheme.primaryAccent,
-              ),
+              child: const LottieLoadingWidget.small(),
             )
           else
             Icon(

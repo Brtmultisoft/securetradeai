@@ -79,6 +79,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   SalaryIncomeModel? salaryIncomeData;
   double salaryTotalIncome = 0.0;
   List<SalaryIncomeHistory> salaryIncomeHistory = [];
+  Color binanceYellow = Color(0xFFF0B90B);
 
   @override
   void initState() {
@@ -302,6 +303,69 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                   if (userRankData != null) _buildUserRankBanner(),
                   // Balance Card
                   _buildBalanceCard(),
+
+                  Container(
+                    margin: const EdgeInsets.only(
+                      top: 10,
+                      bottom: 10,
+                      left: 15,
+                      right: 15,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [
+                          binanceYellow.withOpacity(0.1),
+                          Colors.transparent,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: binanceYellow.withOpacity(0.2),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                binanceYellow,
+                                binanceYellow.withOpacity(0.7),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(3),
+                            boxShadow: [
+                              BoxShadow(
+                                color: binanceYellow.withOpacity(0.3),
+                                spreadRadius: 0,
+                                blurRadius: 4,
+                                offset: const Offset(0, 0),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Text(
+                          " User Rank",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                   if (userRankData != null) _buildRankBanner(),
                   // Tab Bar
                   Container(

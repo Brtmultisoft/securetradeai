@@ -25,6 +25,7 @@ import 'package:securetradeai/src/profile/profileoption/assets/withdrawal.dart';
 import 'package:securetradeai/src/quantitative/quatitativepage.dart';
 import 'package:securetradeai/src/widget/animated_toast.dart';
 import 'package:securetradeai/src/widget/enhanced_loading.dart';
+import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 import 'package:securetradeai/src/widget/page_transitions.dart';
 import 'package:securetradeai/src/widget/trading_animations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -228,10 +229,7 @@ class _HomepageState extends State<Homepage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircularProgressIndicator(
-                    color: isActivated
-                        ? const Color(0xFF00C853)
-                        : const Color(0xFFF0B90B)),
+                const LottieLoadingWidget.medium(),
                 const SizedBox(height: 20),
                 Text(
                   "$actionText Bot Subscription...",
@@ -738,8 +736,7 @@ class _HomepageState extends State<Homepage> {
                                       )
                                     : list.finalTransactionData.isEmpty
                                         ? const Center(
-                                            child: CircularProgressIndicator(
-                                                color: Color(0xFF4A90E2)))
+                                            child: LottieLoadingWidget.medium())
                                         : Column(
                                             children: [
                                               Expanded(
@@ -772,8 +769,7 @@ class _HomepageState extends State<Homepage> {
                                       )
                                     : list.finalTransactionDataHuobi.isEmpty
                                         ? const Center(
-                                            child: CircularProgressIndicator(
-                                                color: Colors.white))
+                                            child: LottieLoadingWidget.medium())
                                         : Column(
                                             children: [
                                               Expanded(

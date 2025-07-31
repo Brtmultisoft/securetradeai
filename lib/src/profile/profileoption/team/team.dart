@@ -10,6 +10,7 @@ import 'package:securetradeai/src/profile/profileoption/Team/enhanced_rank_team.
 import 'package:securetradeai/src/profile/profileoption/Team/enhanced_team_detail.dart';
 import 'package:securetradeai/src/profile/profileoption/share/share.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
+import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 
 import '../../../../Data/Api.dart';
 
@@ -135,9 +136,9 @@ class TeamState extends State<Team> {
             Expanded(
               child: TabBarView(children: [
                 isAPIcalled
-                    ? Center(
-                        child: CircularProgressIndicator(
-                            color: securetradeaicolor),
+                    ? const Center(
+                        child: LottieLoadingWidget.fullScreen(
+                            message: 'Loading Team Data...'),
                       )
                     : checkdata
                         ? Center(
@@ -172,8 +173,8 @@ class TeamState extends State<Team> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF1A237E), // Deep blue
-                  Color(0xFF0D47A1), // Royal blue
+                  Color(0xFF1E2026), // Binance card dark
+                  Color(0xFF12151C), // Binance card darker
                   Color(0xFF0B0E11), // Dark background
                 ],
               ),
@@ -228,7 +229,7 @@ class TeamState extends State<Team> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildStatCard("Total Referrals", "${teamDirect.length}",
-                        const Color(0xFF4A90E2)),
+                        const Color(0xFFF0B90B)),
                     _buildStatCard(
                         "Active Members",
                         "${teamDirect.where((e) => e['days'] != "0").length}",
@@ -443,11 +444,11 @@ class TeamState extends State<Team> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 10, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF4A90E2)
+                                      color: const Color(0xFFF0B90B)
                                           .withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(4),
                                       border: Border.all(
-                                          color: const Color(0xFF4A90E2)
+                                          color: const Color(0xFFF0B90B)
                                               .withOpacity(0.3)),
                                     ),
                                     child: Row(
@@ -455,14 +456,14 @@ class TeamState extends State<Team> {
                                       children: const [
                                         Icon(
                                           Icons.info_outline,
-                                          color: Color(0xFF4A90E2),
+                                          color: Color(0xFFF0B90B),
                                           size: 14,
                                         ),
                                         SizedBox(width: 4),
                                         Text(
                                           "View Details",
                                           style: TextStyle(
-                                            color: Color(0xFF4A90E2),
+                                            color: Color(0xFFF0B90B),
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,
                                             fontFamily: fontFamily,

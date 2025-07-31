@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 
 /// OPTIMIZATION: Advanced Image Widget with Progressive Loading and Smart Caching
 class OptimizedImage extends StatefulWidget {
@@ -469,11 +470,7 @@ class _ProgressiveImageLoaderState extends State<ProgressiveImageLoader> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(
-                    value: _loadingProgress,
-                    color: const Color(0xFF4A90E2),
-                    backgroundColor: const Color(0xFF2A3A5A),
-                  ),
+                  const LottieLoadingWidget.medium(),
                   const SizedBox(height: 8),
                   Text(
                     '${(_loadingProgress * 100).toInt()}%',

@@ -710,12 +710,12 @@ class _LevelTeamState extends State<LevelTeam> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF2EBD85), Color(0xFF26A17B)],
+          colors: [Color(0xFFF0B90B), Color(0xFFD4A017)],
         ),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2EBD85).withOpacity(0.3),
+            color: const Color(0xFFF0B90B).withOpacity(0.3),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

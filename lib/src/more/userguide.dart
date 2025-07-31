@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:securetradeai/data/api.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
+import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 
 class UserGuide extends StatefulWidget {
   const UserGuide({Key? key}) : super(key: key);
@@ -56,8 +57,8 @@ class _UserGuideState extends State<UserGuide> {
       ),
       body: isAPIcalled
           ? const Center(
-              child: CircularProgressIndicator(
-                  color: Color(0xFFF0B90B)), // Binance yellow
+              child: LottieLoadingWidget.fullScreen(
+                  message: 'Loading User Guide...'), // Binance yellow
             )
           : SingleChildScrollView(
               child: Container(

@@ -12,6 +12,7 @@ import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/tabscreen/tabscreen.dart';
 import 'package:securetradeai/src/user/forgotpass.dart';
 import 'package:securetradeai/src/user/signup.dart';
+import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:slider_captcha/slider_captcha.dart';
 
@@ -506,10 +507,7 @@ class _LoginPageState extends State<LoginPage>
                       ? Container(
                           height: 50,
                           child: Center(
-                            child: CircularProgressIndicator(
-                              color: _primaryColor,
-                              strokeWidth: 2,
-                            ),
+                            child: const LottieLoadingWidget.medium(),
                           ),
                         )
                       : _submitButton(),

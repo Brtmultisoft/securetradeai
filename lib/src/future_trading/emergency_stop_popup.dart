@@ -3,6 +3,7 @@ import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/model/future_trading_models.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/Service/future_trading_service.dart';
+import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 
 class EmergencyStopPopup extends StatefulWidget {
   const EmergencyStopPopup({Key? key}) : super(key: key);
@@ -210,10 +211,7 @@ class _EmergencyStopPopupState extends State<EmergencyStopPopup> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
-            color: TradingTheme.errorColor,
-            strokeWidth: 3,
-          ),
+          const Center(child: LottieLoadingWidget.large()),
           const SizedBox(height: 24),
           Text(
             'Executing Emergency Stop...',

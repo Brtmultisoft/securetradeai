@@ -243,8 +243,8 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF1A237E),  // Deep blue
-                  Color(0xFF0D47A1),  // Royal blue
+                  Color(0xFF1E2026),  // Binance card dark
+                  Color(0xFF12151C),  // Binance card darker
                   Color(0xFF0B0E11),  // Dark background
                 ],
               ),
@@ -838,12 +838,12 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF2EBD85), Color(0xFF26A17B)],
+          colors: [Color(0xFFF0B90B), Color(0xFFD4A017)],
         ),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2EBD85).withOpacity(0.3),
+            color: const Color(0xFFF0B90B).withOpacity(0.3),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

@@ -3,6 +3,7 @@ import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/method/methods.dart';
 import 'package:securetradeai/src/widget/animated_toast.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
+import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 
 class IncomeDetailsPage extends StatefulWidget {
   final String incomeType;
@@ -258,9 +259,10 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
       //   ],
       // ),
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                color: Color(0xFFF0B90B),
+          ? Center(
+              child: LottieLoadingWidget.large(
+                message: 'Loading ${widget.title}...',
+                messageColor: Colors.white,
               ),
             )
           : Column(
@@ -440,10 +442,10 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
               color: const Color(0xFF2A2D35),
               child: Row(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: 50,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
+                      padding: EdgeInsets.symmetric(
                         horizontal: 8.0,
                         vertical: 12,
                       ),
@@ -458,10 +460,10 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                       ),
                     ),
                   ),
-                  Expanded(
+                  const Expanded(
                     flex: 2,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
+                      padding: EdgeInsets.symmetric(
                         horizontal: 8.0,
                         vertical: 12,
                       ),
@@ -476,10 +478,10 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                       ),
                     ),
                   ),
-                  Expanded(
+                  const Expanded(
                     flex: 1,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
+                      padding: EdgeInsets.symmetric(
                         horizontal: 8.0,
                         vertical: 12,
                       ),
@@ -494,24 +496,26 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    width: 90,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8.0,
-                        vertical: 12,
-                      ),
-                      child: Text(
-                        'Referral',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                  // Conditional fourth column
+                  if (_shouldShowFourthColumn())
+                    SizedBox(
+                      width: 90,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 12,
+                        ),
+                        child: Text(
+                          _getFourthColumnHeader(),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   // Expanded(
                   //   flex: 1,
                   //   child: Padding(
@@ -550,7 +554,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                         child: Text(
                           '${index + 1}',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,
                           ),
@@ -567,7 +571,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                         child: Text(
                           _formatDate(income['created_at']),
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,
                           ),
@@ -592,30 +596,25 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: 90,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0,
-                          vertical: 12,
-                        ),
-                        child: Text(
-                          (income['From_Users']?.toString().isNotEmpty == true)
-                              ? income['From_Users'].toString()
-                              : (income['reference_id']
-                                          ?.toString()
-                                          .isNotEmpty ==
-                                      true)
-                                  ? income['reference_id'].toString()
-                                  : 'N/A',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
+                    // Conditional fourth column
+                    if (_shouldShowFourthColumn())
+                      SizedBox(
+                        width: 90,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0,
+                            vertical: 12,
+                          ),
+                          child: Text(
+                            _getFourthColumnData(income),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                            ),
                           ),
                         ),
                       ),
-                    ),
                     // Expanded(
                     //   flex: 1,
                     //   child: Padding(
@@ -638,5 +637,39 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
         ),
       ),
     );
+  }
+
+  // Helper method to determine if fourth column should be shown
+  bool _shouldShowFourthColumn() {
+    String titleLower = widget.title.toLowerCase();
+    return titleLower.contains('direct') || titleLower.contains('total roi');
+  }
+
+  // Helper method to get fourth column header text
+  String _getFourthColumnHeader() {
+    String titleLower = widget.title.toLowerCase();
+    if (titleLower.contains('total roi')) {
+      return 'Investment';
+    } else if (titleLower.contains('direct')) {
+      return 'Referral';
+    }
+    return 'Referral';
+  }
+
+  // Helper method to get fourth column data
+  String _getFourthColumnData(Map<String, dynamic> income) {
+    String titleLower = widget.title.toLowerCase();
+    if (titleLower.contains('total roi')) {
+      // For Total ROI, show investment amount
+      return income['investment_amount']?.toString() ?? 'N/A';
+    } else if (titleLower.contains('direct')) {
+      // For Direct Income, show referral ID
+      return (income['From_Users']?.toString().isNotEmpty == true)
+          ? income['From_Users'].toString()
+          : (income['reference_id']?.toString().isNotEmpty == true)
+              ? income['reference_id'].toString()
+              : 'N/A';
+    }
+    return 'N/A';
   }
 }

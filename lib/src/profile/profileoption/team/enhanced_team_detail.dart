@@ -85,8 +85,8 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF1A237E), // Deep blue
-                  Color(0xFF0D47A1), // Royal blue
+                  Color(0xFF1E2026), // Binance card dark
+                  Color(0xFF12151C), // Binance card darker
                   Color(0xFF0B0E11), // Dark background
                 ],
               ),

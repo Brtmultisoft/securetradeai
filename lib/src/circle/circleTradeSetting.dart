@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:securetradeai/method/cycleMethod.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 
 class CircleTradeIncome extends StatefulWidget {
   const CircleTradeIncome({Key? key}) : super(key: key);
@@ -123,9 +124,7 @@ class _CircleTradeIncomeState extends State<CircleTradeIncome> {
       ),
       body: SingleChildScrollView(
         child: isAPIcalled
-            ? Center(
-                child: CircularProgressIndicator(color: securetradeaicolor),
-              )
+            ? const Center(child: LottieLoadingWidget.fullScreen())
             : Padding(
                 padding: const EdgeInsets.only(left: 10, right: 10),
                 child: Column(
