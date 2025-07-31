@@ -46,6 +46,7 @@ const String revenueDetail = "${url}revenue_details";
 const String revenuedetailByDate = "${url}revenue_bydate";
 const String getversion = "${url}appversion";
 const String updateEmail = "${url}edit_emailid";
+const String updateWallet = "${url}edit_wallet";
 const String usdBalance = "${url}user_usdtbalance";
 const String tradesettingwwm = "${url}trade_setting_wwm";
 const String tradesettingsubbin = "${url}trade_setting_subbin";

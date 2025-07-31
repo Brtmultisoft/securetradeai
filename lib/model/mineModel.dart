@@ -41,6 +41,7 @@ class Datum {
   String name;
   String verify;
   String email;
+  String walletAddress;
   String image;
   DateTime doa;
   String balance;
@@ -63,6 +64,7 @@ class Datum {
       required this.name,
       required this.verify,
       required this.email,
+      required this.walletAddress,
       required this.image,
       required this.doa,
       required this.balance,
@@ -85,10 +87,12 @@ class Datum {
       name: json["name"] ?? "",
       verify: json["verify"] ?? "0",
       email: json["email"] ?? "",
+      walletAddress: json["wallet_address"] ?? "",
       image: json["image"] ?? "default.jpg",
       doa: json["doa"] != null ? DateTime.parse(json["doa"]) : DateTime.now(),
       balance: json["balance"] ?? "0",
-      gasBalance: json["gas_charges"] ?? "0", // Fixed: API sends gas_charges, not gas_balance
+      gasBalance: json["gas_charges"] ??
+          "0", // Fixed: API sends gas_charges, not gas_balance
       incomeBalance: json["income_balance"] ?? "0",
       rank: json["rank"] ?? "0",
       country: json["country"] ?? "",
@@ -96,7 +100,8 @@ class Datum {
       referralCode: json["referral_code"] ?? "",
       daysBal: json["days_bal"] ?? "0",
       totalTeam: json["total_team"] ?? "0",
-      totalActiveTeam: json["active_team"] ?? "0", // Fixed: API sends active_team, not total_active_team
+      totalActiveTeam: json["active_team"] ??
+          "0", // Fixed: API sends active_team, not total_active_team
       mobile: json['mobile'] ?? "",
       totalRoiIncome: json["total_roi_income"] ?? "0",
       totalDirectRoiIncome: json["total_direct_roi_income"] ?? "0",
@@ -107,6 +112,7 @@ class Datum {
         "name": name,
         "verify": verify,
         "email": email,
+        "wallet_address": walletAddress,
         "image": image,
         "doa": doa.toIso8601String(),
         "balance": balance,

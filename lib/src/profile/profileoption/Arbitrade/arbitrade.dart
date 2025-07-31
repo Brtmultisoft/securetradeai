@@ -364,7 +364,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Text(
-                        'Top-Up Balance',
+                        'Gas Wallet',
                         style: TextStyle(
                           color: Colors.yellow,
                           fontSize: 16,
@@ -595,7 +595,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     ),
                     SizedBox(width: 8),
                     Text(
-                      'Investment Summary',
+                      'Arbitrage Summary',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 18,
@@ -607,19 +607,30 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                 const SizedBox(height: 16),
                 Row(
                   children: [
+                    // Expanded(
+                    //   child: _buildInvestmentStat(
+                    //     'Total \nInvestment',
+                    //     '\$${(investmentSummary?.totalInvestment ?? 0.0).toStringAsFixed(0)}',
+                    //     Icons.trending_up,
+                    //     Colors.green,
+                    //   ),
+                    // ),
+                    // const SizedBox(width: 12),
                     Expanded(
                       child: _buildInvestmentStat(
-                        'Total \nInvestment',
-                        '\$${(investmentSummary?.totalInvestment ?? 0.0).toStringAsFixed(0)}',
-                        Icons.trending_up,
-                        Colors.green,
+                        'Arbitrage \nInvestment',
+                        '\$${(investmentSummary?.totalArbitrageInvestment ?? 0.0).toStringAsFixed(0)}',
+                        Icons.swap_horiz,
+                        Colors.blue,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(
+                      width: 10,
+                    ),
                     Expanded(
                       child: _buildInvestmentStat(
-                        'Arbitrage Investment',
-                        '\$${(investmentSummary?.totalArbitrageInvestment ?? 0.0).toStringAsFixed(0)}',
+                        'Earning \nBalance',
+                        '\$${incomeSummaryData!.data.totalIncome.toStringAsFixed(2)}',
                         Icons.swap_horiz,
                         Colors.blue,
                       ),
@@ -1050,8 +1061,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     // Package Features
                     _buildFeatureRow(
                         Icons.trending_up, 'Daily ROI', '0.33% - 0.55%'),
-                    const SizedBox(height: 12),
-                    _buildFeatureRow(Icons.schedule, 'Duration', '30 Days'),
+                    // const SizedBox(height: 12),
+                    // _buildFeatureRow(Icons.schedule, 'Duration', '30 Days'),
                     const SizedBox(height: 12),
                     _buildFeatureRow(
                         Icons.security, 'Secure', 'Gas Wallet Protected'),
@@ -1295,11 +1306,11 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                   'Daily ROI: 0.33% - 0.55%',
                   style: TextStyle(color: Colors.white),
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Duration: 30 Days',
-                  style: TextStyle(color: Colors.white),
-                ),
+                // const SizedBox(height: 8),
+                // const Text(
+                //   'Duration: 30 Days',
+                //   style: TextStyle(color: Colors.white),
+                // ),
                 const SizedBox(height: 16),
                 const Text(
                   'This amount will be deducted from your gas wallet.',
@@ -3527,7 +3538,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                       children: [
                         pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
-                          child: pw.Text('Income Type',
+                          child: pw.Text('Inycome Tpe',
                               style:
                                   pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                         ),

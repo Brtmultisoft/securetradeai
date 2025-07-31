@@ -7,6 +7,8 @@ import 'package:securetradeai/Data/Api.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
+import 'package:securetradeai/model/mineModel.dart';
+import 'package:securetradeai/method/methods.dart';
 
 class Withdrawal extends StatefulWidget {
   const Withdrawal({Key? key, this.balance}) : super(key: key);
@@ -20,6 +22,74 @@ class _WithdrawalState extends State<Withdrawal> {
   var amount = TextEditingController();
   var transpass = TextEditingController();
   var pttnTokenvalue = TextEditingController();
+
+  // Profile data
+  bool isLoadingProfile = true;
+  String walletAddress = "";
+  String earningBalance = "0.00";
+
+  // Amount validation
+  String? amountError;
+  bool isAmountValid = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    try {
+      final data = await CommonMethod().getMineData();
+      if (data.status == "success" && data.data.isNotEmpty) {
+        setState(() {
+          walletAddress = data.data[0].walletAddress;
+          earningBalance = data.data[0].incomeBalance; // Get earning balance from profile
+          address.text = walletAddress; // Set the wallet address in the controller
+          isLoadingProfile = false;
+        });
+      } else {
+        setState(() {
+          isLoadingProfile = false;
+        });
+      }
+    } catch (e) {
+      print("Error loading profile data: $e");
+      setState(() {
+        isLoadingProfile = false;
+      });
+    }
+  }
+
+  void _validateAmount(String value) {
+    setState(() {
+      if (value.isEmpty) {
+        amountError = null;
+        isAmountValid = true;
+        return;
+      }
+
+      try {
+        double enteredAmount = double.parse(value);
+        double maxBalance = double.parse(earningBalance);
+
+        if (enteredAmount > maxBalance) {
+          amountError = "Amount cannot exceed earning balance ($earningBalance USDT)";
+          isAmountValid = false;
+        } else if (enteredAmount <= 0) {
+          amountError = "Amount must be greater than 0";
+          isAmountValid = false;
+        } else {
+          amountError = null;
+          isAmountValid = true;
+        }
+      } catch (e) {
+        amountError = "Please enter a valid amount";
+        isAmountValid = false;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,13 +115,21 @@ class _WithdrawalState extends State<Withdrawal> {
                         ),
                       ),
                       Container(
-                        child: Text(
-                          widget.balance.toString() + " USDT",
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                        ),
+                        child: isLoadingProfile
+                            ? Text(
+                                "Loading...",
+                                style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16),
+                              )
+                            : Text(
+                                "$earningBalance USDT",
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16),
+                              ),
                       )
                     ]),
                 SizedBox(
@@ -96,39 +174,50 @@ class _WithdrawalState extends State<Withdrawal> {
                       ),
                       Expanded(
                         child: Container(
-                            child: Container(
                           height: 50,
                           decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Color(0xfff3f3f4),
-                              ),
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(10))),
+                            border: Border.all(
+                              color: Color(0xfff3f3f4),
+                            ),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            color: Color(0xFF2A2A2A), // Darker background to indicate non-editable
+                          ),
                           child: Center(
                             child: Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: TextField(
-                                style: const TextStyle(color: Colors.white),
-                                controller: address,
-                                decoration: const InputDecoration(
-                                  hintStyle: TextStyle(
-                                      color: Colors.white70, fontSize: 13),
-                                  hintText: "0xFa234...",
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
-                                onChanged: (v) {
-                                  setState(() {
-                                    // netamount = (v == null || v == "")
-                                    //     ? 0.0
-                                    //     : double.parse(v);
-                                  });
-                                },
+                              padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: isLoadingProfile
+                                        ? Text(
+                                            "Loading wallet address...",
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 13,
+                                            ),
+                                          )
+                                        : Text(
+                                            walletAddress.isEmpty
+                                                ? "No wallet address found"
+                                                : walletAddress,
+                                            style: TextStyle(
+                                              color: walletAddress.isEmpty
+                                                  ? Colors.white70
+                                                  : Colors.white,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                  ),
+                                  Icon(
+                                    Icons.lock,
+                                    color: Colors.white70,
+                                    size: 16,
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        )),
+                        ),
                       )
                     ]),
                 const SizedBox(
@@ -171,12 +260,39 @@ class _WithdrawalState extends State<Withdrawal> {
                                   enabledBorder: InputBorder.none,
                                   focusedBorder: InputBorder.none,
                                 ),
+                                onChanged: (value) {
+                                  _validateAmount(value);
+                                },
                               ),
                             ),
                           ),
                         )),
                       )
                     ]),
+                // Error message display
+                if (amountError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          color: Colors.red,
+                          size: 16,
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            amountError!,
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 const SizedBox(
                   height: 20,
                 ),
@@ -228,22 +344,27 @@ class _WithdrawalState extends State<Withdrawal> {
                   height: 40,
                 ),
                 InkWell(
-                  onTap: () {
+                  onTap: isAmountValid && amountError == null ? () {
                     _checkWithdrawalAbleOrNot();
-                  },
+                  } : null,
                   child: Container(
                     width: MediaQuery.of(context).size.width,
                     padding: EdgeInsets.symmetric(vertical: 15),
                     alignment: Alignment.center,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         stops: [0.0, 1.0],
-                        colors: [
-                          Colors.green,
-                          Colors.blue,
-                        ],
+                        colors: isAmountValid && amountError == null
+                            ? [
+                                Colors.green,
+                                Colors.blue,
+                              ]
+                            : [
+                                Colors.grey.shade600,
+                                Colors.grey.shade700,
+                              ],
                       ),
                       borderRadius: const BorderRadius.all(Radius.circular(5)),
                       boxShadow: const <BoxShadow>[
@@ -269,11 +390,14 @@ class _WithdrawalState extends State<Withdrawal> {
   _checkWithdrawalAbleOrNot() async {
     try {
       showLoading(context);
-      if (address.text == "") {
-        showtoast("Address Field is Empty", context);
+      if (walletAddress.isEmpty) {
+        showtoast("Wallet Address not found. Please update your profile.", context);
         Navigator.pop(context);
       } else if (amount.text == "") {
         showtoast("Amount Field is Empty", context);
+        Navigator.pop(context);
+      } else if (!isAmountValid || amountError != null) {
+        showtoast(amountError ?? "Please enter a valid amount", context);
         Navigator.pop(context);
       } else if (transpass.text == "") {
         showtoast("Transaction Paaword Field is Empty", context);
@@ -312,7 +436,7 @@ class _WithdrawalState extends State<Withdrawal> {
         "user_id": commonuserId,
         "amount": amount.text,
         "qty": "0.00",
-        "address": address.text,
+        "address": walletAddress, // Use wallet address from profile
         "password": transpass.text
       });
       print(bodydata);

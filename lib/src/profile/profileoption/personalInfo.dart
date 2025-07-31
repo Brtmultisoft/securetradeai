@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:securetradeai/Data/Api.dart';
+import 'package:securetradeai/data/api.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
@@ -28,6 +28,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
   var newpasswrod = TextEditingController();
   var conformPassord = TextEditingController();
   var email = TextEditingController();
+  var walletAddress = TextEditingController();
   var password = TextEditingController();
   bool isAPIcalle = false;
   var minedata = [];
@@ -70,7 +71,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF1A2234),
+      backgroundColor: const Color(0xFF1A2234),
       appBar: CommonAppBar.basic(
         title: "personalinfo".tr,
       ),
@@ -81,11 +82,11 @@ class _PersonalInfoState extends State<PersonalInfo> {
               ),
             )
           : Container(
-              margin: EdgeInsets.only(left: 15, right: 15),
+              margin: const EdgeInsets.only(left: 15, right: 15),
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                     Container(
@@ -95,13 +96,14 @@ class _PersonalInfoState extends State<PersonalInfo> {
                         children: [
                           Text(
                             "nickname".tr,
-                            style: TextStyle(fontSize: 15, color: Colors.white),
+                            style: const TextStyle(
+                                fontSize: 15, color: Colors.white),
                           ),
                           Row(
                             children: [
                               Text(
                                 finalData.name,
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 15, color: Colors.white),
                               ),
                               IconButton(
@@ -120,7 +122,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                         ],
                       ),
                     ),
-                    Divider(
+                    const Divider(
                       color: Colors.grey,
                       thickness: 0.4,
                     ),
@@ -131,7 +133,8 @@ class _PersonalInfoState extends State<PersonalInfo> {
                         children: [
                           Text(
                             "uuid".tr,
-                            style: TextStyle(fontSize: 15, color: Colors.white),
+                            style: const TextStyle(
+                                fontSize: 15, color: Colors.white),
                           ),
                           Row(
                             children: [
@@ -173,7 +176,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                         children: [
                           Text(
                             "avatar".tr,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 15,
                               color: Colors.white,
                             ),
@@ -215,7 +218,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                             children: [
                               Text(
                                 finalData.email,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 14,
                                   color: Colors.white,
                                 ),
@@ -244,16 +247,16 @@ class _PersonalInfoState extends State<PersonalInfo> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             "Mobile",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               color: Colors.white,
                             ),
                           ),
                           Text(
                             finalData.mobile,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 15,
                               color: Colors.white,
                             ),
@@ -278,7 +281,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                           ),
                           Text(
                             finalData.country,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 15,
                               color: Colors.white,
                             ),
@@ -316,6 +319,45 @@ class _PersonalInfoState extends State<PersonalInfo> {
                       color: Colors.grey,
                       thickness: 0.4,
                     ),
+                    Container(
+                      height: 30,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Wallet Address",
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                finalData.walletAddress,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              IconButton(
+                                  onPressed: () {
+                                    _changeWalletAddress(context);
+                                  },
+                                  icon: const Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 15,
+                                    color: Colors.white,
+                                  ))
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(
+                      color: Colors.grey,
+                      thickness: 0.4,
+                    ),
                     const SizedBox(
                       height: 20,
                     ),
@@ -326,6 +368,73 @@ class _PersonalInfoState extends State<PersonalInfo> {
     );
   }
 
+  Future<void> _changeWalletAddress(
+    BuildContext context,
+  ) async {
+    return showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: const Color(0xFF1A2234),
+            contentPadding:
+                const EdgeInsets.only(bottom: 10, left: 20, right: 10),
+            title: const Text(
+              'Update Wallet Address',
+              style: TextStyle(color: Colors.white),
+            ),
+            content: Container(
+              height: 100,
+              child: Column(
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(
+                      hintText: "Enter your wallet address",
+                      hintStyle: TextStyle(color: Colors.white),
+                    ),
+                    controller: walletAddress,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  TextField(
+                    decoration: const InputDecoration(
+                      hintText: "Enter password",
+                      hintStyle: TextStyle(color: Colors.white),
+                    ),
+                    controller: password,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  )),
+              const SizedBox(
+                width: 10,
+              ),
+              GestureDetector(
+                  onTap: () {
+                    _updateWalletAddress();
+                  },
+                  child: const Text("Update",
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold))),
+              const SizedBox(
+                width: 20,
+              ),
+            ],
+          );
+        });
+  }
+
   Future<void> _displayTextInputDialog(
     BuildContext context,
   ) async {
@@ -334,7 +443,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            backgroundColor: Color(0xFF1A2234),
+            backgroundColor: const Color(0xFF1A2234),
             contentPadding:
                 const EdgeInsets.only(bottom: 10, left: 20, right: 10),
             title: const Text(
@@ -343,8 +452,8 @@ class _PersonalInfoState extends State<PersonalInfo> {
             ),
             content: TextField(
               controller: name,
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
                 hintStyle: TextStyle(color: Colors.white),
               ),
             ),
@@ -392,8 +501,9 @@ class _PersonalInfoState extends State<PersonalInfo> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            backgroundColor: Color(0xFF1A2234),
-            contentPadding: EdgeInsets.only(bottom: 10, left: 20, right: 10),
+            backgroundColor: const Color(0xFF1A2234),
+            contentPadding:
+                const EdgeInsets.only(bottom: 10, left: 20, right: 10),
             title: const Text(
               'Change your Password',
               style: TextStyle(color: Colors.white),
@@ -403,28 +513,28 @@ class _PersonalInfoState extends State<PersonalInfo> {
               child: Column(
                 children: [
                   TextField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Enter old password",
                       hintStyle: TextStyle(color: Colors.white),
                     ),
                     controller: oldpass,
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                   TextField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Enter new password",
                       hintStyle: TextStyle(color: Colors.white),
                     ),
                     controller: newpasswrod,
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                   TextField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Confirm Password",
                       hintStyle: TextStyle(color: Colors.white),
                     ),
                     controller: conformPassord,
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ],
               ),
@@ -434,12 +544,12 @@ class _PersonalInfoState extends State<PersonalInfo> {
                 onTap: () {
                   Navigator.pop(context);
                 },
-                child: Text(
+                child: const Text(
                   "Cancel",
                   style: TextStyle(color: Colors.white),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               GestureDetector(
@@ -449,7 +559,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                   child: const Text("Change",
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold))),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
             ],
@@ -465,8 +575,9 @@ class _PersonalInfoState extends State<PersonalInfo> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            backgroundColor: Color(0xFF1A2234),
-            contentPadding: EdgeInsets.only(bottom: 10, left: 20, right: 10),
+            backgroundColor: const Color(0xFF1A2234),
+            contentPadding:
+                const EdgeInsets.only(bottom: 10, left: 20, right: 10),
             title: const Text(
               'Change your Email',
               style: TextStyle(color: Colors.white),
@@ -476,20 +587,20 @@ class _PersonalInfoState extends State<PersonalInfo> {
               child: Column(
                 children: [
                   TextField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Enter New  Email",
                       hintStyle: TextStyle(color: Colors.white),
                     ),
                     controller: email,
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                   TextField(
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: "Enter  password",
                       hintStyle: TextStyle(color: Colors.white),
                     ),
                     controller: password,
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ],
               ),
@@ -499,13 +610,13 @@ class _PersonalInfoState extends State<PersonalInfo> {
                   onTap: () {
                     Navigator.pop(context);
                   },
-                  child: Text(
+                  child: const Text(
                     "Cancel",
                     style: TextStyle(
                       color: Colors.white,
                     ),
                   )),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               GestureDetector(
@@ -515,7 +626,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                   child: const Text("Update",
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold))),
-              SizedBox(
+              const SizedBox(
                 width: 20,
               ),
             ],
@@ -599,6 +710,46 @@ class _PersonalInfoState extends State<PersonalInfo> {
     }
   }
 
+  Future _updateWalletAddress() async {
+    try {
+      if (walletAddress.text == "") {
+        showtoast("Email field is empty", context);
+      } else if (password.text == "") {
+        showtoast(" password field is empty", context);
+      } else {
+        showLoading(context);
+        var bodydata = jsonEncode({
+          "user_id": commonuserId,
+          "wallet_address": walletAddress.text,
+          "password": password.text
+        });
+        print(bodydata);
+        final response =
+            await http.post(Uri.parse(updateWallet), body: bodydata);
+
+        showtoast(response.statusCode.toString(), context);
+
+        if (response.statusCode != 200) {
+          showtoast("Server Error", context);
+          Navigator.pop(context);
+        } else {
+          _getData();
+          var data = jsonDecode(response.body);
+          print(data);
+          password.clear();
+          setState(() {
+            commonEmail = walletAddress.text;
+          });
+          showtoast(data['message'], context);
+          Navigator.pop(context);
+          Navigator.pop(context);
+        }
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   _update() async {
     try {
       showLoading(context);
@@ -637,7 +788,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
             child: Container(
               height: 100.0,
               decoration: BoxDecoration(
-                color: Color(0xFF1A2234),
+                color: const Color(0xFF1A2234),
                 borderRadius: BorderRadius.circular(30.0),
               ),
               child: Padding(
@@ -651,12 +802,12 @@ class _PersonalInfoState extends State<PersonalInfo> {
                               onPressed: () {
                                 _getFromGallery(ImageSource.gallery);
                               },
-                              icon: Icon(
+                              icon: const Icon(
                                 Icons.image,
                                 size: 40,
                                 color: Colors.white,
                               )),
-                          Text(
+                          const Text(
                             "Gallery",
                             style: TextStyle(color: Colors.white),
                           )
@@ -668,10 +819,10 @@ class _PersonalInfoState extends State<PersonalInfo> {
                             onPressed: () {
                               _getFromGallery(ImageSource.camera);
                             },
-                            icon: Icon(Icons.camera,
+                            icon: const Icon(Icons.camera,
                                 size: 40, color: Colors.white),
                           ),
-                          Text(
+                          const Text(
                             "Camera",
                             style: TextStyle(color: Colors.white),
                           )

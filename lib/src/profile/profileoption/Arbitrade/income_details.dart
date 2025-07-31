@@ -414,256 +414,221 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
       color: const Color(0xFFF0B90B),
       backgroundColor: const Color(0xFF161A1E),
       onRefresh: _loadIncomeData,
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: incomeData.length,
-        itemBuilder: (context, index) {
-          final income = incomeData[index];
-          return _buildIncomeItem(income);
-        },
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: _buildCustomTable(),
       ),
     );
   }
 
-  Widget _buildIncomeItem(Map<String, dynamic> income) {
+  Widget _buildCustomTable() {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFF1E2026),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(11),
         border: Border.all(color: const Color(0xFF2A2D35), width: 1),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                _getIncomeTypeDisplay(income['type']),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                '\$${income['amount'].toStringAsFixed(2)}',
-                style: TextStyle(
-                  color: widget.color,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(
-                Icons.access_time,
-                color: Color(0xFF848E9C),
-                size: 16,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Date : ${_formatDate(income['created_at'])}',
-                style: const TextStyle(
-                  color: Color(0xFF848E9C),
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-          if (income['From_Users'] != null &&
-              income['From_Users'].isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(
-                  Icons.person,
-                  color: Color(0xFF848E9C),
-                  size: 16,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'From: ${income['From_Users']}',
-                  style: const TextStyle(
-                    color: Color(0xFF848E9C),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ],
-          const SizedBox(height: 8),
-          const SizedBox(width: 8),
-          // Show description for new income management APIs
-          if (income['description'] != null &&
-              income['description'].isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(
-                  Icons.info_outline,
-                  color: Color(0xFF848E9C),
-                  size: 16,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    income['description'],
-                    style: const TextStyle(
-                      color: Color(0xFF848E9C),
-                      fontSize: 12,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(11),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header Row
+            Container(
+              color: const Color(0xFF2A2D35),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 50,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 12,
+                      ),
+                      child: Text(
+                        'S.No',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
-
-          // Show ROI percentage and date for ROI income
-          if (income['roi_percentage'] != null) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(
-                  Icons.trending_up,
-                  color: Color(0xFF0ECB81),
-                  size: 16,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'ROI: ${income['roi_percentage'].toStringAsFixed(2)}%',
-                  style: const TextStyle(
-                    color: Color(0xFF0ECB81),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ],
-          if (income['roi_date'] != null) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(
-                  Icons.calendar_today,
-                  color: Color(0xFF848E9C),
-                  size: 16,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'ROI Date: ${_formatDate(income['roi_date'])}',
-                  style: const TextStyle(
-                    color: Color(0xFF848E9C),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ],
-
-          // Show percentage for direct and level income
-          if (income['percentage'] != null) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(
-                  Icons.percent,
-                  color: Color(0xFF848E9C),
-                  size: 16,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Percentage: ${income['percentage']}%',
-                  style: const TextStyle(
-                    color: Color(0xFF848E9C),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ],
-
-          // Show level for level income
-          if (income['level'] != null) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(
-                  Icons.layers,
-                  color: Color(0xFF848E9C),
-                  size: 16,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Level: ${income['level']}',
-                  style: const TextStyle(
-                    color: Color(0xFF848E9C),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ],
-
-          // Show status for new income management APIs
-          if (income['status'] != null && income['status'].isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(''),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: income['status'] == 'CREDITED'
-                        ? const Color(0xFF0ECB81).withOpacity(0.1)
-                        : const Color(0xFFE53935).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    income['status'],
-                    style: TextStyle(
-                      color: income['status'] == 'CREDITED'
-                          ? const Color(0xFF0ECB81)
-                          : const Color(0xFFE53935),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
+                  Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 12,
+                      ),
+                      child: Text(
+                        'Date & Time',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
-
-          // Show investment amount for old API data
-          if (income['investment_amount'] != null &&
-              income['investment_amount'].isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(
-                  Icons.monetization_on_outlined,
-                  color: Color(0xFF848E9C),
-                  size: 16,
-                ),
-                Text(
-                  ' Investment Amount : \$${income['investment_amount']}',
-                  style: const TextStyle(
-                    color: Color(0xFF848E9C),
-                    fontSize: 12,
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 12,
+                      ),
+                      child: Text(
+                        'Amount',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
                   ),
+                  SizedBox(
+                    width: 90,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 12,
+                      ),
+                      child: Text(
+                        'Referral',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Expanded(
+                  //   flex: 1,
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.all(12.0),
+                  //     child: Text(
+                  //       'Type',
+                  //       textAlign: TextAlign.center,
+                  //       style: TextStyle(
+                  //         color: Colors.white,
+                  //         fontWeight: FontWeight.bold,
+                  //         fontSize: 12,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                ],
+              ),
+            ),
+            // Data Rows
+            ...incomeData.asMap().entries.map((entry) {
+              int index = entry.key;
+              Map<String, dynamic> income = entry.value;
+              return Container(
+                color: index % 2 == 0
+                    ? const Color(0xFF1E2026)
+                    : const Color(0xFF252A32),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 50,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 12,
+                        ),
+                        child: Text(
+                          '${index + 1}',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 12,
+                        ),
+                        child: Text(
+                          _formatDate(income['created_at']),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 12,
+                        ),
+                        child: Text(
+                          '\$${income['amount'].toStringAsFixed(2)}',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: widget.color,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 90,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 12,
+                        ),
+                        child: Text(
+                          income['From_Users']?.toString() ??
+                              income['reference_id']?.toString() ??
+                              'N/A',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Expanded(
+                    //   flex: 1,
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.all(12.0),
+                    //     child: Text(
+                    //       _getIncomeTypeDisplay(income['type']),
+                    //       textAlign: TextAlign.center,
+                    //       style: TextStyle(
+                    //         color: Colors.white,
+                    //         fontSize: 11,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                  ],
                 ),
-              ],
-            )
+              );
+            }).toList(),
           ],
-        ],
+        ),
       ),
     );
   }
