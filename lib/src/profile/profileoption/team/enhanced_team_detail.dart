@@ -80,17 +80,8 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF1E2026), // Binance card dark
-                  Color(0xFF12151C), // Binance card darker
-                  Color(0xFF0B0E11), // Dark background
-                ],
-              ),
-              borderRadius: BorderRadius.circular(0),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF0B90B),
             ),
             child: Column(
               children: [
@@ -111,7 +102,7 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                   child: Text(
                     widget.level.toString(),
                     style: const TextStyle(
-                      color: Color(0xFFF0B90B),
+                      color: Colors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       fontFamily: fontFamily,
@@ -657,18 +648,18 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
 
                 const SizedBox(height: 20),
 
-                // Action buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildActionButton(
-                        "Message", Icons.message, const Color(0xFF4A90E2)),
-                    _buildActionButton(
-                        "Call", Icons.call, const Color(0xFF2EBD85)),
-                    _buildActionButton(
-                        "Share", Icons.share, const Color(0xFFF0B90B)),
-                  ],
-                ),
+                // // Action buttons
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                //   children: [
+                //     _buildActionButton(
+                //         "Message", Icons.message, const Color(0xFF4A90E2)),
+                //     _buildActionButton(
+                //         "Call", Icons.call, const Color(0xFF2EBD85)),
+                //     _buildActionButton(
+                //         "Share", Icons.share, const Color(0xFFF0B90B)),
+                //   ],
+                // ),
 
                 const SizedBox(height: 30),
               ],
@@ -684,8 +675,8 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
       children: [
         Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1E2329),
+          decoration: const BoxDecoration(
+            color: Color(0xFF1E2329),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -836,8 +827,8 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
       children: [
         Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: const Color(0xFF0B0E11),
+          decoration: const BoxDecoration(
+            color: Color(0xFF0B0E11),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -873,9 +864,9 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B0E11).withOpacity(0.5),
+        color: const Color(0xFFF0B90B).withOpacity(0.5),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: Colors.white),
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.1),
@@ -888,8 +879,8 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
         children: [
           Text(
             value,
-            style: TextStyle(
-              color: color,
+            style: const TextStyle(
+              color: Colors.black,
               fontSize: 24,
               fontWeight: FontWeight.bold,
               fontFamily: fontFamily,
@@ -899,9 +890,10 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
+            style: const TextStyle(
+              color: Colors.black,
               fontSize: 12,
+              fontWeight: FontWeight.bold,
               fontFamily: fontFamily,
             ),
           ),

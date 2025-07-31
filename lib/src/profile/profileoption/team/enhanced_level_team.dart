@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:securetradeai/src/profile/profileoption/Team/enhanced_team_detail.dart';
 import 'package:securetradeai/data/strings.dart';
+import 'package:securetradeai/src/profile/profileoption/Team/enhanced_team_detail.dart';
+import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
+
 import '../../../../data/api.dart';
 import '../../../Service/assets_service.dart';
 
@@ -58,11 +60,14 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
 
         if (data['status'] == "success") {
           // Reset counters
-          level1 = level2 = level3 = level4 = level5 = level6 = level7 = level8 = level9 = level10 = level11 = level12 = level13 = level14 = level15 = 0;
+          level1 = level2 = level3 = level4 = level5 = level6 = level7 =
+              level8 = level9 =
+                  level10 = level11 = level12 = level13 = level14 = level15 = 0;
 
           for (var element in data['data']) {
             // Make sure we have a level field
-            String levelStr = element["level"] != null ? element["level"].toString() : "";
+            String levelStr =
+                element["level"] != null ? element["level"].toString() : "";
 
             // Count members by level
             if (levelStr == "Level 1") {
@@ -136,20 +141,21 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
 
       try {
         // Get level income data
-        final levelIncomeRes = await http.post(
-          Uri.parse(levelincomeDetail),
-          body: jsonEncode({"user_id": commonuserId})
-        );
+        final levelIncomeRes = await http.post(Uri.parse(levelincomeDetail),
+            body: jsonEncode({"user_id": commonuserId}));
 
         if (levelIncomeRes.statusCode == 200) {
           var data = jsonDecode(levelIncomeRes.body);
           if (data['status'] == "success") {
             var levelData = data['data'];
             if (levelData['cumulative_profit'] != null) {
-              totalIncome += double.tryParse(levelData['cumulative_profit'].toString()) ?? 0.0;
+              totalIncome +=
+                  double.tryParse(levelData['cumulative_profit'].toString()) ??
+                      0.0;
             }
             if (levelData['profit_today'] != null) {
-              monthlyIncome += double.tryParse(levelData['profit_today'].toString()) ?? 0.0;
+              monthlyIncome +=
+                  double.tryParse(levelData['profit_today'].toString()) ?? 0.0;
             }
           }
         }
@@ -159,20 +165,21 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
 
       try {
         // Get direct income data
-        final directIncomeRes = await http.post(
-          Uri.parse(directIncomeDetail),
-          body: jsonEncode({"user_id": commonuserId})
-        );
+        final directIncomeRes = await http.post(Uri.parse(directIncomeDetail),
+            body: jsonEncode({"user_id": commonuserId}));
 
         if (directIncomeRes.statusCode == 200) {
           var data = jsonDecode(directIncomeRes.body);
           if (data['status'] == "success") {
             var directData = data['data'];
             if (directData['cumulative_profit'] != null) {
-              totalIncome += double.tryParse(directData['cumulative_profit'].toString()) ?? 0.0;
+              totalIncome +=
+                  double.tryParse(directData['cumulative_profit'].toString()) ??
+                      0.0;
             }
             if (directData['profit_today'] != null) {
-              monthlyIncome += double.tryParse(directData['profit_today'].toString()) ?? 0.0;
+              monthlyIncome +=
+                  double.tryParse(directData['profit_today'].toString()) ?? 0.0;
             }
           }
         }
@@ -186,7 +193,6 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
         monthlyEarned = monthlyIncome;
         isEarningsLoading = false;
       });
-
     } catch (e) {
       print('Error fetching team earnings: $e');
       setState(() {
@@ -207,7 +213,10 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
     return Scaffold(
       backgroundColor: const Color(0xFF0B0E11),
       body: isAPIcalled
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFFF0B90B)))
+          ? const Center(
+              child: LottieLoadingWidget.fullScreen(
+                  message: 'Loading Team Data...'),
+            )
           : checkdata
               ? Center(
                   child: Column(
@@ -217,7 +226,10 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
                       const SizedBox(height: 20),
                       const Text(
                         "No team members found",
-                        style: TextStyle(color: Colors.white70, fontSize: 16, fontFamily: fontFamily),
+                        style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                            fontFamily: fontFamily),
                       ),
                     ],
                   ),
@@ -228,7 +240,21 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
 
   Widget _getalevelTeam() {
     // Calculate total earnings (mock data for demonstration)
-    int totalMembers = level1 + level2 + level3 + level4 + level5 + level6 + level7 + level8 + level9 + level10 + level11 + level12 + level13 + level14 + level15;
+    int totalMembers = level1 +
+        level2 +
+        level3 +
+        level4 +
+        level5 +
+        level6 +
+        level7 +
+        level8 +
+        level9 +
+        level10 +
+        level11 +
+        level12 +
+        level13 +
+        level14 +
+        level15;
     int totalActiveMembers = teamData.where((e) => e['days_bal'] != "0").length;
 
     return SingleChildScrollView(
@@ -239,15 +265,7 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF1E2026),  // Binance card dark
-                  Color(0xFF12151C),  // Binance card darker
-                  Color(0xFF0B0E11),  // Dark background
-                ],
-              ),
+              color: const Color(0xFFF0B90B),
               borderRadius: BorderRadius.circular(0),
             ),
             child: Column(
@@ -268,7 +286,7 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
                   ),
                   child: const Icon(
                     Icons.people_alt_rounded,
-                    color: Color(0xFFF0B90B),
+                    color: Colors.white,
                     size: 40,
                   ),
                 ),
@@ -277,7 +295,7 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
                 const Text(
                   "Your Referral Network",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     fontFamily: fontFamily,
@@ -288,7 +306,7 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
                 Text(
                   "Build your team and earn commissions",
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.black.withOpacity(0.7),
                     fontSize: 16,
                     fontFamily: fontFamily,
                   ),
@@ -298,9 +316,12 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildAnimatedStatCard("Total\nMembers", "$totalMembers", const Color(0xFF4A90E2)),
-                    _buildAnimatedStatCard("Direct\nReferrals", "$level1", const Color(0xFFF0B90B)),
-                    _buildAnimatedStatCard("Active\nMembers", "$totalActiveMembers", const Color(0xFF2EBD85)),
+                    _buildAnimatedStatCard("Total\nMembers", "$totalMembers",
+                        const Color(0xFF4A90E2)),
+                    _buildAnimatedStatCard("Direct\nReferrals", "$level1",
+                        const Color(0xFFF0B90B)),
+                    _buildAnimatedStatCard("Active\nMembers",
+                        "$totalActiveMembers", const Color(0xFF2EBD85)),
                   ],
                 ),
               ],
@@ -324,156 +345,167 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
               ],
             ),
             child: isEarningsLoading
-              ? const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(30.0),
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2EBD85)),
-                    ),
-                  ),
-                )
-              : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2EBD85).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.attach_money,
-                        color: Color(0xFF2EBD85),
-                        size: 24,
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(30.0),
+                      child: CircularProgressIndicator(
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Color(0xFF2EBD85)),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    const Text(
-                      "Team Earnings",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: fontFamily,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Total Earned",
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
-                            fontSize: 14,
-                            fontFamily: fontFamily,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Text(
-                              "\$${totalEarned.toStringAsFixed(2)}",
-                              style: const TextStyle(
-                                color: Color(0xFF2EBD85),
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: fontFamily,
-                              ),
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2EBD85).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF2EBD85).withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                monthlyEarned > 0 ? "+${(monthlyEarned / (totalEarned > 0 ? totalEarned : 1) * 100).toStringAsFixed(1)}%" : "0%",
-                                style: const TextStyle(
-                                  color: Color(0xFF2EBD85),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                            child: const Icon(
+                              Icons.attach_money,
+                              color: Color(0xFF2EBD85),
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            "Team Earnings",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: fontFamily,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Total Earned",
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 14,
                                   fontFamily: fontFamily,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    _buildEarningsButton(),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                // Earnings progress bar
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Monthly Target",
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
-                            fontSize: 14,
-                            fontFamily: fontFamily,
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Text(
+                                    "\$${totalEarned.toStringAsFixed(2)}",
+                                    style: const TextStyle(
+                                      color: Color(0xFF2EBD85),
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: fontFamily,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF2EBD85)
+                                          .withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      monthlyEarned > 0
+                                          ? "+${(monthlyEarned / (totalEarned > 0 ? totalEarned : 1) * 100).toStringAsFixed(1)}%"
+                                          : "0%",
+                                      style: const TextStyle(
+                                        color: Color(0xFF2EBD85),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: fontFamily,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ),
-                        Text(
-                          "\$${monthlyEarned.toStringAsFixed(2)} / \$${monthlyTarget.toStringAsFixed(0)}",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontFamily: fontFamily,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Stack(
-                      children: [
-                        Container(
-                          height: 8,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF0B0E11),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        Container(
-                          height: 8,
-                          width: MediaQuery.of(context).size.width * (monthlyEarned / monthlyTarget).clamp(0.0, 1.0) * 0.7, // Real progress
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF2EBD85), Color(0xFF4A90E2)],
-                            ),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "${(monthlyEarned / monthlyTarget * 100).toStringAsFixed(1)}% of monthly target reached",
-                      style: TextStyle(
-                        fontFamily: fontFamily,
-                        fontSize: 12,
-                        color: Colors.white.withOpacity(0.6),
+                          _buildEarningsButton(),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                      const SizedBox(height: 20),
+                      // Earnings progress bar
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Monthly Target",
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 14,
+                                  fontFamily: fontFamily,
+                                ),
+                              ),
+                              Text(
+                                "\$${monthlyEarned.toStringAsFixed(2)} / \$${monthlyTarget.toStringAsFixed(0)}",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontFamily: fontFamily,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Stack(
+                            children: [
+                              Container(
+                                height: 8,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0B0E11),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                              Container(
+                                height: 8,
+                                width: MediaQuery.of(context).size.width *
+                                    (monthlyEarned / monthlyTarget)
+                                        .clamp(0.0, 1.0) *
+                                    0.7, // Real progress
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF2EBD85),
+                                      Color(0xFF4A90E2)
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "${(monthlyEarned / monthlyTarget * 100).toStringAsFixed(1)}% of monthly target reached",
+                            style: TextStyle(
+                              fontFamily: fontFamily,
+                              fontSize: 12,
+                              color: Colors.white.withOpacity(0.6),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
           ),
 
           // Team hierarchy visualization
@@ -522,12 +554,12 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0B90B).withOpacity(0.1),
+                    color: const Color(0xFFF0B90B),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
                     Icons.layers,
-                    color: Color(0xFFF0B90B),
+                    color: Colors.white,
                     size: 20,
                   ),
                 ),
@@ -681,17 +713,13 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
         title: Text(
           "Level $level",
           style: const TextStyle(
-            color: Colors.white,
-            fontFamily: fontFamily,
-            fontWeight: FontWeight.bold
-          ),
+              color: Colors.white,
+              fontFamily: fontFamily,
+              fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
           "Total: $count",
-          style: const TextStyle(
-            color: Colors.white70,
-            fontFamily: fontFamily
-          ),
+          style: const TextStyle(color: Colors.white70, fontFamily: fontFamily),
         ),
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -703,10 +731,9 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
           child: const Text(
             "View",
             style: TextStyle(
-              color: Color(0xFFF0B90B),
-              fontWeight: FontWeight.bold,
-              fontFamily: fontFamily
-            ),
+                color: Color(0xFFF0B90B),
+                fontWeight: FontWeight.bold,
+                fontFamily: fontFamily),
           ),
         ),
       ),
@@ -796,9 +823,9 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B0E11).withOpacity(0.5),
+        color: const Color(0xFFF0B90B).withOpacity(0.5),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accentColor.withOpacity(0.3)),
+        border: Border.all(color: Colors.white),
         boxShadow: [
           BoxShadow(
             color: accentColor.withOpacity(0.1),
@@ -812,7 +839,7 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
           Text(
             value,
             style: TextStyle(
-              color: accentColor,
+              color: Colors.black,
               fontSize: 24,
               fontWeight: FontWeight.bold,
               fontFamily: fontFamily,
@@ -823,8 +850,9 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.black,
               fontSize: 12,
+              fontWeight: FontWeight.bold,
               fontFamily: fontFamily,
             ),
           ),

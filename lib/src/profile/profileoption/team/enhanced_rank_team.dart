@@ -1,8 +1,10 @@
 import 'dart:convert';
-import 'package:securetradeai/data/strings.dart';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
+
 import '../../../../Data/Api.dart';
 
 class EnhancedRankTeam extends StatefulWidget {
@@ -30,7 +32,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
     {
       'name': 'Newcomer',
       'description': 'Just getting started',
-      'color': Color(0xFF78909C),
+      'color': Colors.white,
       'icon': Icons.star_border,
       'benefits': ['Basic trading features', 'Standard support'],
       'requirements': 'No requirements'
@@ -56,7 +58,11 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
       'description': 'Established networker',
       'color': Color(0xFFFFD700),
       'icon': Icons.workspace_premium,
-      'benefits': ['15% trading fee discount', 'Dedicated account manager', 'Advanced analytics'],
+      'benefits': [
+        '15% trading fee discount',
+        'Dedicated account manager',
+        'Advanced analytics'
+      ],
       'requirements': '30 active referrals'
     },
     {
@@ -64,7 +70,11 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
       'description': 'Professional networker',
       'color': Color(0xFFE5E4E2),
       'icon': Icons.diamond,
-      'benefits': ['20% trading fee discount', 'Exclusive events access', 'Premium tools'],
+      'benefits': [
+        '20% trading fee discount',
+        'Exclusive events access',
+        'Premium tools'
+      ],
       'requirements': '50 active referrals'
     },
     {
@@ -72,7 +82,11 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
       'description': 'Elite networker',
       'color': Color(0xFF40E0D0),
       'icon': Icons.diamond,
-      'benefits': ['25% trading fee discount', 'Exclusive investment opportunities', 'Custom solutions'],
+      'benefits': [
+        '25% trading fee discount',
+        'Exclusive investment opportunities',
+        'Custom solutions'
+      ],
       'requirements': '100 active referrals'
     },
     {
@@ -80,7 +94,11 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
       'description': 'Legendary networker',
       'color': Color(0xFF212121),
       'icon': Icons.diamond,
-      'benefits': ['30% trading fee discount', 'Revenue sharing', 'Global events access'],
+      'benefits': [
+        '30% trading fee discount',
+        'Revenue sharing',
+        'Global events access'
+      ],
       'requirements': '200+ active referrals'
     },
   ];
@@ -186,7 +204,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
   Widget _getRank() {
     // Calculate total members
     int totalMembers = p0 + p1 + p2 + p3 + p4 + p5 + p6;
-    
+
     // Determine user's current rank (for demo purposes)
     int userRank = 0;
     if (p1 >= 5) userRank = 1;
@@ -195,7 +213,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
     if (p4 >= 50) userRank = 4;
     if (p5 >= 100) userRank = 5;
     if (p6 >= 200) userRank = 6;
-    
+
     // Calculate progress to next rank
     int nextRankRequirement = 5;
     if (userRank == 1) nextRankRequirement = 15;
@@ -203,22 +221,36 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
     if (userRank == 3) nextRankRequirement = 50;
     if (userRank == 4) nextRankRequirement = 100;
     if (userRank == 5) nextRankRequirement = 200;
-    
+
     int currentReferrals = 0;
     switch (userRank) {
-      case 0: currentReferrals = p0; break;
-      case 1: currentReferrals = p1; break;
-      case 2: currentReferrals = p2; break;
-      case 3: currentReferrals = p3; break;
-      case 4: currentReferrals = p4; break;
-      case 5: currentReferrals = p5; break;
-      case 6: currentReferrals = p6; break;
+      case 0:
+        currentReferrals = p0;
+        break;
+      case 1:
+        currentReferrals = p1;
+        break;
+      case 2:
+        currentReferrals = p2;
+        break;
+      case 3:
+        currentReferrals = p3;
+        break;
+      case 4:
+        currentReferrals = p4;
+        break;
+      case 5:
+        currentReferrals = p5;
+        break;
+      case 6:
+        currentReferrals = p6;
+        break;
     }
-    
-    double progressPercentage = userRank < 6 
+
+    double progressPercentage = userRank < 6
         ? (currentReferrals / nextRankRequirement).clamp(0.0, 1.0)
         : 1.0;
-    
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -227,14 +259,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  rankInfo[userRank]['color'].withOpacity(0.8),
-                  const Color(0xFF0B0E11),
-                ],
-              ),
+              color: const Color(0xFFF0B90B),
             ),
             child: Column(
               children: [
@@ -246,10 +271,9 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                       width: 100,
                       height: 100,
                       decoration: BoxDecoration(
-                        color: rankInfo[userRank]['color'].withOpacity(0.2),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: rankInfo[userRank]['color'],
+                          color: Colors.white.withOpacity(0.9),
                           width: 2,
                         ),
                         boxShadow: [
@@ -263,7 +287,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                     ),
                     Icon(
                       rankInfo[userRank]['icon'],
-                      color: rankInfo[userRank]['color'],
+                      color: Colors.white,
                       size: 50,
                     ),
                   ],
@@ -273,7 +297,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                 Text(
                   rankInfo[userRank]['name'],
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     fontFamily: fontFamily,
@@ -284,7 +308,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                 Text(
                   rankInfo[userRank]['description'],
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.black.withOpacity(0.7),
                     fontSize: 16,
                     fontFamily: fontFamily,
                   ),
@@ -294,12 +318,15 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildStatCard("Total\nMembers", "$totalMembers", const Color(0xFF4A90E2)),
-                    _buildStatCard("Current\nRank", "${userRank + 1}/7", rankInfo[userRank]['color']),
-                    _buildStatCard("Active\nReferrals", "$currentReferrals", const Color(0xFF2EBD85)),
+                    _buildStatCard("Total\nMembers", "$totalMembers",
+                        const Color(0xFF4A90E2)),
+                    _buildStatCard("Current\nRank", "${userRank + 1}/7",
+                        rankInfo[userRank]['color']),
+                    _buildStatCard("Active\nReferrals", "$currentReferrals",
+                        const Color(0xFF2EBD85)),
                   ],
                 ),
-                
+
                 // Progress to next rank
                 if (userRank < 6) ...[
                   const SizedBox(height: 30),
@@ -309,7 +336,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                       Text(
                         "Progress to ${rankInfo[userRank + 1]['name']}",
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontSize: 14,
                           fontFamily: fontFamily,
                         ),
@@ -317,7 +344,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                       Text(
                         "$currentReferrals/$nextRankRequirement referrals",
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontSize: 14,
                           fontFamily: fontFamily,
                         ),
@@ -337,7 +364,9 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                       ),
                       Container(
                         height: 10,
-                        width: MediaQuery.of(context).size.width * progressPercentage * 0.9,
+                        width: MediaQuery.of(context).size.width *
+                            progressPercentage *
+                            0.9,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -356,7 +385,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                         ? "Need ${nextRankRequirement - currentReferrals} more referrals to reach ${rankInfo[userRank + 1]['name']}"
                         : "You've reached the highest rank!",
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.black.withOpacity(0.7),
                       fontSize: 12,
                       fontFamily: fontFamily,
                     ),
@@ -365,7 +394,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
               ],
             ),
           ),
-          
+
           // Current rank benefits
           Container(
             margin: const EdgeInsets.all(16),
@@ -373,7 +402,8 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
             decoration: BoxDecoration(
               color: const Color(0xFF1E2329),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: rankInfo[userRank]['color'].withOpacity(0.3)),
+              border: Border.all(
+                  color: rankInfo[userRank]['color'].withOpacity(0.3)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -383,12 +413,12 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: rankInfo[userRank]['color'].withOpacity(0.1),
+                        color: Color(0xFFF0B90B).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         Icons.card_giftcard,
-                        color: rankInfo[userRank]['color'],
+                        color: Color(0xFFF0B90B),
                         size: 24,
                       ),
                     ),
@@ -415,7 +445,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                       children: [
                         Icon(
                           Icons.check_circle,
-                          color: rankInfo[userRank]['color'],
+                          color: Color(0xFFF0B90B),
                           size: 18,
                         ),
                         const SizedBox(width: 12),
@@ -466,7 +496,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
               ],
             ),
           ),
-          
+
           // Rank levels title
           Padding(
             padding: const EdgeInsets.all(16),
@@ -475,9 +505,11 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0B90B).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                      color: const Color(0xFFF0B90B).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Color(0xFFF0B90B),
+                      )),
                   child: const Icon(
                     Icons.leaderboard,
                     color: Color(0xFFF0B90B),
@@ -497,7 +529,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
               ],
             ),
           ),
-          
+
           // Rank levels
           ListView.builder(
             shrinkWrap: true,
@@ -506,18 +538,17 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
             itemBuilder: (context, i) {
               bool isCurrentRank = i == userRank;
               bool isLocked = i > userRank;
-              
+
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isCurrentRank 
-                      ? rankInfo[i]['color'].withOpacity(0.1) 
+                  color: isCurrentRank
+                      ? Color(0xFFF0B90B).withOpacity(0.9)
                       : const Color(0xFF1E2329),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: isCurrentRank 
-                        ? rankInfo[i]['color'] 
-                        : const Color(0xFF2A3A5A),
+                    color:
+                        isCurrentRank ? Colors.white : const Color(0xFF2A3A5A),
                   ),
                 ),
                 child: ListTile(
@@ -527,16 +558,18 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: rankInfo[i]['color'].withOpacity(isLocked ? 0.1 : 0.2),
+                          color: rankInfo[i]['color']
+                              .withOpacity(isLocked ? 0.1 : 0.2),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: rankInfo[i]['color'].withOpacity(isLocked ? 0.3 : 1.0),
+                            color: rankInfo[i]['color']
+                                .withOpacity(isLocked ? 0.3 : 1.0),
                             width: 2,
                           ),
                         ),
                         child: Icon(
                           rankInfo[i]['icon'],
-                          color: rankInfo[i]['color'].withOpacity(isLocked ? 0.3 : 1.0),
+                          color: Colors.white,
                           size: 20,
                         ),
                       ),
@@ -571,7 +604,9 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                       Text(
                         rankInfo[i]['name'],
                         style: TextStyle(
-                          color: isLocked ? Colors.white.withOpacity(0.5) : Colors.white,
+                          color: isLocked
+                              ? Colors.white.withOpacity(0.5)
+                              : Colors.white,
                           fontWeight: FontWeight.bold,
                           fontFamily: fontFamily,
                         ),
@@ -579,7 +614,8 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                       const SizedBox(width: 8),
                       if (isCurrentRank)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: rankInfo[i]['color'].withOpacity(0.2),
                             borderRadius: BorderRadius.circular(4),
@@ -599,7 +635,9 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                   subtitle: Text(
                     rankInfo[i]['description'],
                     style: TextStyle(
-                      color: isLocked ? Colors.white.withOpacity(0.3) : Colors.white.withOpacity(0.7),
+                      color: isLocked
+                          ? Colors.white.withOpacity(0.3)
+                          : Colors.white.withOpacity(0.7),
                       fontSize: 12,
                       fontFamily: fontFamily,
                     ),
@@ -622,13 +660,13 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
               );
             },
           ),
-          
+
           const SizedBox(height: 30),
         ],
       ),
     );
   }
-  
+
   void _showRankDetails(int rankIndex) {
     showModalBottomSheet(
       context: context,
@@ -639,7 +677,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
       builder: (context) {
         bool isCurrentRank = rankIndex == 0; // For demo purposes
         bool isLocked = rankIndex > 0; // For demo purposes
-        
+
         return Container(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -777,14 +815,14 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
       },
     );
   }
-  
+
   Widget _buildStatCard(String title, String value, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B0E11).withOpacity(0.5),
+        color: const Color(0xFFF0B90B).withOpacity(0.5),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: Colors.white),
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.1),
@@ -798,7 +836,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
           Text(
             value,
             style: TextStyle(
-              color: color,
+              color: Colors.black,
               fontSize: 24,
               fontWeight: FontWeight.bold,
               fontFamily: fontFamily,
@@ -809,8 +847,9 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.black,
               fontSize: 12,
+              fontWeight: FontWeight.bold,
               fontFamily: fontFamily,
             ),
           ),

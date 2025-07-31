@@ -169,15 +169,7 @@ class TeamState extends State<Team> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF1E2026), // Binance card dark
-                  Color(0xFF12151C), // Binance card darker
-                  Color(0xFF0B0E11), // Dark background
-                ],
-              ),
+              color: const Color(0xFFF0B90B),
               borderRadius: BorderRadius.circular(0),
             ),
             child: Column(
@@ -198,7 +190,7 @@ class TeamState extends State<Team> {
                   ),
                   child: const Icon(
                     Icons.group,
-                    color: Color(0xFFF0B90B),
+                    color: Colors.white,
                     size: 40,
                   ),
                 ),
@@ -207,7 +199,7 @@ class TeamState extends State<Team> {
                 const Text(
                   "Direct Referrals",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     fontFamily: fontFamily,
@@ -218,7 +210,7 @@ class TeamState extends State<Team> {
                 Text(
                   "People you've personally invited",
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.black.withOpacity(0.7),
                     fontSize: 16,
                     fontFamily: fontFamily,
                   ),
@@ -228,14 +220,14 @@ class TeamState extends State<Team> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildStatCard("Total Referrals", "${teamDirect.length}",
+                    _buildStatCard("Total \nReferrals", "${teamDirect.length}",
                         const Color(0xFFF0B90B)),
                     _buildStatCard(
-                        "Active Members",
+                        "Active \nMembers",
                         "${teamDirect.where((e) => e['days'] != "0").length}",
                         const Color(0xFF2EBD85)),
                     _buildStatCard(
-                        "Inactive",
+                        "Inactive\n",
                         "${teamDirect.where((e) => e['days'] == "0").length}",
                         const Color(0xFFE57373)),
                   ],
@@ -587,10 +579,11 @@ class TeamState extends State<Team> {
   Widget _buildStatCard(String title, String value, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(
-        color: const Color(0xFF0B0E11).withOpacity(0.5),
+        color: const Color(0xFFF0B90B).withOpacity(0.5),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: Colors.white),
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.1),
@@ -603,8 +596,8 @@ class TeamState extends State<Team> {
         children: [
           Text(
             value,
-            style: TextStyle(
-              color: color,
+            style: const TextStyle(
+              color: Colors.black,
               fontSize: 24,
               fontWeight: FontWeight.bold,
               fontFamily: fontFamily,
@@ -614,9 +607,10 @@ class TeamState extends State<Team> {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.7),
+            style: const TextStyle(
+              color: Colors.black,
               fontSize: 12,
+              fontWeight: FontWeight.bold,
               fontFamily: fontFamily,
             ),
           ),

@@ -583,14 +583,14 @@ class _AllIncomeState extends State<AllIncome>
                 Icon(
                   icon,
                   color: primaryColor,
-                  size: 20,
+                  size: 18,
                 ),
                 const SizedBox(width: 6),
                 Text(
                   title,
                   style: TextStyle(
                       color: secondaryTextColor,
-                      fontSize: 14,
+                      fontSize: 12,
                       overflow: TextOverflow.ellipsis),
                 ),
               ],
