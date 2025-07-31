@@ -80,7 +80,7 @@ class DirectIncomeHistory {
   String incomeType;
   String description;
   double percentage;
-  int referenceId;
+  String referenceId;
   String status;
   DateTime createdAt;
 
@@ -92,9 +92,7 @@ class DirectIncomeHistory {
         percentage: json["percentage"] != null
             ? double.tryParse(json["percentage"].toString()) ?? 0.0
             : 0.0,
-        referenceId: json["reference_id"] != null
-            ? int.tryParse(json["reference_id"].toString()) ?? 0
-            : 0,
+        referenceId: json["reference_id"]?.toString() ?? "",
         status: json["status"] ?? "",
         createdAt: json["created_at"] != null
             ? DateTime.parse(json["created_at"])
@@ -189,7 +187,7 @@ class LevelIncomeHistory {
   String description;
   int level;
   double percentage;
-  int referenceId;
+  String referenceId;
   String status;
   DateTime createdAt;
 
@@ -200,7 +198,7 @@ class LevelIncomeHistory {
         description: json["description"] ?? "",
         level: int.tryParse(json["level"]?.toString() ?? "0") ?? 0,
         percentage: double.tryParse(json["percentage"]?.toString() ?? "0") ?? 0.0,
-        referenceId: int.tryParse(json["reference_id"]?.toString() ?? "0") ?? 0,
+        referenceId: json["reference_id"]?.toString() ?? "",
         status: json["status"] ?? "",
         createdAt: json["created_at"] != null
             ? DateTime.parse(json["created_at"])

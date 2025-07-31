@@ -56,7 +56,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                 'id': income.id.toString(),
                 'amount': income.amount,
                 'investment_amount': '',
-                'From_Users': income.referenceId.toString(),
+                'From_Users': income.referenceId,
                 'created_at': income.createdAt.toIso8601String(),
                 'type': 'Direct Income',
                 'description': income.description,
@@ -79,7 +79,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                 'id': income.id.toString(),
                 'amount': income.amount,
                 'investment_amount': '',
-                'From_Users': income.referenceId.toString(),
+                'From_Users': income.referenceId,
                 'created_at': income.createdAt.toIso8601String(),
                 'type': 'Level ROI Income',
                 'description': income.description,
@@ -316,7 +316,9 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Total " + widget.title,
+                      widget.title.toLowerCase().contains('total')
+                          ? widget.title
+                          : "Total ${widget.title}",
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -598,9 +600,14 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                           vertical: 12,
                         ),
                         child: Text(
-                          income['From_Users']?.toString() ??
-                              income['reference_id']?.toString() ??
-                              'N/A',
+                          (income['From_Users']?.toString().isNotEmpty == true)
+                              ? income['From_Users'].toString()
+                              : (income['reference_id']
+                                          ?.toString()
+                                          .isNotEmpty ==
+                                      true)
+                                  ? income['reference_id'].toString()
+                                  : 'N/A',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white,
