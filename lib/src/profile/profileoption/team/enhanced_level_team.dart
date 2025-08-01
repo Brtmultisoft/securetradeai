@@ -346,13 +346,7 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
             ),
             child: isEarningsLoading
                 ? const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(30.0),
-                      child: CircularProgressIndicator(
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(Color(0xFF2EBD85)),
-                      ),
-                    ),
+                    child: LottieLoadingWidget.large(),
                   )
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

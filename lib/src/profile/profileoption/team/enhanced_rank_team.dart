@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 
 import '../../../../Data/Api.dart';
 
@@ -27,34 +28,50 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
   int p5 = 0;
   int p6 = 0;
 
-  // Rank names and descriptions
   final List<Map<String, dynamic>> rankInfo = [
     {
-      'name': 'Newcomer',
-      'description': 'Just getting started',
+      'name': 'No Rank',
+      'description': 'New to the platform',
       'color': Colors.white,
       'icon': Icons.star_border,
       'benefits': ['Basic trading features', 'Standard support'],
-      'requirements': 'No requirements'
+      'requirements': 'No requirements',
     },
     {
-      'name': 'Bronze',
+      'name': 'One Star',
+      'description': 'Getting started with networking',
+      'color': Colors.white,
+      'icon': Icons.star_border,
+      'benefits': ['Basic trading features', 'Pool Distribution Upto 30%'],
+      'requirements': '5 Direct members \n50 Active Team Members',
+      'directMembers': 5,
+      'teamMembers': 50,
+      'poolDistribution': '30%',
+    },
+    {
+      'name': 'Two Star',
       'description': 'Building your network',
       'color': Color(0xFFCD7F32),
       'icon': Icons.workspace_premium,
       'benefits': ['5% trading fee discount', 'Priority support'],
-      'requirements': '5 active referrals'
+      'requirements': '10 Direct members \n250 Active Team Members',
+      'directMembers': 10,
+      'teamMembers': 250,
+      'poolDistribution': '25%',
     },
     {
-      'name': 'Silver',
+      'name': 'Three Star',
       'description': 'Growing steadily',
       'color': Color(0xFFC0C0C0),
       'icon': Icons.workspace_premium,
       'benefits': ['10% trading fee discount', 'VIP support', 'Weekly reports'],
-      'requirements': '15 active referrals'
+      'requirements': '15 Direct members \n1000 Active Team Members',
+      'directMembers': 15,
+      'teamMembers': 1000,
+      'poolDistribution': '20%',
     },
     {
-      'name': 'Gold',
+      'name': 'Four Star',
       'description': 'Established networker',
       'color': Color(0xFFFFD700),
       'icon': Icons.workspace_premium,
@@ -63,10 +80,13 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
         'Dedicated account manager',
         'Advanced analytics'
       ],
-      'requirements': '30 active referrals'
+      'requirements': '20 Direct members \n5000 Active Team Members',
+      'directMembers': 20,
+      'teamMembers': 5000,
+      'poolDistribution': '15%',
     },
     {
-      'name': 'Platinum',
+      'name': 'Five Star',
       'description': 'Professional networker',
       'color': Color(0xFFE5E4E2),
       'icon': Icons.diamond,
@@ -75,31 +95,10 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
         'Exclusive events access',
         'Premium tools'
       ],
-      'requirements': '50 active referrals'
-    },
-    {
-      'name': 'Diamond',
-      'description': 'Elite networker',
-      'color': Color(0xFF40E0D0),
-      'icon': Icons.diamond,
-      'benefits': [
-        '25% trading fee discount',
-        'Exclusive investment opportunities',
-        'Custom solutions'
-      ],
-      'requirements': '100 active referrals'
-    },
-    {
-      'name': 'Black Diamond',
-      'description': 'Legendary networker',
-      'color': Color(0xFF212121),
-      'icon': Icons.diamond,
-      'benefits': [
-        '30% trading fee discount',
-        'Revenue sharing',
-        'Global events access'
-      ],
-      'requirements': '200+ active referrals'
+      'requirements': '25 Direct members \n25000 Active Team Members',
+      'directMembers': 25,
+      'teamMembers': 25000,
+      'poolDistribution': '10%',
     },
   ];
 
@@ -177,7 +176,7 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
       backgroundColor: const Color(0xFF0B0E11),
       body: isAPIcalled
           ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFFF0B90B)),
+              child: LottieLoadingWidget.large(),
             )
           : checkdata
               ? Center(

@@ -748,19 +748,17 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
   String _getRankName(String rank) {
     switch (rank) {
       case "0":
-        return "Newcomer";
+        return "One Star";
       case "1":
-        return "Bronze";
+        return "Two Star";
       case "2":
-        return "Silver";
+        return "Three Star";
       case "3":
-        return "Gold";
+        return "Four Star";
       case "4":
-        return "Platinum";
-      case "5":
         return "Diamond";
       case "6":
-        return "Black Diamond";
+        return "Five Star";
       default:
         return "Newcomer";
     }
