@@ -344,8 +344,8 @@ class CommonMethod {
     }
   }
 
-  /// Get Level ROI Income
-  Future<LevelIncomeModel> getLevelROIIncome() async {
+  /// Get Level TPS Income
+  Future<LevelIncomeModel> getLevelTPSIncome() async {
     try {
       print('🔄 Making API call to: $getLevelIncomeUrl');
       print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
@@ -367,7 +367,7 @@ class CommonMethod {
         return LevelIncomeModel(
           status: "success",
           message:
-              "Level ROI income feature is being prepared. Please check back later.",
+              "Level TPS income feature is being prepared. Please check back later.",
           responsecode: "200",
           data: LevelIncomeData(
             totalLevelIncome: 0.0,
@@ -380,7 +380,7 @@ class CommonMethod {
         print('⚠️ HTTP Error ${res.statusCode}: ${res.body}');
         return LevelIncomeModel(
           status: "success",
-          message: "Level ROI income data temporarily unavailable",
+          message: "Level TPS income data temporarily unavailable",
           responsecode: "200",
           data: LevelIncomeData(
             totalLevelIncome: 0.0,
@@ -685,7 +685,7 @@ class CommonMethod {
     }
   }
 
-  /// Get Daily ROI History
+  /// Get Daily TPS History
   Future<DailyRoiHistoryModel> getDailyRoiHistory({
     required int investmentId,
     int limit = 30,
@@ -715,11 +715,11 @@ class CommonMethod {
       // Check HTTP status code first
       if (res.statusCode == 500) {
         print(
-            '🚨 Server Error (500): Daily ROI history API endpoint may not be implemented yet');
+            '🚨 Server Error (500): Daily TPS history API endpoint may not be implemented yet');
         return DailyRoiHistoryModel(
           status: "success",
           message:
-              "ROI history data is being prepared. Please check back later.",
+              "TPS history data is being prepared. Please check back later.",
           responsecode: "200",
           data: DailyRoiHistoryData(
             investmentId: investmentId,
@@ -735,7 +735,7 @@ class CommonMethod {
         print('⚠️ HTTP Error ${res.statusCode}: ${res.body}');
         return DailyRoiHistoryModel(
           status: "success",
-          message: "ROI history temporarily unavailable",
+          message: "TPS history temporarily unavailable",
           responsecode: "200",
           data: DailyRoiHistoryData(
             investmentId: investmentId,
@@ -749,10 +749,10 @@ class CommonMethod {
 
       // Check if response is empty or null
       if (res.body.isEmpty || res.body.trim().isEmpty) {
-        print('⚠️ Empty response from daily ROI history API');
+        print('⚠️ Empty response from daily TPS history API');
         return DailyRoiHistoryModel(
           status: "success",
-          message: "No ROI history found",
+          message: "No TPS history found",
           responsecode: "200",
           data: DailyRoiHistoryData(
             investmentId: investmentId,
@@ -774,7 +774,7 @@ class CommonMethod {
         // Return empty data instead of error
         return DailyRoiHistoryModel(
           status: "success",
-          message: "No ROI history available",
+          message: "No TPS history available",
           responsecode: "200",
           data: DailyRoiHistoryData(
             investmentId: investmentId,
@@ -786,7 +786,7 @@ class CommonMethod {
         );
       }
     } catch (e) {
-      print('❌ Network error getting daily ROI history: $e');
+      print('❌ Network error getting daily TPS history: $e');
       return DailyRoiHistoryModel(
         status: "error",
         message: "Network error: ${e.toString()}",

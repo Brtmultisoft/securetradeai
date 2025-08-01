@@ -69,8 +69,8 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
           break;
 
         case 'level_income':
-          print('📤 Income API Request: getLevelROIIncome()');
-          final levelRes = await CommonMethod().getLevelROIIncome();
+          print('📤 Income API Request: getLevelTPSIncome()');
+          final levelRes = await CommonMethod().getLevelTPSIncome();
           print('📥 Response: ${levelRes.status}');
 
           if (levelRes.status == "success") {
@@ -82,7 +82,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                 'investment_amount': '',
                 'From_Users': income.referenceId,
                 'created_at': income.createdAt.toIso8601String(),
-                'type': 'Level ROI Income',
+                'type': 'Level TPS Income',
                 'description': income.description,
                 'status': income.status,
                 'level': income.level,
@@ -116,7 +116,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
 
         case 'roi':
           print('📤 Income API Request: getDailyRoiHistory()');
-          // Get the first active investment ID for ROI history
+          // Get the first active investment ID for TPS history
           final investmentsRes = await CommonMethod().getUserInvestmentsNew();
           if (investmentsRes.status == "success" &&
               investmentsRes.data.arbitrageInvestments.isNotEmpty) {
@@ -138,9 +138,9 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                       firstInvestment.investmentAmount.toString(),
                   'From_Users': 'Investment #${firstInvestment.id}',
                   'created_at': roi.createdAt.toIso8601String(),
-                  'type': 'Daily ROI',
+                  'type': 'Daily TPS',
                   'description':
-                      'Daily ROI ${roi.roiPercentage}% from ${firstInvestment.packageType} package',
+                      'Daily TPS ${roi.roiPercentage}% from ${firstInvestment.packageType} package',
                   'status': 'COMPLETED',
                   'roi_date': roi.roiDate.toIso8601String(),
                   'roi_percentage': roi.roiPercentage,
@@ -211,7 +211,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
   String _getIncomeTypeDisplay(String type) {
     switch (type) {
       case 'roi':
-        return 'Daily ROI';
+        return 'Daily TPS';
       case 'direct_roi_income':
         return 'Direct Income';
       case 'level_income':
@@ -660,7 +660,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
   String _getFourthColumnData(Map<String, dynamic> income) {
     String titleLower = widget.title.toLowerCase();
     if (titleLower.contains('total roi')) {
-      // For Total ROI, show investment amount
+      // For Total TPS, show investment amount
       return income['investment_amount']?.toString() ?? 'N/A';
     } else if (titleLower.contains('direct')) {
       // For Direct Income, show referral ID

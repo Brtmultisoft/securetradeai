@@ -109,8 +109,8 @@ class _WithdrawalState extends State<Withdrawal> {
                     children: [
                       Container(
                         child: Text(
-                          "balance".tr + " : ",
-                          style: TextStyle(
+                          "${"balance".tr} : ",
+                          style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 18),
@@ -118,9 +118,9 @@ class _WithdrawalState extends State<Withdrawal> {
                       ),
                       Container(
                         child: isLoadingProfile
-                            ? Text(
+                            ? const Text(
                                 "Loading...",
-                                style: const TextStyle(
+                                style: TextStyle(
                                     color: Colors.white70,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16),
@@ -134,7 +134,7 @@ class _WithdrawalState extends State<Withdrawal> {
                               ),
                       )
                     ]),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 // Row(
@@ -167,8 +167,8 @@ class _WithdrawalState extends State<Withdrawal> {
                     children: [
                       Container(
                         child: Text(
-                          "address".tr + " :     ",
-                          style: TextStyle(
+                          "${"address".tr} :     ",
+                          style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 18),
@@ -179,10 +179,11 @@ class _WithdrawalState extends State<Withdrawal> {
                           height: 50,
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: Color(0xfff3f3f4),
+                              color: const Color(0xfff3f3f4),
                             ),
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            color: Color(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(10)),
+                            color: const Color(
                                 0xFF2A2A2A), // Darker background to indicate non-editable
                           ),
                           child: Center(
@@ -193,7 +194,7 @@ class _WithdrawalState extends State<Withdrawal> {
                                 children: [
                                   Expanded(
                                     child: isLoadingProfile
-                                        ? Text(
+                                        ? const Text(
                                             "Loading wallet address...",
                                             style: TextStyle(
                                               color: Colors.white70,
@@ -212,7 +213,7 @@ class _WithdrawalState extends State<Withdrawal> {
                                             ),
                                           ),
                                   ),
-                                  Icon(
+                                  const Icon(
                                     Icons.lock,
                                     color: Colors.white70,
                                     size: 16,
@@ -233,7 +234,7 @@ class _WithdrawalState extends State<Withdrawal> {
                       Container(
                         child: Text(
                           "amount".tr + r"($) : ",
-                          style: TextStyle(
+                          style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 18),
@@ -245,10 +246,10 @@ class _WithdrawalState extends State<Withdrawal> {
                           height: 50,
                           decoration: BoxDecoration(
                               border: Border.all(
-                                color: Color(0xfff3f3f4),
+                                color: const Color(0xfff3f3f4),
                               ),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(10))),
+                                  const BorderRadius.all(Radius.circular(10))),
                           child: Center(
                             child: Padding(
                               padding: const EdgeInsets.only(left: 8.0),
@@ -257,9 +258,9 @@ class _WithdrawalState extends State<Withdrawal> {
                                 controller: amount,
                                 keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
-                                  hintStyle: TextStyle(
+                                  hintStyle: const TextStyle(
                                       color: Colors.white70, fontSize: 13),
-                                  hintText: "amount".tr + "(USDT)",
+                                  hintText: "${"amount".tr}(USDT)",
                                   border: InputBorder.none,
                                   enabledBorder: InputBorder.none,
                                   focusedBorder: InputBorder.none,
@@ -279,16 +280,16 @@ class _WithdrawalState extends State<Withdrawal> {
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.error_outline,
                           color: Colors.red,
                           size: 16,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             amountError!,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.red,
                               fontSize: 12,
                             ),
@@ -305,23 +306,24 @@ class _WithdrawalState extends State<Withdrawal> {
                     children: [
                       Container(
                         child: Text(
-                          "loginpassword".tr + " : ",
-                          style: TextStyle(
+                          "${"OTP".tr} : ",
+                          style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 18),
                         ),
                       ),
+                      const SizedBox(width: 50),
                       Expanded(
                         child: Container(
                             child: Container(
                           height: 50,
                           decoration: BoxDecoration(
                               border: Border.all(
-                                color: Color(0xfff3f3f4),
+                                color: const Color(0xfff3f3f4),
                               ),
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(10))),
+                                  const BorderRadius.all(Radius.circular(10))),
                           child: Center(
                             child: Padding(
                               padding: const EdgeInsets.only(left: 8.0),
@@ -330,9 +332,9 @@ class _WithdrawalState extends State<Withdrawal> {
                                 style: const TextStyle(color: Colors.white),
                                 controller: transpass,
                                 decoration: InputDecoration(
-                                  hintStyle: TextStyle(
+                                  hintStyle: const TextStyle(
                                       color: Colors.white70, fontSize: 13),
-                                  hintText: "loginpassword".tr,
+                                  hintText: "Enter OTP".tr,
                                   border: InputBorder.none,
                                   enabledBorder: InputBorder.none,
                                   focusedBorder: InputBorder.none,
@@ -344,7 +346,7 @@ class _WithdrawalState extends State<Withdrawal> {
                       )
                     ]),
 
-                SizedBox(
+                const SizedBox(
                   height: 40,
                 ),
                 InkWell(
@@ -355,10 +357,10 @@ class _WithdrawalState extends State<Withdrawal> {
                       : null,
                   child: Container(
                     width: MediaQuery.of(context).size.width,
-                    padding: EdgeInsets.symmetric(vertical: 15),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
                     alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
@@ -382,8 +384,8 @@ class _WithdrawalState extends State<Withdrawal> {
                       //           Colors.grey.shade700,
                       //         ],
                       // ),
-                      borderRadius: const BorderRadius.all(Radius.circular(5)),
-                      boxShadow: const <BoxShadow>[
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                      boxShadow: <BoxShadow>[
                         BoxShadow(
                             color: Colors.black12,
                             offset: Offset(2, 4),
@@ -393,7 +395,7 @@ class _WithdrawalState extends State<Withdrawal> {
                     ),
                     child: Text(
                       "withdrawal".tr,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 20,
                         color: Colors.black,
                         fontWeight: FontWeight.bold,

@@ -43,12 +43,12 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   bool _isProcessing = false;
 
   // Income data
-  double dailyROI = 0.0;
+  double dailyTPS = 0.0;
   double directIncome = 0.0;
   double levelIncome = 0.0;
   double businessIncome = 0.0;
-  double totalROIIncome = 0.0;
-  double totalDirectROIIncome = 0.0;
+  double totalTPSIncome = 0.0;
+  double totalDirectTPSIncome = 0.0;
   double totalBusinessIncome = 0.0;
   // List<Map<String, dynamic>> myInvestments = [];
   // List<Map<String, dynamic>> incomeHistory = [];
@@ -64,7 +64,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   // Income summary data
   IncomeSummaryModel? incomeSummaryData;
 
-  // ROI history data for chart
+  // TPS history data for chart
   DailyRoiHistoryModel? roiHistoryData;
 
   // New Income Management Data
@@ -72,14 +72,14 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   double directTotalIncome = 0.0;
   List<DirectIncomeHistory> directIncomeHistory = [];
 
-  LevelIncomeModel? levelROIIncomeData;
-  double levelROITotalIncome = 0.0;
-  List<LevelIncomeHistory> levelROIIncomeHistory = [];
+  LevelIncomeModel? levelTPSIncomeData;
+  double levelTPSTotalIncome = 0.0;
+  List<LevelIncomeHistory> levelTPSIncomeHistory = [];
 
   SalaryIncomeModel? salaryIncomeData;
   double salaryTotalIncome = 0.0;
   List<SalaryIncomeHistory> salaryIncomeHistory = [];
-  Color binanceYellow = Color(0xFFF0B90B);
+  Color binanceYellow = const Color(0xFFF0B90B);
 
   @override
   void initState() {
@@ -107,11 +107,11 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
       // Load income management data using only the 6 specific APIs
       await Future.wait<void>([
         _loadDirectIncome(),
-        _loadLevelROIIncome(),
+        _loadLevelTPSIncome(),
         _loadSalaryIncome(),
         _loadUserRank(),
         _loadIncomeSummary(),
-        _loadROIHistory(),
+        _loadTPSHistory(),
       ]);
 
       // Calculate totals from the loaded data instead of mine API
@@ -145,11 +145,11 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     }
 
     setState(() {
-      // Only calculate ROI income from the income summary API for reports
-      totalROIIncome = _getTotalROIFromIncomeSummary();
+      // Only calculate TPS income from the income summary API for reports
+      totalTPSIncome = _getTotalTPSFromIncomeSummary();
 
       // Set these to 0 since we're not using mine API for report calculations
-      totalDirectROIIncome = 0.0;
+      totalDirectTPSIncome = 0.0;
       totalBusinessIncome = 0.0;
     });
   }
@@ -224,18 +224,18 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     }
   }
 
-  Future<void> _loadLevelROIIncome() async {
+  Future<void> _loadLevelTPSIncome() async {
     try {
-      final res = await CommonMethod().getLevelROIIncome();
+      final res = await CommonMethod().getLevelTPSIncome();
       if (res.status == "success") {
         setState(() {
-          levelROIIncomeData = res;
-          levelROITotalIncome = res.data.totalLevelIncome;
-          levelROIIncomeHistory = res.data.incomeHistory;
+          levelTPSIncomeData = res;
+          levelTPSTotalIncome = res.data.totalLevelIncome;
+          levelTPSIncomeHistory = res.data.incomeHistory;
         });
       }
     } catch (e) {
-      print('Error loading level ROI income: $e');
+      print('Error loading level TPS income: $e');
     }
   }
 
@@ -254,9 +254,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     }
   }
 
-  Future<void> _loadROIHistory() async {
+  Future<void> _loadTPSHistory() async {
     try {
-      // Get the first active investment ID for ROI history
+      // Get the first active investment ID for TPS history
       final investmentsRes = await CommonMethod().getUserInvestmentsNew();
       if (investmentsRes.status == "success" &&
           investmentsRes.data.arbitrageInvestments.isNotEmpty) {
@@ -273,7 +273,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         }
       }
     } catch (e) {
-      print('Error loading ROI history: $e');
+      print('Error loading TPS history: $e');
     }
   }
 
@@ -493,12 +493,12 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
       padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 15),
       child: Column(
         children: [
-          // First row: Daily ROI and Direct Referral
+          // First row: Daily TPS and Direct Referral
           Row(
             children: [
               Expanded(
                 child: _buildIncomeItem(
-                  'Daily ROI',
+                  'Daily TPS',
                   breakdown.dailyRoi,
                   Icons.trending_up,
                   const Color(0xFF0ECB81),
@@ -516,12 +516,12 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
             ],
           ),
           const SizedBox(height: 10),
-          // Second row: Level ROI and Gas Fee
+          // Second row: Level TPS and Gas Fee
           Row(
             children: [
               Expanded(
                 child: _buildIncomeItem(
-                  'Level ROI',
+                  'Level TPS',
                   breakdown.levelRoi,
                   Icons.layers,
                   const Color(0xFFF0B90B),
@@ -530,21 +530,13 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
               const SizedBox(width: 18),
               Expanded(
                 child: _buildIncomeItem(
-                  'Gas Fee',
-                  breakdown.gasFee,
-                  Icons.local_gas_station,
-                  const Color(0xFF848E9C),
+                  'Salary',
+                  breakdown.salary,
+                  Icons.account_balance_wallet,
+                  const Color(0xFF9C27B0),
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 10),
-          // Third row: Salary (full width)
-          _buildIncomeItem(
-            'Salary',
-            breakdown.salary,
-            Icons.account_balance_wallet,
-            const Color(0xFF9C27B0),
           ),
         ],
       ),
@@ -553,53 +545,100 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
 
   Widget _buildIncomeItem(
       String label, double amount, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E2026),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFF2A2D35), width: 1),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Icon(
-              icon,
+    return InkWell(
+      onTap: () {
+        // Navigate to appropriate income details page based on label
+        String incomeType;
+        String title;
+
+        switch (label) {
+          case 'Daily TPS':
+            incomeType = 'roi';
+            title = 'Daily TPS Income';
+            break;
+          case 'Direct Referral':
+            incomeType = 'direct_income';
+            title = 'Direct Referral Income';
+            break;
+          case 'Level TPS':
+            incomeType = 'level_income';
+            title = 'Level TPS Income';
+            break;
+          case 'Salary':
+            incomeType = 'salary_income';
+            title = 'Salary Income';
+            break;
+          default:
+            incomeType = 'roi';
+            title = '$label Income';
+        }
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => IncomeDetailsPage(
+              incomeType: incomeType,
+              title: title,
               color: color,
-              size: 16,
             ),
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    color: Color(0xFF848E9C),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '\$${amount.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    color: amount > 0 ? color : const Color(0xFF848E9C),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+        );
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E2026),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFF2A2D35), width: 1),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 16,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      color: Color(0xFF848E9C),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '\$${amount.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      color: amount > 0 ? color : const Color(0xFF848E9C),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Add a subtle arrow icon to indicate it's clickable
+            Icon(
+              Icons.arrow_forward_ios,
+              color: const Color(0xFF848E9C),
+              size: 12,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -682,13 +721,13 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     // const SizedBox(width: 12),
                     Expanded(
                       child: _buildInvestmentStat(
-                        'Arbitrage \nInvestment',
+                        'Arbitrage \nFunds',
                         '\$${(investmentSummary?.totalArbitrageInvestment ?? 0.0).toStringAsFixed(0)}',
                         Icons.swap_horiz,
                         Colors.blue,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Expanded(
@@ -757,14 +796,14 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                         Icons.group,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildTeamStat(
-                        'Total Earnings',
-                        '\$${rankData.totalEarnings.toStringAsFixed(0)}',
-                        Icons.account_balance_wallet,
-                      ),
-                    ),
+                    // const SizedBox(width: 12),
+                    // Expanded(
+                    //   child: _buildTeamStat(
+                    //     'Total Earnings',
+                    //     '\$${rankData.totalEarnings.toStringAsFixed(0)}',
+                    //     Icons.account_balance_wallet,
+                    //   ),
+                    // ),
                   ],
                 ),
               ],
@@ -1110,7 +1149,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                               ),
                               SizedBox(height: 4),
                               Text(
-                                'Flexible investment from \$50 to \$1000',
+                                'Flexible investment from \$100 to \$1000',
                                 style: TextStyle(
                                   color: Color(0xFF848E9C),
                                   fontSize: 14,
@@ -1124,7 +1163,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     const SizedBox(height: 24),
                     // Package Features
                     _buildFeatureRow(
-                        Icons.trending_up, 'Daily ROI', '0.33% - 0.55%'),
+                        Icons.trending_up, 'Daily TPS', '0.33% - 0.55%'),
                     // const SizedBox(height: 12),
                     // _buildFeatureRow(Icons.schedule, 'Duration', '30 Days'),
                     const SizedBox(height: 12),
@@ -1164,7 +1203,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                         fontWeight: FontWeight.w600,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'Enter amount (50 - 1000)',
+                        hintText: 'Enter amount (100 - 1000)',
                         hintStyle: const TextStyle(
                           color: Color(0xFF848E9C),
                           fontSize: 16,
@@ -1204,8 +1243,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                         if (amount == null) {
                           return 'Please enter a valid number';
                         }
-                        if (amount < 50) {
-                          return 'Minimum investment is \$50';
+                        if (amount < 100) {
+                          return 'Minimum investment is \$100';
                         }
                         if (amount > 1000) {
                           return 'Maximum investment is \$1000';
@@ -1220,8 +1259,6 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     // Quick Amount Buttons
                     Row(
                       children: [
-                        Expanded(child: _buildQuickAmountButton('50')),
-                        const SizedBox(width: 8),
                         Expanded(child: _buildQuickAmountButton('100')),
                         const SizedBox(width: 8),
                         Expanded(child: _buildQuickAmountButton('250')),
@@ -1367,7 +1404,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Daily ROI: 0.33% - 0.55%',
+                  'Daily TPS: 0.33% - 0.55%',
                   style: TextStyle(color: Colors.white),
                 ),
                 // const SizedBox(height: 8),
@@ -1494,13 +1531,13 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     }
   }
 
-  /// Get Daily ROI value from income summary API data
-  double _getTotalROIFromIncomeSummary() {
+  /// Get Daily TPS value from income summary API data
+  double _getTotalTPSFromIncomeSummary() {
     if (incomeSummaryData == null) {
-      return totalROIIncome;
+      return totalTPSIncome;
     }
-    final dailyROIValue = incomeSummaryData!.data.incomeBreakdown.dailyRoi;
-    return dailyROIValue;
+    final dailyTPSValue = incomeSummaryData!.data.incomeBreakdown.dailyRoi;
+    return dailyTPSValue;
   }
 
   Widget _buildMyInvestmentsTab() {
@@ -1607,7 +1644,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
               ),
               Expanded(
                 child: _buildInvestmentDetail(
-                    'Daily ROI', '${investment.dailyRoiPercentage}%'),
+                    'Daily TPS', '${investment.dailyRoiPercentage}%'),
               ),
               Expanded(
                 child: _buildInvestmentDetail('Total Earned',
@@ -1689,8 +1726,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildIncomeCard(
-                      'Level ROI Income',
-                      levelROITotalIncome,
+                      'Level TPS Income',
+                      levelTPSTotalIncome,
                       const Color(0xFFF0B90B),
                       'level_income'),
                 ),
@@ -1706,9 +1743,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildIncomeCard(
-                      'Total ROI Income',
-                      _getTotalROIFromIncomeSummary(),
-                      const Color(0xFFE53935),
+                      'Total TPS Income',
+                      _getTotalTPSFromIncomeSummary(),
+                      const Color(0xFF9f86c0),
                       'roi'),
                 ),
               ],
@@ -1739,9 +1776,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                   ...directIncomeHistory.map((income) =>
                       _buildNewIncomeHistoryItem('Direct Income', income.amount,
                           income.createdAt, income.status, income.description)),
-                  ...levelROIIncomeHistory.map((income) =>
+                  ...levelTPSIncomeHistory.map((income) =>
                       _buildNewIncomeHistoryItem(
-                          'Level ROI Income',
+                          'Level TPS Income',
                           income.amount,
                           income.createdAt,
                           income.status,
@@ -1751,7 +1788,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                           income.createdAt, income.status, income.description)),
                   // Show existing income history if no new data
                   // if (directIncomeHistory.isEmpty &&
-                  //     levelROIIncomeHistory.isEmpty &&
+                  //     levelTPSIncomeHistory.isEmpty &&
                   //     salaryIncomeHistory.isEmpty)
                   //   ...incomeHistory
                   //       .map((income) => _buildIncomeHistoryItem(income)),
@@ -2003,12 +2040,12 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   Widget _buildReportSummaryCard() {
     final double totalInvested = investmentSummary?.totalInvestment ?? 0.0;
     final double totalEarned = investmentSummary?.totalRoiEarned ?? 0.0;
-    final double totalIncome = dailyROI +
+    final double totalIncome = dailyTPS +
         directIncome +
         levelIncome +
         businessIncome +
         directTotalIncome +
-        levelROITotalIncome +
+        levelTPSTotalIncome +
         salaryTotalIncome;
 
     return Container(
@@ -2049,7 +2086,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
               Expanded(
                 child: _buildSummaryItem(
                     'Total Earned',
-                    '\$${(totalDirectROIIncome + totalBusinessIncome + totalROIIncome + directTotalIncome + levelROITotalIncome + salaryTotalIncome).toStringAsFixed(2)}',
+                    '\$${(totalDirectTPSIncome + totalBusinessIncome + totalTPSIncome + directTotalIncome + levelTPSTotalIncome + salaryTotalIncome).toStringAsFixed(2)}',
                     const Color(0xFF0ECB81)),
               ),
             ],
@@ -2210,9 +2247,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   Widget _buildIncomeOverviewCards() {
     // Use real loaded income data from specific APIs
     final totalIncome = directTotalIncome +
-        levelROITotalIncome +
+        levelTPSTotalIncome +
         salaryTotalIncome +
-        totalROIIncome;
+        totalTPSIncome;
 
     return Row(
       children: [
@@ -2227,8 +2264,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         const SizedBox(width: 8),
         Expanded(
           child: _buildOverviewCard(
-            'Daily ROI',
-            '\$${totalROIIncome.toStringAsFixed(2)}',
+            'Daily TPS',
+            '\$${totalTPSIncome.toStringAsFixed(2)}',
             const Color(0xFFF0B90B),
             Icons.trending_up,
           ),
@@ -2311,9 +2348,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   Widget _buildIncomeBarChart() {
     // Use real loaded income data from specific APIs
     final totalIncome = directTotalIncome +
-        levelROITotalIncome +
+        levelTPSTotalIncome +
         salaryTotalIncome +
-        totalROIIncome;
+        totalTPSIncome;
 
     if (totalIncome <= 0) {
       return Container(
@@ -2336,8 +2373,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     // Create chart data using real API values
     final chartData = [
       {
-        'label': 'Daily ROI',
-        'value': totalROIIncome,
+        'label': 'Daily TPS',
+        'value': totalTPSIncome,
         'color': const Color(0xFF0ECB81)
       },
       {
@@ -2346,8 +2383,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         'color': const Color(0xFFF0B90B)
       },
       {
-        'label': 'Level ROI',
-        'value': levelROITotalIncome,
+        'label': 'Level TPS',
+        'value': levelTPSTotalIncome,
         'color': const Color(0xFF4A90E2)
       },
       {
@@ -2457,9 +2494,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   Widget _buildIncomePieChartSection() {
     // Use ONLY real loaded income data from specific APIs - NO DUMMY DATA
     final totalIncome = directTotalIncome +
-        levelROITotalIncome +
+        levelTPSTotalIncome +
         salaryTotalIncome +
-        totalROIIncome;
+        totalTPSIncome;
 
     if (totalIncome <= 0) {
       return Container(
@@ -2495,10 +2532,10 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
 
     // Create pie chart data using ONLY real API values - NO DUMMY DATA
     final pieData = [
-      if (totalROIIncome > 0)
+      if (totalTPSIncome > 0)
         {
-          'label': 'Daily ROI',
-          'value': totalROIIncome,
+          'label': 'Daily TPS',
+          'value': totalTPSIncome,
           'color': const Color(0xFF0ECB81)
         },
       if (directTotalIncome > 0)
@@ -2507,10 +2544,10 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
           'value': directTotalIncome,
           'color': const Color(0xFFF0B90B)
         },
-      if (levelROITotalIncome > 0)
+      if (levelTPSTotalIncome > 0)
         {
-          'label': 'Level ROI',
-          'value': levelROITotalIncome,
+          'label': 'Level TPS',
+          'value': levelTPSTotalIncome,
           'color': const Color(0xFF4A90E2)
         },
       if (salaryTotalIncome > 0)
@@ -2676,9 +2713,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   Widget _buildMainPerformanceChart() {
     // Use real loaded income data from specific APIs
     final totalIncome = directTotalIncome +
-        levelROITotalIncome +
+        levelTPSTotalIncome +
         salaryTotalIncome +
-        totalROIIncome;
+        totalTPSIncome;
 
     if (totalIncome <= 0) {
       return Container(
@@ -2753,15 +2790,15 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   Widget _buildEnhancedPieChart() {
     // Use real loaded income data from specific APIs
     final totalIncome = directTotalIncome +
-        levelROITotalIncome +
+        levelTPSTotalIncome +
         salaryTotalIncome +
-        totalROIIncome;
+        totalTPSIncome;
 
     // Create pie chart data using real API values
     final pieData = [
       {
-        'label': 'Daily ROI',
-        'value': totalROIIncome,
+        'label': 'Daily TPS',
+        'value': totalTPSIncome,
         'color': const Color(0xFF0ECB81)
       },
       {
@@ -2770,8 +2807,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         'color': const Color(0xFFF0B90B)
       },
       {
-        'label': 'Level ROI',
-        'value': levelROITotalIncome,
+        'label': 'Level TPS',
+        'value': levelTPSTotalIncome,
         'color': const Color(0xFF4A90E2)
       },
       {
@@ -2853,9 +2890,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   Widget _buildIncomeBreakdownChart() {
     // Use real loaded income data from specific APIs
     final totalIncome = directTotalIncome +
-        levelROITotalIncome +
+        levelTPSTotalIncome +
         salaryTotalIncome +
-        totalROIIncome;
+        totalTPSIncome;
 
     if (totalIncome <= 0) {
       return const SizedBox(
@@ -2872,8 +2909,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     // Create chart data using real API values
     final chartData = [
       {
-        'label': 'Daily ROI',
-        'value': totalROIIncome,
+        'label': 'Daily TPS',
+        'value': totalTPSIncome,
         'color': const Color(0xFF0ECB81)
       },
       {
@@ -2882,8 +2919,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         'color': const Color(0xFFF0B90B)
       },
       {
-        'label': 'Level ROI',
-        'value': levelROITotalIncome,
+        'label': 'Level TPS',
+        'value': levelTPSTotalIncome,
         'color': const Color(0xFF4A90E2)
       },
       {
@@ -2962,9 +2999,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   Widget _buildIncomePieChart() {
     // Use real loaded income data from specific APIs
     final totalIncome = directTotalIncome +
-        levelROITotalIncome +
+        levelTPSTotalIncome +
         salaryTotalIncome +
-        totalROIIncome;
+        totalTPSIncome;
 
     if (totalIncome <= 0) {
       return Container(
@@ -2987,8 +3024,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     // Create pie chart data using real API values
     final pieData = [
       {
-        'label': 'Daily ROI',
-        'value': totalROIIncome,
+        'label': 'Daily TPS',
+        'value': totalTPSIncome,
         'color': const Color(0xFF0ECB81)
       },
       {
@@ -2997,8 +3034,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         'color': const Color(0xFFF0B90B)
       },
       {
-        'label': 'Level ROI',
-        'value': levelROITotalIncome,
+        'label': 'Level TPS',
+        'value': levelTPSTotalIncome,
         'color': const Color(0xFF4A90E2)
       },
       {
@@ -3098,8 +3135,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     );
   }
 
-  Widget _buildDailyROITrendChart() {
-    // Use real ROI history data from API
+  Widget _buildDailyTPSTrendChart() {
+    // Use real TPS history data from API
     if (roiHistoryData == null || roiHistoryData!.data.roiHistory.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(16),
@@ -3112,7 +3149,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
             Text(
-              'Daily ROI Trend',
+              'Daily TPS Trend',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -3122,7 +3159,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
             SizedBox(height: 20),
             Center(
               child: Text(
-                'No ROI history data available',
+                'No TPS history data available',
                 style: TextStyle(
                   color: Color(0xFF848E9C),
                   fontSize: 14,
@@ -3134,7 +3171,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
       );
     }
 
-    // Use actual ROI history data from API
+    // Use actual TPS history data from API
     final roiHistory = roiHistoryData!.data.roiHistory;
     final trendData = roiHistory.take(7).map((roi) {
       return {
@@ -3174,7 +3211,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Daily ROI Trend (7 Days)',
+                'Daily TPS Trend (7 Days)',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -3272,9 +3309,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   Widget _buildPerformanceMetrics() {
     // Use real loaded income data from specific APIs
     final totalIncome = directTotalIncome +
-        levelROITotalIncome +
+        levelTPSTotalIncome +
         salaryTotalIncome +
-        totalROIIncome;
+        totalTPSIncome;
 
     if (totalIncome <= 0) {
       return const SizedBox.shrink();
@@ -3285,7 +3322,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
     final roiPercentage =
         totalInvested > 0 ? (totalIncome / totalInvested) * 100 : 0.0;
 
-    // Use REAL daily ROI from income summary API - NOT total cumulative
+    // Use REAL daily TPS from income summary API - NOT total cumulative
     final dailyAverage =
         incomeSummaryData?.data.incomeBreakdown.dailyRoi ?? 0.0;
     final monthlyProjection = dailyAverage * 30;
@@ -3294,7 +3331,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
       children: [
         Expanded(
           child: _buildMetricCard(
-            'ROI %',
+            'TPS %',
             '${roiPercentage.toStringAsFixed(1)}%',
             roiPercentage >= 0
                 ? const Color(0xFF0ECB81)
@@ -3382,7 +3419,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
               ),
               const SizedBox(height: 4),
               Text(
-                'ROI: ${investment['dailyROI']}%',
+                'TPS: ${investment['dailyTPS']}%',
                 style: const TextStyle(
                   color: Color(0xFF848E9C),
                   fontSize: 12,
@@ -3427,7 +3464,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
               ),
               const SizedBox(height: 4),
               Text(
-                'ROI: ${investment.dailyRoiPercentage}%',
+                'TPS: ${investment.dailyRoiPercentage}%',
                 style: const TextStyle(
                   color: Color(0xFF848E9C),
                   fontSize: 12,
@@ -3533,11 +3570,11 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
 
       // Calculate totals
       final totalIncome = directTotalIncome +
-          levelROITotalIncome +
+          levelTPSTotalIncome +
           salaryTotalIncome +
-          totalROIIncome;
+          totalTPSIncome;
       final totalInvested = investmentSummary?.totalInvestment ?? 0.0;
-      final dailyROIValue =
+      final dailyTPSValue =
           incomeSummaryData?.data.incomeBreakdown.dailyRoi ?? 0.0;
 
       // Add page to PDF
@@ -3615,15 +3652,15 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                       ],
                     ),
                     // Data rows
-                    if (dailyROIValue > 0)
+                    if (dailyTPSValue > 0)
                       pw.TableRow(children: [
                         pw.Padding(
                             padding: const pw.EdgeInsets.all(8),
-                            child: pw.Text('Daily ROI')),
+                            child: pw.Text('Daily TPS')),
                         pw.Padding(
                             padding: const pw.EdgeInsets.all(8),
                             child: pw.Text(
-                                '\$${dailyROIValue.toStringAsFixed(2)}')),
+                                '\$${dailyTPSValue.toStringAsFixed(2)}')),
                       ]),
                     if (directTotalIncome > 0)
                       pw.TableRow(children: [
@@ -3635,15 +3672,15 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                             child: pw.Text(
                                 '\$${directTotalIncome.toStringAsFixed(2)}')),
                       ]),
-                    if (levelROITotalIncome > 0)
+                    if (levelTPSTotalIncome > 0)
                       pw.TableRow(children: [
                         pw.Padding(
                             padding: const pw.EdgeInsets.all(8),
-                            child: pw.Text('Level ROI Income')),
+                            child: pw.Text('Level TPS Income')),
                         pw.Padding(
                             padding: const pw.EdgeInsets.all(8),
                             child: pw.Text(
-                                '\$${levelROITotalIncome.toStringAsFixed(2)}')),
+                                '\$${levelTPSTotalIncome.toStringAsFixed(2)}')),
                       ]),
                     if (salaryTotalIncome > 0)
                       pw.TableRow(children: [
@@ -3722,11 +3759,11 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     pw.TableRow(children: [
                       pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
-                          child: pw.Text('Daily Average ROI')),
+                          child: pw.Text('Daily Average TPS')),
                       pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
                           child:
-                              pw.Text('\$${dailyROIValue.toStringAsFixed(2)}')),
+                              pw.Text('\$${dailyTPSValue.toStringAsFixed(2)}')),
                     ]),
                     pw.TableRow(children: [
                       pw.Padding(
@@ -3735,12 +3772,12 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                       pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
                           child: pw.Text(
-                              '\$${(dailyROIValue * 30).toStringAsFixed(2)}')),
+                              '\$${(dailyTPSValue * 30).toStringAsFixed(2)}')),
                     ]),
                     pw.TableRow(children: [
                       pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
-                          child: pw.Text('ROI Percentage')),
+                          child: pw.Text('TPS Percentage')),
                       pw.Padding(
                           padding: const pw.EdgeInsets.all(8),
                           child: pw.Text(
@@ -3782,11 +3819,11 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
 
       // Calculate totals
       final totalIncome = directTotalIncome +
-          levelROITotalIncome +
+          levelTPSTotalIncome +
           salaryTotalIncome +
-          totalROIIncome;
+          totalTPSIncome;
       final totalInvested = investmentSummary?.totalInvestment ?? 0.0;
-      final dailyROIValue =
+      final dailyTPSValue =
           incomeSummaryData?.data.incomeBreakdown.dailyRoi ?? 0.0;
 
       // Add header
@@ -3803,11 +3840,11 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
           'Amount (USD)';
 
       int row = 6;
-      if (dailyROIValue > 0) {
+      if (dailyTPSValue > 0) {
         sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
-            'Daily ROI';
+            'Daily TPS';
         sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
-            '\$${dailyROIValue.toStringAsFixed(2)}';
+            '\$${dailyTPSValue.toStringAsFixed(2)}';
         row++;
       }
 
@@ -3819,11 +3856,11 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         row++;
       }
 
-      if (levelROITotalIncome > 0) {
+      if (levelTPSTotalIncome > 0) {
         sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
-            'Level ROI Income';
+            'Level TPS Income';
         sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
-            '\$${levelROITotalIncome.toStringAsFixed(2)}';
+            '\$${levelTPSTotalIncome.toStringAsFixed(2)}';
         row++;
       }
 
@@ -3857,19 +3894,19 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
       row++;
 
       sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
-          'Daily Average ROI';
+          'Daily Average TPS';
       sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
-          '\$${dailyROIValue.toStringAsFixed(2)}';
+          '\$${dailyTPSValue.toStringAsFixed(2)}';
       row++;
 
       sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
           'Monthly Projection';
       sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
-          '\$${(dailyROIValue * 30).toStringAsFixed(2)}';
+          '\$${(dailyTPSValue * 30).toStringAsFixed(2)}';
       row++;
 
       sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
-          'ROI Percentage';
+          'TPS Percentage';
       sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
           '${totalInvested > 0 ? ((totalIncome / totalInvested) * 100).toStringAsFixed(1) : '0.0'}%';
       row += 2;
@@ -3882,7 +3919,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         sheet.cell(excel_lib.CellIndex.indexByString('A$row')).value =
             'Investment Amount';
         sheet.cell(excel_lib.CellIndex.indexByString('B$row')).value =
-            'Daily ROI %';
+            'Daily TPS %';
         sheet.cell(excel_lib.CellIndex.indexByString('C$row')).value =
             'Total Earned';
         sheet.cell(excel_lib.CellIndex.indexByString('D$row')).value = 'Status';

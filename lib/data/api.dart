@@ -104,7 +104,7 @@ const String gerPerfect_or_updown =
 const String tradesetting_riskwwm = "${url}trade_setting_risk_wwm";
 const String tradesetting_risksubbin = "${url}trade_setting_risk_subbin";
 const String tradeAdminSetting = "${url}get_setting_trade_setting_risk_subbin";
-const String StakingROI = "${url}staking_roi";
+const String StakingTPS = "${url}staking_roi";
 const String buyManualHuobiWWM = "${url}buy_huobi_manual_wwm";
 const String buyManualHuobiSubbin = "${url}buy_huobi_manual_subbin";
 const String stakingHistory = "${url}my_staking";
@@ -136,7 +136,7 @@ const String getUserInvestmentsUrl = "${url}get_user_investments";
 // Package Purchase API endpoint
 const String buyArbitragePackageUrl = "${url}buy_arbitrage_package";
 
-// Daily ROI History API endpoint
+// Daily TPS History API endpoint
 const String getDailyRoiHistoryUrl = "${url}get_daily_roi_history";
 
 // User Rank API endpoint

@@ -10,6 +10,8 @@ class LocaleString extends Translations {
           "login": "Login",
           "userid": "User Id / Email",
           "loginpassword": "Password",
+          "enterOtp": "Enter OTP",
+          "otp": "OTP",
           "forgotPassword": "Forgot Password",
           "dontAccount": "Don\'t Have An Account ?",
           // verification account

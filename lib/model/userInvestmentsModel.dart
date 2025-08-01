@@ -152,7 +152,7 @@ class InvestmentSummary {
         total_arbitrage_investment: double.tryParse(
                 json["total_arbitrage_investment"]?.toString() ?? "0") ??
             0.0,
-        // Handle both possible field names for ROI earned
+        // Handle both possible field names for TPS earned
         totalRoiEarned: double.tryParse(
                 (json["total_roi_earned"] ?? json["total_profit_earned"] ?? "0")
                     .toString()) ??

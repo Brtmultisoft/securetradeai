@@ -74,10 +74,10 @@ class _AllIncomeState extends State<AllIncome>
   double directTotalIncome = 0.0;
   List<DirectIncomeHistory> directIncomeHistory = [];
 
-  // Level ROI Income Data
-  LevelIncomeModel? levelROIIncomeData;
-  double levelROITotalIncome = 0.0;
-  List<LevelIncomeHistory> levelROIIncomeHistory = [];
+  // Level TPS Income Data
+  LevelIncomeModel? levelTPSIncomeData;
+  double levelTPSTotalIncome = 0.0;
+  List<LevelIncomeHistory> levelTPSIncomeHistory = [];
 
   // Salary Income Data
   SalaryIncomeModel? salaryIncomeData;
@@ -127,7 +127,7 @@ class _AllIncomeState extends State<AllIncome>
         _loadRoyalty(),
         _loadPoolIncome(),
         _loadDirectIncome(),
-        _loadLevelROIIncome(),
+        _loadLevelTPSIncome(),
         _loadSalaryIncome(),
       ]);
 
@@ -256,18 +256,18 @@ class _AllIncomeState extends State<AllIncome>
     }
   }
 
-  Future<void> _loadLevelROIIncome() async {
+  Future<void> _loadLevelTPSIncome() async {
     try {
-      final res = await CommonMethod().getLevelROIIncome();
+      final res = await CommonMethod().getLevelTPSIncome();
       if (res.status == "success") {
         setState(() {
-          levelROIIncomeData = res;
-          levelROITotalIncome = res.data.totalLevelIncome;
-          levelROIIncomeHistory = res.data.incomeHistory;
+          levelTPSIncomeData = res;
+          levelTPSTotalIncome = res.data.totalLevelIncome;
+          levelTPSIncomeHistory = res.data.incomeHistory;
         });
       }
     } catch (e) {
-      print('Error loading level ROI income: $e');
+      print('Error loading level TPS income: $e');
     }
   }
 
@@ -326,7 +326,7 @@ class _AllIncomeState extends State<AllIncome>
               ),
               Tab(
                 icon: Icon(Icons.layers, size: 20),
-                text: 'Level ROI',
+                text: 'Level TPS',
               ),
               Tab(
                 icon: Icon(Icons.account_balance_wallet, size: 20),
@@ -354,7 +354,7 @@ class _AllIncomeState extends State<AllIncome>
                   // _buildTradingIncomeView(),
                   // _buildPoolIncomeView(),
                   _buildDirectIncomeView(),
-                  _buildLevelROIIncomeView(),
+                  _buildLevelTPSIncomeView(),
                   _buildSalaryIncomeView(),
                 ],
               ),
@@ -370,7 +370,7 @@ class _AllIncomeState extends State<AllIncome>
         royaltyToday +
         poolTotalToday +
         directTotalIncome +
-        levelROITotalIncome +
+        levelTPSTotalIncome +
         salaryTotalIncome;
     double totalCumulative = levelCumulative +
         clubCumulative +
@@ -379,7 +379,7 @@ class _AllIncomeState extends State<AllIncome>
         royaltyCumulative +
         poolCumulative +
         directTotalIncome +
-        levelROITotalIncome +
+        levelTPSTotalIncome +
         salaryTotalIncome;
 
     return RefreshIndicator(
@@ -485,7 +485,7 @@ class _AllIncomeState extends State<AllIncome>
             royaltyToday +
             poolTotalToday +
             directTotalIncome +
-            levelROITotalIncome +
+            levelTPSTotalIncome +
             salaryTotalIncome;
         totalIncome = levelCumulative +
             clubCumulative +
@@ -494,7 +494,7 @@ class _AllIncomeState extends State<AllIncome>
             royaltyCumulative +
             poolCumulative +
             directTotalIncome +
-            levelROITotalIncome +
+            levelTPSTotalIncome +
             salaryTotalIncome;
         break;
       case 1: // Profit Sharing
@@ -533,9 +533,9 @@ class _AllIncomeState extends State<AllIncome>
         todayIncome = directTotalIncome;
         totalIncome = directTotalIncome;
         break;
-      case 10: // Level ROI Income
-        todayIncome = levelROITotalIncome;
-        totalIncome = levelROITotalIncome;
+      case 10: // Level TPS Income
+        todayIncome = levelTPSTotalIncome;
+        totalIncome = levelTPSTotalIncome;
         break;
       case 11: // Salary Income
         todayIncome = salaryTotalIncome;
@@ -763,8 +763,8 @@ class _AllIncomeState extends State<AllIncome>
         // Add new income types
         allDetails.addAll(directIncomeHistory
             .map((d) => {'type': 'Direct Income', 'detail': d}));
-        allDetails.addAll(levelROIIncomeHistory
-            .map((d) => {'type': 'Level ROI Income', 'detail': d}));
+        allDetails.addAll(levelTPSIncomeHistory
+            .map((d) => {'type': 'Level TPS Income', 'detail': d}));
         allDetails.addAll(salaryIncomeHistory
             .map((d) => {'type': 'Salary Income', 'detail': d}));
 
@@ -827,8 +827,8 @@ class _AllIncomeState extends State<AllIncome>
         return poolDetails.isNotEmpty ? poolDetails : [];
       case 9: // Direct Income
         return directIncomeHistory.isNotEmpty ? directIncomeHistory : [];
-      case 10: // Level ROI Income
-        return levelROIIncomeHistory.isNotEmpty ? levelROIIncomeHistory : [];
+      case 10: // Level TPS Income
+        return levelTPSIncomeHistory.isNotEmpty ? levelTPSIncomeHistory : [];
       case 11: // Salary Income
         return salaryIncomeHistory.isNotEmpty ? salaryIncomeHistory : [];
       default:
@@ -859,7 +859,7 @@ class _AllIncomeState extends State<AllIncome>
       case 9:
         return 'Direct Income';
       case 10:
-        return 'Level ROI Income';
+        return 'Level TPS Income';
       case 11:
         return 'Salary Income';
       default:
@@ -1665,25 +1665,25 @@ class _AllIncomeState extends State<AllIncome>
     );
   }
 
-  Widget _buildLevelROIIncomeView() {
+  Widget _buildLevelTPSIncomeView() {
     return RefreshIndicator(
       color: primaryColor,
       backgroundColor: cardColor,
-      onRefresh: _loadLevelROIIncome,
+      onRefresh: _loadLevelTPSIncome,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
           children: [
-            _buildLevelROIIncomeOverview(),
-            _buildLevelROIIncomeStats(),
-            _buildLevelROIIncomeHistory(),
+            _buildLevelTPSIncomeOverview(),
+            _buildLevelTPSIncomeStats(),
+            _buildLevelTPSIncomeHistory(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLevelROIIncomeOverview() {
+  Widget _buildLevelTPSIncomeOverview() {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
@@ -1714,14 +1714,14 @@ class _AllIncomeState extends State<AllIncome>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Total Level ROI Income',
+                      'Total Level TPS Income',
                       style: TextStyle(
                         color: secondaryTextColor,
                         fontSize: 14,
                       ),
                     ),
                     Text(
-                      '${(levelROITotalIncome * totalCurrency).toStringAsFixed(2)} $currentCurrency',
+                      '${(levelTPSTotalIncome * totalCurrency).toStringAsFixed(2)} $currentCurrency',
                       style: TextStyle(
                         color: textColor,
                         fontSize: 24,
@@ -1755,21 +1755,21 @@ class _AllIncomeState extends State<AllIncome>
     );
   }
 
-  Widget _buildLevelROIIncomeStats() {
+  Widget _buildLevelTPSIncomeStats() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
           _buildStatCard(
             'Total Records',
-            levelROIIncomeHistory.length.toDouble(),
+            levelTPSIncomeHistory.length.toDouble(),
             Icons.receipt_long,
           ),
           const SizedBox(width: 16),
           _buildStatCard(
             'Average Amount',
-            levelROIIncomeHistory.isNotEmpty
-                ? (levelROITotalIncome / levelROIIncomeHistory.length) *
+            levelTPSIncomeHistory.isNotEmpty
+                ? (levelTPSTotalIncome / levelTPSIncomeHistory.length) *
                     totalCurrency
                 : 0.0,
             Icons.trending_up,
@@ -1779,8 +1779,8 @@ class _AllIncomeState extends State<AllIncome>
     );
   }
 
-  Widget _buildLevelROIIncomeHistory() {
-    if (levelROIIncomeHistory.isEmpty) {
+  Widget _buildLevelTPSIncomeHistory() {
+    if (levelTPSIncomeHistory.isEmpty) {
       return Container(
         margin: const EdgeInsets.all(16),
         padding: const EdgeInsets.all(20),
@@ -1791,7 +1791,7 @@ class _AllIncomeState extends State<AllIncome>
         ),
         child: Center(
           child: Text(
-            'No level ROI income records found',
+            'No level TPS income records found',
             style: TextStyle(
               color: secondaryTextColor,
               fontSize: 16,
@@ -1807,7 +1807,7 @@ class _AllIncomeState extends State<AllIncome>
         Padding(
           padding: const EdgeInsets.all(16),
           child: Text(
-            'Level ROI Income History',
+            'Level TPS Income History',
             style: TextStyle(
               color: textColor,
               fontSize: 18,
@@ -1818,9 +1818,9 @@ class _AllIncomeState extends State<AllIncome>
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: levelROIIncomeHistory.length,
+          itemCount: levelTPSIncomeHistory.length,
           itemBuilder: (context, index) {
-            final income = levelROIIncomeHistory[index];
+            final income = levelTPSIncomeHistory[index];
             return Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
@@ -1834,7 +1834,7 @@ class _AllIncomeState extends State<AllIncome>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Level ${income.level} ROI',
+                      'Level ${income.level} TPS',
                       style: TextStyle(
                         color: textColor,
                         fontSize: 16,
