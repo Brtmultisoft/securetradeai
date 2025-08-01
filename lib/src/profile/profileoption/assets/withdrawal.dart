@@ -370,20 +370,6 @@ class _WithdrawalState extends State<Withdrawal> {
                         ],
                         stops: [0.0, 0.5, 1.0],
                       ),
-                      // gradient: LinearGradient(
-                      //   begin: Alignment.topCenter,
-                      //   end: Alignment.bottomCenter,
-                      //   stops: [0.0, 1.0],
-                      //   colors: isAmountValid && amountError == null
-                      //       ? [
-                      //           Colors.green,
-                      //           Colors.blue,
-                      //         ]
-                      //       : [
-                      //           Colors.grey.shade600,
-                      //           Colors.grey.shade700,
-                      //         ],
-                      // ),
                       borderRadius: BorderRadius.all(Radius.circular(5)),
                       boxShadow: <BoxShadow>[
                         BoxShadow(
@@ -423,7 +409,7 @@ class _WithdrawalState extends State<Withdrawal> {
         showtoast(amountError ?? "Please enter a valid amount", context);
         Navigator.pop(context);
       } else if (transpass.text == "") {
-        showtoast("Transaction Paaword Field is Empty", context);
+        showtoast("Transaction Password Field is Empty", context);
         Navigator.pop(context);
       } else {
         final res = await http.post(Uri.parse(getIp),
