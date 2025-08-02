@@ -8,6 +8,7 @@ import 'package:securetradeai/model/future_trading_models.dart';
 import 'package:securetradeai/model/repoModel.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/Service/future_trading_service.dart';
+import 'package:securetradeai/src/Service/symbol_whitelisting_service.dart';
 import 'package:securetradeai/src/widget/trading_widgets.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
 
@@ -41,6 +42,12 @@ class _FutureTradePageState extends State<FutureTradePage>
   // Search functionality
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+
+  // Whitelisting functionality
+  Map<String, bool> _whitelistingStatus = {};
+  bool _isCheckingWhitelisting = false;
+  String? _lastClickedSymbol;
+  DateTime? _lastClickTime;
 
   // Calculated values
   double _orderCost = 0.0;
@@ -186,12 +193,63 @@ class _FutureTradePageState extends State<FutureTradePage>
             _selectedSymbol!.currentPrice.toStringAsFixed(2);
         _calculateOrderCost();
       }
+
+      // Load whitelisting status for all symbols
+      _loadWhitelistingStatus();
     } catch (e) {
       print('Error loading symbols: $e');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
       }
+    }
+  }
+
+  // Load whitelisting status for popular symbols only (to reduce API calls)
+  Future<void> _loadWhitelistingStatus() async {
+    if (_availableSymbols.isEmpty) return;
+
+    try {
+      // Only check popular/recommended symbols initially to reduce API calls
+      final popularSymbols = ['BNBUSDT', 'BTCUSDT', 'ETHUSDT', 'TRXUSDT', 'ADAUSDT', 'SOLUSDT'];
+      final symbolsToCheck = _availableSymbols
+          .where((symbol) => popularSymbols.contains(symbol.symbol))
+          .map((symbol) => symbol.symbol)
+          .toList();
+
+      if (symbolsToCheck.isEmpty) return;
+
+      print('🔄 Checking whitelisting status for ${symbolsToCheck.length} popular symbols: $symbolsToCheck');
+
+      final whitelistingResults = await SymbolWhitelistingService.checkMultipleSymbols(symbolsToCheck);
+
+      if (mounted) {
+        setState(() {
+          _whitelistingStatus.addAll(whitelistingResults);
+        });
+
+        print('📊 Popular symbols whitelisting status loaded: ${whitelistingResults.length} symbols checked');
+      }
+    } catch (e) {
+      print('❌ Error loading whitelisting status: $e');
+    }
+  }
+
+  // Check if all symbols are whitelisted and show notification
+  void _checkAllSymbolsWhitelisted() {
+    if (_whitelistingStatus.isEmpty) return;
+
+    final allWhitelisted = _whitelistingStatus.values.every((status) => status == true);
+    final whitelistedCount = _whitelistingStatus.values.where((status) => status == true).length;
+    final totalCount = _whitelistingStatus.length;
+
+    print('📊 Whitelisting summary: $whitelistedCount/$totalCount symbols whitelisted');
+
+    if (allWhitelisted) {
+      print('✅ All symbols are whitelisted!');
+      // You can show a success message or notification here if needed
+    } else {
+      print('⚠️ Some symbols are not whitelisted');
     }
   }
 
@@ -436,6 +494,126 @@ class _FutureTradePageState extends State<FutureTradePage>
   void _clearSearch() {
     _searchController.clear();
     _filterSymbols('');
+  }
+
+  // Handle symbol selection with whitelisting check
+  void _handleSymbolSelection(FutureSymbol symbol) async {
+    print('🎯 Symbol selected: ${symbol.symbol}');
+
+    // Prevent rapid clicks on same symbol
+    final now = DateTime.now();
+    if (_lastClickedSymbol == symbol.symbol &&
+        _lastClickTime != null &&
+        now.difference(_lastClickTime!).inMilliseconds < 1000) {
+      print('⚠️ Ignoring rapid click on ${symbol.symbol}');
+      return;
+    }
+
+    _lastClickedSymbol = symbol.symbol;
+    _lastClickTime = now;
+
+    // Check if we already have cached status
+    if (_whitelistingStatus.containsKey(symbol.symbol)) {
+      final isWhitelisted = _whitelistingStatus[symbol.symbol]!;
+      print('📋 Using cached status for ${symbol.symbol}: $isWhitelisted');
+
+      if (isWhitelisted) {
+        // Symbol is whitelisted, proceed with selection
+        print('✅ Symbol ${symbol.symbol} is whitelisted (cached), proceeding with selection');
+        setState(() {
+          _selectedSymbol = symbol;
+          _priceController.text = symbol.currentPrice.toStringAsFixed(2);
+          _leverage = _leverage > 10.0 ? 10.0 : _leverage;
+        });
+        Navigator.pop(context);
+        _calculateOrderCost();
+      } else {
+        // Symbol is not whitelisted, show error message
+        print('❌ Symbol ${symbol.symbol} is not whitelisted (cached)');
+        _showWhitelistingErrorDialog(symbol.symbol);
+      }
+      return;
+    }
+
+    // If not cached, make API call
+    setState(() {
+      _isCheckingWhitelisting = true;
+    });
+
+    try {
+      print('🔄 Making API call for ${symbol.symbol} (not cached)');
+      final isWhitelisted = await SymbolWhitelistingService.isSymbolWhitelisted(symbol.symbol);
+
+      setState(() {
+        _isCheckingWhitelisting = false;
+        _whitelistingStatus[symbol.symbol] = isWhitelisted;
+      });
+
+      if (isWhitelisted) {
+        // Symbol is whitelisted, proceed with selection
+        print('✅ Symbol ${symbol.symbol} is whitelisted, proceeding with selection');
+        setState(() {
+          _selectedSymbol = symbol;
+          _priceController.text = symbol.currentPrice.toStringAsFixed(2);
+          _leverage = _leverage > 10.0 ? 10.0 : _leverage;
+        });
+        Navigator.pop(context);
+        _calculateOrderCost();
+      } else {
+        // Symbol is not whitelisted, show error message
+        print('❌ Symbol ${symbol.symbol} is not whitelisted');
+        _showWhitelistingErrorDialog(symbol.symbol);
+      }
+    } catch (e) {
+      setState(() {
+        _isCheckingWhitelisting = false;
+      });
+      print('❌ Error checking whitelisting for ${symbol.symbol}: $e');
+      // On error, show error message
+      _showWhitelistingErrorDialog(symbol.symbol);
+    }
+  }
+
+  // Show error dialog when symbol is not whitelisted
+  void _showWhitelistingErrorDialog(String symbol) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: TradingTheme.secondaryBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: const [
+              Icon(
+                Icons.warning,
+                color: TradingTheme.errorColor,
+                size: 24,
+              ),
+              SizedBox(width: 12),
+              Text(
+                'Symbol Not Whitelisted',
+                style: TextStyle(color: TradingTheme.primaryText),
+              ),
+            ],
+          ),
+          content: Text(
+            'The symbol $symbol is not whitelisted for trading on your account. Please contact support or choose a different trading pair.',
+            style: const TextStyle(color: TradingTheme.secondaryText),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'OK',
+                style: TextStyle(color: TradingTheme.primaryAccent),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -867,19 +1045,12 @@ class _FutureTradePageState extends State<FutureTradePage>
 
   Widget _buildSymbolOption(FutureSymbol symbol) {
     final isSelected = _selectedSymbol?.symbol == symbol.symbol;
+    final isWhitelisted = _whitelistingStatus[symbol.symbol] ?? false;
 
     return AnimatedTradingCard(
       margin: const EdgeInsets.only(bottom: 12),
       isSelected: isSelected,
-      onTap: () {
-        setState(() {
-          _selectedSymbol = symbol;
-          _priceController.text = symbol.currentPrice.toStringAsFixed(2);
-          _leverage = _leverage > 10.0 ? 10.0 : _leverage;
-        });
-        Navigator.pop(context);
-        _calculateOrderCost();
-      },
+      onTap: () => _handleSymbolSelection(symbol),
       child: Row(
         children: [
           Expanded(
@@ -918,6 +1089,25 @@ class _FutureTradePageState extends State<FutureTradePage>
               ),
             ],
           ),
+          // Whitelisting status indicator
+          if (isWhitelisted)
+            Container(
+              margin: const EdgeInsets.only(left: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green.withOpacity(0.5)),
+              ),
+              child: const Text(
+                '✓',
+                style: TextStyle(
+                  color: Colors.green,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
         ],
       ),
     );

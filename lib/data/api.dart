@@ -174,3 +174,6 @@ const String requestedTradeHistoryUrl = "${url}requested_trade_history";
 
 // Trading Pairs API endpoint
 const String tradingPairsActivatedUrl = "${url}trading_pairs_activated";
+
+// Symbol Whitelisting API endpoint
+const String testSymbolWhitelistedUrl = "${url}test_symbol_whitelisted";

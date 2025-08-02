@@ -1,16 +1,20 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/model/future_trading_models.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/Service/future_trading_service.dart';
-import 'package:securetradeai/src/future_trading/activate_trade_page.dart';
+import 'package:securetradeai/src/Service/symbol_whitelisting_service.dart';
+
 import 'package:securetradeai/src/future_trading/trade_requests_page.dart';
 import 'package:securetradeai/src/future_trading/emergency_stop_popup.dart';
 import 'package:securetradeai/src/future_trading/future_history_page.dart';
 import 'package:securetradeai/src/future_trading/future_positions_page.dart';
 import 'package:securetradeai/src/future_trading/future_trade_page.dart';
+import 'package:securetradeai/src/future_trading/activate_trade_page.dart';
 import 'package:securetradeai/src/future_trading/monitor_tpsl_popup.dart';
 import 'package:securetradeai/src/future_trading/performance_popup.dart';
 import 'package:securetradeai/src/future_trading/pnl_tracking_popup.dart';
@@ -48,6 +52,12 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
   FutureAccountSummary? _accountSummary;
   List<FuturePosition> _recentPositions = [];
   List<TradeRequest> _tradeRequests = [];
+  List<TradingPair> _tradingPairs = [];
+
+  // Whitelisting status for trading pairs
+  Map<String, bool> _whitelistingStatus = {};
+  bool _isLoadingWhitelisting = false;
+  bool _whitelistingLoaded = false; // Track if whitelisting has been loaded
 
   @override
   void initState() {
@@ -125,7 +135,8 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
   }
 
   void _startAutoRefresh() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+    // Increased interval to 30 seconds to reduce API calls
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       if (mounted && !_isLoading) {
         // Background refresh without any UI indicators
         _refreshData();
@@ -140,9 +151,10 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
       // Call real API to get account balance
       _accountSummary = await FutureTradingService.getAccountBalanceWithRetry();
 
-      /// Load positions and trade requests in background without affecting loading state
+      /// Load positions, trade requests, and trading pairs in background without affecting loading state
       _loadOpenPositions();
       _loadTradeRequests();
+      _loadTradingPairs();
 
       if (_accountSummary == null) {
         // If API fails, show error message
@@ -234,8 +246,9 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
       }
 
       // Also refresh positions in background
-      // Note: Trade requests don't need frequent refresh as they change less often
+      // Note: Trade requests and whitelisting don't need frequent refresh
       await _loadOpenPositions();
+      // Don't reload trading pairs and whitelisting on auto-refresh to avoid spam
     } catch (e) {
       // Silently handle refresh errors - don't show error messages for background refresh
       print('Background refresh error: $e');
@@ -387,6 +400,143 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
     }
   }
 
+  // Load trading pairs from API
+  Future<void> _loadTradingPairs() async {
+    try {
+      print('🔄 Loading trading pairs...');
+
+      final tradingPairs = await FutureTradingService.getActiveTradingPairs();
+
+      if (mounted) {
+        setState(() {
+          _tradingPairs = tradingPairs;
+          // Reset whitelisting status when trading pairs change
+          if (!_whitelistingLoaded) {
+            _whitelistingStatus.clear();
+          }
+        });
+        print('✅ Loaded ${_tradingPairs.length} trading pairs');
+
+        // Load whitelisting status for all trading pairs (only if not already loaded)
+        _loadWhitelistingStatus();
+      }
+    } catch (e) {
+      print('❌ Error loading trading pairs: $e');
+      if (mounted) {
+        setState(() {
+          _tradingPairs = [];
+        });
+      }
+    }
+  }
+
+  // Load whitelisting status for all trading pairs
+  Future<void> _loadWhitelistingStatus() async {
+    if (_tradingPairs.isEmpty) return;
+
+    // Prevent duplicate loading
+    if (_whitelistingLoaded || _isLoadingWhitelisting) {
+      print('⚠️ Whitelisting already loaded or loading, skipping...');
+      return;
+    }
+
+    setState(() {
+      _isLoadingWhitelisting = true;
+    });
+
+    try {
+      final symbols = _tradingPairs.map((pair) => pair.assets).toList();
+      print('🔄 Checking whitelisting status for ${symbols.length} trading pairs: $symbols');
+
+      final whitelistingResults = await SymbolWhitelistingService.checkMultipleSymbols(symbols);
+
+      if (mounted) {
+        setState(() {
+          _whitelistingStatus = whitelistingResults;
+          _isLoadingWhitelisting = false;
+          _whitelistingLoaded = true; // Mark as loaded
+        });
+
+        final whitelistedCount = whitelistingResults.values.where((status) => status == true).length;
+        print('📊 Whitelisting status loaded: $whitelistedCount/${symbols.length} pairs whitelisted');
+
+        // Check if all symbols are whitelisted
+        _checkAllSymbolsWhitelisted();
+      }
+    } catch (e) {
+      print('❌ Error loading whitelisting status: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingWhitelisting = false;
+          // Don't mark as loaded on error, allow retry
+        });
+      }
+    }
+  }
+
+  // Check if all symbols are whitelisted and show notification
+  void _checkAllSymbolsWhitelisted() {
+    if (_whitelistingStatus.isEmpty) return;
+
+    final allWhitelisted = _whitelistingStatus.values.every((status) => status == true);
+    final whitelistedCount = _whitelistingStatus.values.where((status) => status == true).length;
+    final totalCount = _whitelistingStatus.length;
+
+    print('📊 Whitelisting summary: $whitelistedCount/$totalCount symbols whitelisted');
+
+    if (allWhitelisted) {
+      print('✅ All symbols are whitelisted! Auto-navigating to activation page...');
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(
+                Icons.verified,
+                color: Colors.white,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'All pairs whitelisted! Navigating to activation... ✅',
+                style: TradingTypography.bodyMedium.copyWith(color: Colors.white),
+              ),
+            ],
+          ),
+          backgroundColor: TradingTheme.successColor,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+
+      // Auto-navigate to activation page after short delay
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          _navigateToActivationPage();
+        }
+      });
+    } else {
+      print('⚠️ Some symbols are not whitelisted');
+    }
+  }
+
+  // Navigate to activation page when all symbols are whitelisted
+  void _navigateToActivationPage() {
+    print('🚀 All symbols whitelisted! Navigating to ActivateTradePage...');
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ActivateTradePage(),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _slideController.dispose();
@@ -412,6 +562,576 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
       builder: (context) => const PnlTrackingPopup(),
     );
   }
+
+  // Show trading pairs popup
+  void _showTradingPairsPopup() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withOpacity(0.8),
+      builder: (BuildContext context) {
+        return Material(
+          color: Colors.transparent,
+          child: Stack(
+            children: [
+              // Blurred background
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  color: Colors.black.withOpacity(0.7),
+                ),
+              ),
+
+              // Popup content
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.all(20),
+                  height: MediaQuery.of(context).size.height * 0.8,
+                  decoration: BoxDecoration(
+                    color: TradingTheme.cardBackground,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: TradingTheme.primaryBorder,
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      // Header
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: TradingTheme.primaryAccent.withOpacity(0.1),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.currency_exchange,
+                              color: TradingTheme.primaryAccent,
+                              size: 24,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'Select Trading Pair',
+                                style: TradingTypography.heading2.copyWith(
+                                  color: TradingTheme.primaryText,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              icon: const Icon(
+                                Icons.close,
+                                color: TradingTheme.primaryText,
+                                size: 24,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Content
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            children: [
+                              Text(
+                                'Choose a trading pair to activate:',
+                                style: TradingTypography.bodyLarge.copyWith(
+                                  color: TradingTheme.secondaryText,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 20),
+                              Expanded(
+                                child: _tradingPairs.isEmpty
+                                    ? Center(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: const [
+                                            Icon(
+                                              Icons.currency_exchange,
+                                              color: TradingTheme.secondaryText,
+                                              size: 48,
+                                            ),
+                                            SizedBox(height: 16),
+                                            Text(
+                                              'Loading trading pairs...',
+                                              style: TextStyle(
+                                                color: TradingTheme.secondaryText,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    : ListView.builder(
+                                        itemCount: _tradingPairs.length,
+                                        itemBuilder: (context, index) {
+                                          final pair = _tradingPairs[index];
+                                          return _buildTradingPairOption(pair.assets, pair.assets.replaceAll('USDT', ''));
+                                        },
+                                      ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTradingPairOption(String symbol, String name) {
+    // Get whitelisting status for this symbol
+    final isWhitelisted = _whitelistingStatus[symbol] ?? false;
+    final isLoading = _isLoadingWhitelisting && !_whitelistingStatus.containsKey(symbol);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _handleTradingPairSelection(symbol, name),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: TradingTheme.surfaceBackground,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isWhitelisted
+                    ? TradingTheme.successColor.withOpacity(0.5)
+                    : TradingTheme.primaryBorder,
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                // Icon
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: TradingTheme.primaryAccent.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: Center(
+                    child: Text(
+                      symbol.substring(0, 1),
+                      style: TradingTypography.heading2.copyWith(
+                        color: TradingTheme.primaryAccent,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        symbol,
+                        style: TradingTypography.heading3.copyWith(
+                          color: TradingTheme.primaryText,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        name,
+                        style: TradingTypography.bodyMedium.copyWith(
+                          color: TradingTheme.secondaryText,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Whitelisting status indicator
+                if (isLoading)
+                  Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        TradingTheme.primaryAccent,
+                      ),
+                    ),
+                  )
+                else if (isWhitelisted)
+                  Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: TradingTheme.successColor.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: TradingTheme.successColor,
+                        width: 1,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.check,
+                      color: TradingTheme.successColor,
+                      size: 12,
+                    ),
+                  )
+                else
+                  Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: TradingTheme.errorColor.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: TradingTheme.errorColor,
+                        width: 1,
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.close,
+                      color: TradingTheme.errorColor,
+                      size: 12,
+                    ),
+                  ),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  color: TradingTheme.primaryAccent,
+                  size: 16,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Handle trading pair selection with whitelisting check
+  void _handleTradingPairSelection(String symbol, String name) async {
+    print('🎯 Trading pair selected: $symbol');
+
+    // Close the popup first
+    Navigator.of(context).pop();
+
+    // Show checking message
+    _showCheckingMessage(symbol);
+
+    // Check if we already have cached whitelisting status
+    if (_whitelistingStatus.containsKey(symbol)) {
+      final isWhitelisted = _whitelistingStatus[symbol]!;
+      print('📋 Using cached whitelisting status for $symbol: $isWhitelisted');
+
+      // Small delay to show the checking message
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (isWhitelisted) {
+        print('✅ Symbol $symbol is whitelisted (cached), showing success dialog');
+        _showTradingPairSelectedDialog(symbol, name);
+      } else {
+        print('❌ Symbol $symbol is not whitelisted (cached), showing error dialog');
+        _showWhitelistingErrorDialog(symbol);
+      }
+      return;
+    }
+
+    // If not cached, make API call
+    try {
+      print('🔄 Making API call for $symbol (not cached)');
+      final isWhitelisted = await SymbolWhitelistingService.isSymbolWhitelisted(symbol);
+
+      // Update cache
+      setState(() {
+        _whitelistingStatus[symbol] = isWhitelisted;
+      });
+
+      if (isWhitelisted) {
+        print('✅ Symbol $symbol is whitelisted, showing success dialog');
+        _showTradingPairSelectedDialog(symbol, name);
+      } else {
+        print('❌ Symbol $symbol is not whitelisted, showing error dialog');
+        _showWhitelistingErrorDialog(symbol);
+      }
+    } catch (e) {
+      print('❌ Error checking whitelisting for $symbol: $e');
+      _showWhitelistingErrorDialog(symbol);
+    }
+  }
+
+  // Show checking message
+  void _showCheckingMessage(String symbol) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Checking $symbol whitelisting status...',
+              style: TradingTypography.bodyMedium.copyWith(color: Colors.white),
+            ),
+          ],
+        ),
+        backgroundColor: TradingTheme.primaryAccent.withOpacity(0.9),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  // Show success message
+  void _showSuccessMessage(String symbol) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              Icons.check_circle,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              '$symbol is whitelisted! ✅',
+              style: TradingTypography.bodyMedium.copyWith(color: Colors.white),
+            ),
+          ],
+        ),
+        backgroundColor: TradingTheme.successColor,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(milliseconds: 800),
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  // Show error message
+  void _showErrorMessage(String symbol) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              Icons.warning,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              '$symbol is not whitelisted ❌',
+              style: TradingTypography.bodyMedium.copyWith(color: Colors.white),
+            ),
+          ],
+        ),
+        backgroundColor: TradingTheme.errorColor,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(milliseconds: 1200),
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  // Show error dialog when symbol is not whitelisted
+  void _showWhitelistingErrorDialog(String symbol) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: TradingTheme.cardBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: TradingTheme.errorColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.warning,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Symbol Not Whitelisted',
+                  style: TradingTypography.heading3.copyWith(
+                    color: TradingTheme.primaryText,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'The symbol $symbol is not whitelisted for trading on your account.',
+                style: TradingTypography.bodyMedium.copyWith(
+                  color: TradingTheme.secondaryText,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Please contact support or choose a different trading pair.',
+                style: TradingTypography.bodySmall.copyWith(
+                  color: TradingTheme.secondaryText,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'OK',
+                style: TradingTypography.bodyMedium.copyWith(
+                  color: TradingTheme.primaryAccent,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showTradingPairSelectedDialog(String symbol, String name) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: TradingTheme.cardBackground,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: TradingTheme.primaryAccent,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.check_circle,
+                  color: Colors.black,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Trading Pair Selected',
+                  style: TradingTypography.heading3.copyWith(
+                    color: TradingTheme.primaryText,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'You have selected $symbol ($name) for trading.',
+                style: TradingTypography.bodyMedium.copyWith(
+                  color: TradingTheme.secondaryText,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: TradingTheme.primaryAccent.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: TradingTheme.primaryAccent.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.info_outline,
+                      color: TradingTheme.primaryAccent,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Trading will be activated by admin within 24 hours',
+                        style: TradingTypography.bodySmall.copyWith(
+                          color: TradingTheme.primaryAccent,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'OK',
+                style: TradingTypography.bodyMedium.copyWith(
+                  color: TradingTheme.primaryAccent,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+
+
 
   // Show strategy monitor popup
   void _showStrategyMonitorPopup() {
@@ -1325,12 +2045,7 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
                     child: _buildAnimatedActionButton(
                       'Activate Trade',
                       () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ActivateTradePage(),
-                          ),
-                        );
+                        _showTradingPairsPopup();
                       },
                       TradingTheme.primaryAccent,
                       Colors.black,
