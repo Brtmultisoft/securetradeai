@@ -207,7 +207,7 @@ class _TradeRequestsPageState extends State<TradeRequestsPage>
                   _buildFilterChip('activated',
                       'Activated (${_tradeRequests.where((r) => r.isActivated).length})'),
                   const SizedBox(width: 8),
-                  _buildFilterChip('rejected',
+                  _buildFilterChip('closed',
                       'Closed (${_tradeRequests.where((r) => r.isClosed).length})'),
                 ],
               ),

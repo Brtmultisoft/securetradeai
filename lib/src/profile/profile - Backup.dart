@@ -1,8 +1,8 @@
-import 'package:securetradeai/data/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:securetradeai/Data/Api.dart';
+import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/profile/errorNotification/errorNotificaton.dart';
 import 'package:securetradeai/src/profile/profileoption/APIBinding/apibinding.dart';
@@ -12,6 +12,7 @@ import 'package:securetradeai/src/profile/profileoption/securitycenter/security.
 import 'package:securetradeai/src/profile/profileoption/share/share.dart';
 import 'package:securetradeai/src/profile/profileoption/support/inbox.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../method/methods.dart';
 import '../user/login.dart';
 import 'profileoption/Transaction/transaction.dart';
@@ -143,8 +144,8 @@ class _ProfileState extends State<Profile> {
                         ),
                       ),
                       ListTile(
-                        leading:
-                            Icon(Icons.card_giftcard, color: securetradeaicolor),
+                        leading: Icon(Icons.card_giftcard,
+                            color: securetradeaicolor),
                         trailing: const SizedBox(),
                         title: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -185,7 +186,7 @@ class _ProfileState extends State<Profile> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ApiBinding()));
+                                    builder: (context) => const ApiBinding()));
                           },
                           leading: Icon(
                             Icons.attach_file,
@@ -224,25 +225,26 @@ class _ProfileState extends State<Profile> {
                                 Icons.arrow_right,
                               ))),
                       ListTile(
-                          onTap: () {
+                        onTap: () {
                           /*  Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         const ProfitSharing()));*/
-                          },
-                          leading: Icon(
-                            Icons.history,
-                            color: securetradeaicolor,
+                        },
+                        leading: Icon(
+                          Icons.history,
+                          color: securetradeaicolor,
+                        ),
+                        title: const Text("Trade History", style: TextStyle()),
+                        trailing: Container(
+                          height: 50,
+                          width: 50,
+                          child: const Icon(
+                            Icons.arrow_right,
                           ),
-                          title:
-                              const Text("Trade History", style: TextStyle()),
-                          trailing: Container(
-                              height: 50,
-                              width: 50,
-                              child: const Icon(
-                                Icons.arrow_right,
-                              ))),
+                        ),
+                      ),
                       ListTile(
                           onTap: () {
                             Navigator.push(
@@ -287,13 +289,14 @@ class _ProfileState extends State<Profile> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => ErrorNotification()));
+                                    builder: (context) =>
+                                        const ErrorNotification()));
                           },
                           leading: Icon(
                             Icons.error,
                             color: securetradeaicolor,
                           ),
-                          title: Text("Error Notificaton"),
+                          title: const Text("Error Notificaton"),
                           trailing: Container(
                               height: 50,
                               width: 50,
@@ -315,10 +318,10 @@ class _ProfileState extends State<Profile> {
                           ),
                           title: Text("systemSetting".tr,
                               style: const TextStyle()),
-                          trailing: Container(
+                          trailing: const SizedBox(
                               height: 50,
                               width: 50,
-                              child: const Icon(
+                              child: Icon(
                                 Icons.arrow_right,
                               ))),
                       ListTile(
@@ -328,9 +331,11 @@ class _ProfileState extends State<Profile> {
                           pref.remove("emailorpass");
                           pref.remove("password");
                           Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const LoginPage()));
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginPage(),
+                            ),
+                          );
                         },
                         leading: Icon(
                           Icons.power_settings_new,
@@ -361,9 +366,13 @@ class _ProfileState extends State<Profile> {
       children: <Widget>[
         Container(
           // Background
+          color: red800,
+          // height: MediaQuery.of(context).size.height * 0.2,
+          width: MediaQuery.of(context).size.width,
+          // Background
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ListTile(
               onTap: () {
                 Navigator.push(
@@ -404,6 +413,11 @@ class _ProfileState extends State<Profile> {
             ),
             Container(
               height: 70.0,
+              decoration: BoxDecoration(
+                color: securetradeaicolor.withOpacity(0.7),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(30.0)),
+              ),
               child: Container(
                   child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -454,15 +468,8 @@ class _ProfileState extends State<Profile> {
                   ),
                 ],
               )),
-              decoration: BoxDecoration(
-                color: securetradeaicolor.withOpacity(0.7),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30.0)),
-              ),
             ),
           ]),
-          color: red800,
-          // height: MediaQuery.of(context).size.height * 0.2,
-          width: MediaQuery.of(context).size.width,
         ),
       ],
     );
