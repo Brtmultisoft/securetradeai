@@ -1018,4 +1018,47 @@ class FutureTradingService {
       return [];
     }
   }
+
+  /// Get active trading pairs
+  static Future<List<TradingPair>> getActiveTradingPairs() async {
+    try {
+      print('🔄 Fetching active trading pairs...');
+      print('🔗 API URL: $tradingPairsActivatedUrl');
+
+      final response = await http
+          .get(
+            Uri.parse(tradingPairsActivatedUrl),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          )
+          .timeout(_timeout);
+
+      print('📥 Response status: ${response.statusCode}');
+      print('📥 Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final tradingPairsResponse = TradingPairsResponse.fromJson(responseData);
+
+        print('✅ API Response parsed: status=${tradingPairsResponse.status}, message=${tradingPairsResponse.message}');
+        print('📊 Total pairs: ${tradingPairsResponse.data.length}');
+        print('📊 Active pairs: ${tradingPairsResponse.activePairs.length}');
+
+        if (tradingPairsResponse.isSuccess) {
+          // Return only active pairs (status = "0")
+          return tradingPairsResponse.activePairs;
+        } else {
+          print('❌ API returned error: ${tradingPairsResponse.message}');
+        }
+      } else {
+        print('❌ HTTP Error: ${response.statusCode} - ${response.body}');
+      }
+      return [];
+    } catch (e) {
+      print('❌ Exception fetching trading pairs: $e');
+      return [];
+    }
+  }
 }

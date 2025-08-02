@@ -1364,6 +1364,65 @@ class TradeRequestResponse {
   bool get isSuccess => status.toLowerCase() == 'success';
 }
 
+// Trading Pair Model
+class TradingPair {
+  final String id;
+  final String assets;
+  final String assetsImg;
+  final String status;
+
+  TradingPair({
+    required this.id,
+    required this.assets,
+    required this.assetsImg,
+    required this.status,
+  });
+
+  factory TradingPair.fromJson(Map<String, dynamic> json) {
+    return TradingPair(
+      id: json['id']?.toString() ?? '',
+      assets: json['assets']?.toString() ?? '',
+      assetsImg: json['assets_img']?.toString() ?? '',
+      status: json['status']?.toString() ?? '1',
+    );
+  }
+
+  // Helper getters
+  bool get isActive => status == '0';
+  bool get isInactive => status == '1';
+
+  String get symbol => assets; // For compatibility
+  String get imageUrl => assetsImg;
+}
+
+// Trading Pairs Response Model
+class TradingPairsResponse {
+  final String status;
+  final String message;
+  final List<TradingPair> data;
+
+  TradingPairsResponse({
+    required this.status,
+    required this.message,
+    required this.data,
+  });
+
+  factory TradingPairsResponse.fromJson(Map<String, dynamic> json) {
+    return TradingPairsResponse(
+      status: json['status']?.toString() ?? '',
+      message: json['message']?.toString() ?? '',
+      data: (json['data'] as List<dynamic>?)
+          ?.map((item) => TradingPair.fromJson(item as Map<String, dynamic>))
+          .toList() ?? [],
+    );
+  }
+
+  bool get isSuccess => status.toLowerCase() == 'success';
+
+  // Get only active pairs
+  List<TradingPair> get activePairs => data.where((pair) => pair.isActive).toList();
+}
+
 // Dual Side PnL Tracking Response Model
 class DualSidePnlTrackingResponse {
   final String status;

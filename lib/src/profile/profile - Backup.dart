@@ -248,12 +248,13 @@ class _ProfileState extends State<Profile> {
                       ListTile(
                           onTap: () {
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Sharescreen(
-                                          reffral:
-                                              finalData.referralCode.toString(),
-                                        )));
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Sharescreen(
+                                  reffral: finalData.referralCode.toString(),
+                                ),
+                              ),
+                            );
                           },
                           leading: Icon(
                             Icons.share_outlined,

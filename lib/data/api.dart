@@ -171,3 +171,6 @@ const String dualSideRiskSettings = "${url}dual_side_risk_settings";
 // Activate Trade API endpoint
 const String initiateTradeUrl = "${url}initiate_trade";
 const String requestedTradeHistoryUrl = "${url}requested_trade_history";
+
+// Trading Pairs API endpoint
+const String tradingPairsActivatedUrl = "${url}trading_pairs_activated";

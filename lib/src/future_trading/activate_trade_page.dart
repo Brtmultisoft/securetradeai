@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:securetradeai/data/api.dart';
+import 'package:securetradeai/model/future_trading_models.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/Service/future_trading_service.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
 import 'package:securetradeai/src/widget/trading_widgets.dart';
-import 'package:securetradeai/src/Service/future_trading_service.dart';
-import 'package:securetradeai/model/future_trading_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ActivateTradePage extends StatefulWidget {
@@ -29,52 +29,7 @@ class _ActivateTradePageState extends State<ActivateTradePage>
   bool _isLoading = false;
   String? _amountError;
   double _availableBalance = 0.0;
-
-  // Top 6 trading pairs for display
-  final List<Map<String, dynamic>> _cryptoPairs = [
-    {
-      'symbol': 'BTCUSDT',
-      'name': 'Bitcoin',
-      'price': 43250.50,
-      'change': 2.45,
-      'icon': '₿',
-    },
-    {
-      'symbol': 'ETHUSDT',
-      'name': 'Ethereum',
-      'price': 2650.75,
-      'change': -1.23,
-      'icon': 'Ξ',
-    },
-    {
-      'symbol': 'BNBUSDT',
-      'name': 'BNB',
-      'price': 315.20,
-      'change': 3.67,
-      'icon': 'BNB',
-    },
-    {
-      'symbol': 'ADAUSDT',
-      'name': 'Cardano',
-      'price': 0.4825,
-      'change': 5.12,
-      'icon': 'ADA',
-    },
-    {
-      'symbol': 'SOLUSDT',
-      'name': 'Solana',
-      'price': 98.45,
-      'change': -2.89,
-      'icon': 'SOL',
-    },
-    {
-      'symbol': 'XRPUSDT',
-      'name': 'XRP',
-      'price': 0.6234,
-      'change': 1.78,
-      'icon': 'XRP',
-    },
-  ];
+  List<TradingPair> _tradingPairs = [];
 
   @override
   void initState() {
@@ -82,13 +37,15 @@ class _ActivateTradePageState extends State<ActivateTradePage>
     _initializeAnimations();
     // Add listener for instant validation
     _amountController.addListener(_validateAmount);
-    // Load available balance
+    // Load available balance and trading pairs
     _loadAvailableBalance();
+    _loadTradingPairs();
   }
 
   Future<void> _loadAvailableBalance() async {
     try {
-      final accountSummary = await FutureTradingService.getDualSideAccountBalance();
+      final accountSummary =
+          await FutureTradingService.getDualSideAccountBalance();
       if (accountSummary != null && mounted) {
         setState(() {
           _availableBalance = accountSummary.availableBalance;
@@ -96,6 +53,19 @@ class _ActivateTradePageState extends State<ActivateTradePage>
       }
     } catch (e) {
       // Handle error silently, keep default balance of 0.0
+    }
+  }
+
+  Future<void> _loadTradingPairs() async {
+    try {
+      final tradingPairs = await FutureTradingService.getActiveTradingPairs();
+      if (mounted) {
+        setState(() {
+          _tradingPairs = tradingPairs;
+        });
+      }
+    } catch (e) {
+      // Handle error silently, keep empty list
     }
   }
 
@@ -119,7 +89,8 @@ class _ActivateTradePageState extends State<ActivateTradePage>
       });
     } else if (amount > _availableBalance) {
       setState(() {
-        _amountError = 'Amount exceeds available balance (\$${_availableBalance.toStringAsFixed(2)})';
+        _amountError =
+            'Amount exceeds available balance (\$${_availableBalance.toStringAsFixed(2)})';
       });
     } else {
       setState(() {
@@ -318,43 +289,60 @@ class _ActivateTradePageState extends State<ActivateTradePage>
               ),
               SizedBox(width: 12),
               Text(
-                'Top Trading Pairs',
+                'Trading Pairs',
                 style: TradingTypography.heading3,
               ),
             ],
           ),
           const SizedBox(height: 16),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final screenWidth = constraints.maxWidth;
-              final cardWidth = (screenWidth - 24) / 2; // Account for spacing
-              final aspectRatio = cardWidth / 60; // Fixed height of 60
+          _tradingPairs.isEmpty
+              ? Center(
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.currency_exchange,
+                        color: TradingTheme.secondaryText,
+                        size: 48,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Loading trading pairs...',
+                        style: TradingTypography.bodyMedium.copyWith(
+                          color: TradingTheme.secondaryText,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    final screenWidth = constraints.maxWidth;
+                    final cardWidth = (screenWidth - 24) / 2;
+                    final aspectRatio = cardWidth / 45;
 
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: aspectRatio,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: aspectRatio,
+                        crossAxisSpacing: 8,
+                        mainAxisSpacing: 8,
+                      ),
+                      itemCount: _tradingPairs.length,
+                      itemBuilder: (context, index) {
+                        final pair = _tradingPairs[index];
+                        return _buildPairOption(pair);
+                      },
+                    );
+                  },
                 ),
-                itemCount: _cryptoPairs.length,
-                itemBuilder: (context, index) {
-                  final pair = _cryptoPairs[index];
-                  return _buildPairOption(pair);
-                },
-              );
-            },
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildPairOption(Map<String, dynamic> pair) {
-    final isPositive = pair['change'] > 0;
-
+  Widget _buildPairOption(TradingPair pair) {
     return Container(
       height: 60,
       decoration: BoxDecoration(
@@ -373,31 +361,53 @@ class _ActivateTradePageState extends State<ActivateTradePage>
           Row(
             children: [
               Container(
-                width: 20,
-                height: 20,
+                width: 25,
+                height: 25,
                 decoration: BoxDecoration(
                   color: TradingTheme.primaryAccent.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(10),
+                  shape: BoxShape.circle,
                 ),
-                child: Center(
-                  child: Text(
-                    pair['icon'],
-                    style: const TextStyle(
-                      color: TradingTheme.primaryAccent,
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+                child: pair.imageUrl.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          pair.imageUrl,
+                          width: 20,
+                          height: 20,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Center(
+                              child: Text(
+                                pair.assets.substring(0, 3),
+                                style: const TextStyle(
+                                  color: TradingTheme.primaryAccent,
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    : Center(
+                        child: Text(
+                          pair.assets.substring(0, 3),
+                          style: const TextStyle(
+                            color: TradingTheme.primaryAccent,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 6),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      pair['name'],
+                      pair.assets,
                       style: const TextStyle(
                         fontWeight: FontWeight.w600,
                         color: TradingTheme.primaryText,
@@ -406,61 +416,16 @@ class _ActivateTradePageState extends State<ActivateTradePage>
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
                     ),
-                    Text(
-                      pair['symbol'],
-                      style: const TextStyle(
-                        color: TradingTheme.secondaryText,
-                        fontSize: 8,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
+                    // Text(
+                    //   'Trading Pair',
+                    //   style: const TextStyle(
+                    //     color: TradingTheme.secondaryText,
+                    //     fontSize: 8,
+                    //   ),
+                    //   overflow: TextOverflow.ellipsis,
+                    //   maxLines: 1,
+                    // ),
                   ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                flex: 3,
-                child: Text(
-                  '\$${pair['price'].toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    color: TradingTheme.primaryText,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 9,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-              ),
-              Flexible(
-                flex: 2,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-                  decoration: BoxDecoration(
-                    color: isPositive
-                        ? TradingTheme.successColor.withOpacity(0.2)
-                        : TradingTheme.errorColor.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                  child: Text(
-                    '${isPositive ? '+' : ''}${pair['change'].toStringAsFixed(1)}%',
-                    style: TextStyle(
-                      color: isPositive
-                          ? TradingTheme.successColor
-                          : TradingTheme.errorColor,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 7,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                  ),
                 ),
               ),
             ],
