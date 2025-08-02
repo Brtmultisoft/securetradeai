@@ -6,6 +6,7 @@ import 'package:securetradeai/model/future_trading_models.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/Service/future_trading_service.dart';
 import 'package:securetradeai/src/future_trading/activate_trade_page.dart';
+import 'package:securetradeai/src/future_trading/trade_requests_page.dart';
 import 'package:securetradeai/src/future_trading/emergency_stop_popup.dart';
 import 'package:securetradeai/src/future_trading/future_history_page.dart';
 import 'package:securetradeai/src/future_trading/future_positions_page.dart';
@@ -46,6 +47,7 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
   // Dashboard data
   FutureAccountSummary? _accountSummary;
   List<FuturePosition> _recentPositions = [];
+  List<TradeRequest> _tradeRequests = [];
 
   @override
   void initState() {
@@ -138,8 +140,9 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
       // Call real API to get account balance
       _accountSummary = await FutureTradingService.getAccountBalanceWithRetry();
 
-      // Load positions in background without affecting loading state
+      /// Load positions and trade requests in background without affecting loading state
       _loadOpenPositions();
+      _loadTradeRequests();
 
       if (_accountSummary == null) {
         // If API fails, show error message
@@ -231,6 +234,7 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
       }
 
       // Also refresh positions in background
+      // Note: Trade requests don't need frequent refresh as they change less often
       await _loadOpenPositions();
     } catch (e) {
       // Silently handle refresh errors - don't show error messages for background refresh
@@ -360,6 +364,29 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
     }
   }
 
+  // Load trade requests from API
+  Future<void> _loadTradeRequests() async {
+    try {
+      print('🔄 Loading trade requests...');
+
+      final tradeRequests = await FutureTradingService.getTradeRequests();
+
+      if (mounted) {
+        setState(() {
+          _tradeRequests = tradeRequests;
+        });
+        print('✅ Loaded ${_tradeRequests.length} trade requests');
+      }
+    } catch (e) {
+      print('❌ Error loading trade requests: $e');
+      if (mounted) {
+        setState(() {
+          _tradeRequests = [];
+        });
+      }
+    }
+  }
+
   @override
   void dispose() {
     _slideController.dispose();
@@ -455,7 +482,8 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
             return Transform.rotate(
               angle: _rotationController.value * 2 * 3.14159,
               child: IconButton(
-                icon: const Icon(Icons.refresh, color: TradingTheme.primaryAccent),
+                icon: const Icon(Icons.refresh,
+                    color: TradingTheme.primaryAccent),
                 onPressed: _manualRefresh,
               ),
             );
@@ -542,6 +570,7 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
               _buildAccountSummaryCard(),
               _buildQuickStatsRow(),
               _buildRecentPositionsCard(),
+              _buildTradeRequestsCard(),
               _buildQuickActionsCard(),
               const SizedBox(height: 60), // Space for FAB
             ],
@@ -568,171 +597,172 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
               parent: _fadeController,
               curve: Curves.easeOutCubic,
             )),
-        child: AnimatedTradingCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+            child: AnimatedTradingCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AnimatedBuilder(
-                    animation: _rotationAnimation,
-                    builder: (context, child) {
-                      return Transform.rotate(
-                        angle: _isRefreshing
-                            ? _rotationAnimation.value * 2 * 3.14159
-                            : 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: TradingTheme.primaryAccent.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            Icons.account_balance_wallet,
-                            color: TradingTheme.primaryAccent,
-                            size: 20,
-                          ),
+                  Row(
+                    children: [
+                      AnimatedBuilder(
+                        animation: _rotationAnimation,
+                        builder: (context, child) {
+                          return Transform.rotate(
+                            angle: _isRefreshing
+                                ? _rotationAnimation.value * 2 * 3.14159
+                                : 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color:
+                                    TradingTheme.primaryAccent.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                Icons.account_balance_wallet,
+                                color: TradingTheme.primaryAccent,
+                                size: 20,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Account Summary',
+                        style: TradingTypography.heading3,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildSummaryItem(
+                          'Total Wallet Balance',
+                          '\$${_accountSummary!.totalWalletBalance.toStringAsFixed(2)}',
+                          TradingTheme.primaryAccent,
+                          Icons.account_balance_wallet,
                         ),
-                      );
-                    },
+                      ),
+                      Container(
+                        width: 1,
+                        height: 50,
+                        color: TradingTheme.primaryBorder,
+                      ),
+                      Expanded(
+                        child: _buildSummaryItem(
+                          'Available Balance',
+                          '\$${_accountSummary!.availableBalance.toStringAsFixed(2)}',
+                          TradingTheme.successColor,
+                          Icons.account_balance,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Account Summary',
-                    style: TradingTypography.heading3,
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildSummaryItem(
+                          'Margin Balance',
+                          '\$${_accountSummary!.marginBalance.toStringAsFixed(2)}',
+                          TradingTheme.primaryAccent,
+                          Icons.pie_chart,
+                        ),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 50,
+                        color: TradingTheme.primaryBorder,
+                      ),
+                      Expanded(
+                        child: _buildSummaryItem(
+                          'Unrealized PnL',
+                          '\$${_accountSummary!.unrealizedPnl.toStringAsFixed(2)}',
+                          _accountSummary!.unrealizedPnl >= 0
+                              ? TradingTheme.successColor
+                              : TradingTheme.errorColor,
+                          _accountSummary!.unrealizedPnl >= 0
+                              ? Icons.trending_up
+                              : Icons.trending_down,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildSummaryItem(
-                      'Total Wallet Balance',
-                      '\$${_accountSummary!.totalWalletBalance.toStringAsFixed(2)}',
-                      TradingTheme.primaryAccent,
-                      Icons.account_balance_wallet,
-                    ),
-                  ),
+                  const SizedBox(height: 16),
+                  // Additional Balance Details
                   Container(
-                    width: 1,
-                    height: 50,
-                    color: TradingTheme.primaryBorder,
-                  ),
-                  Expanded(
-                    child: _buildSummaryItem(
-                      'Available Balance',
-                      '\$${_accountSummary!.availableBalance.toStringAsFixed(2)}',
-                      TradingTheme.successColor,
-                      Icons.account_balance,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: TradingTheme.surfaceBackground.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                          color: TradingTheme.primaryBorder.withOpacity(0.3)),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Max Withdraw Amount',
+                              style: TradingTypography.bodySmall.copyWith(
+                                color: TradingTheme.secondaryText,
+                              ),
+                            ),
+                            Text(
+                              '\$${_accountSummary!.maxWithdrawAmount.toStringAsFixed(2)}',
+                              style: TradingTypography.bodyMedium.copyWith(
+                                color: TradingTheme.primaryText,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Position Initial Margin',
+                              style: TradingTypography.bodySmall.copyWith(
+                                color: TradingTheme.secondaryText,
+                              ),
+                            ),
+                            Text(
+                              '\$${_accountSummary!.totalPositionInitialMargin.toStringAsFixed(2)}',
+                              style: TradingTypography.bodyMedium.copyWith(
+                                color: TradingTheme.primaryText,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Open Order Initial Margin',
+                              style: TradingTypography.bodySmall.copyWith(
+                                color: TradingTheme.secondaryText,
+                              ),
+                            ),
+                            Text(
+                              '\$${_accountSummary!.totalOpenOrderInitialMargin.toStringAsFixed(2)}',
+                              style: TradingTypography.bodyMedium.copyWith(
+                                color: TradingTheme.primaryText,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildSummaryItem(
-                      'Margin Balance',
-                      '\$${_accountSummary!.marginBalance.toStringAsFixed(2)}',
-                      TradingTheme.primaryAccent,
-                      Icons.pie_chart,
-                    ),
-                  ),
-                  Container(
-                    width: 1,
-                    height: 50,
-                    color: TradingTheme.primaryBorder,
-                  ),
-                  Expanded(
-                    child: _buildSummaryItem(
-                      'Unrealized PnL',
-                      '\$${_accountSummary!.unrealizedPnl.toStringAsFixed(2)}',
-                      _accountSummary!.unrealizedPnl >= 0
-                          ? TradingTheme.successColor
-                          : TradingTheme.errorColor,
-                      _accountSummary!.unrealizedPnl >= 0
-                          ? Icons.trending_up
-                          : Icons.trending_down,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              // Additional Balance Details
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: TradingTheme.surfaceBackground.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                      color: TradingTheme.primaryBorder.withOpacity(0.3)),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Max Withdraw Amount',
-                          style: TradingTypography.bodySmall.copyWith(
-                            color: TradingTheme.secondaryText,
-                          ),
-                        ),
-                        Text(
-                          '\$${_accountSummary!.maxWithdrawAmount.toStringAsFixed(2)}',
-                          style: TradingTypography.bodyMedium.copyWith(
-                            color: TradingTheme.primaryText,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Position Initial Margin',
-                          style: TradingTypography.bodySmall.copyWith(
-                            color: TradingTheme.secondaryText,
-                          ),
-                        ),
-                        Text(
-                          '\$${_accountSummary!.totalPositionInitialMargin.toStringAsFixed(2)}',
-                          style: TradingTypography.bodyMedium.copyWith(
-                            color: TradingTheme.primaryText,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Open Order Initial Margin',
-                          style: TradingTypography.bodySmall.copyWith(
-                            color: TradingTheme.secondaryText,
-                          ),
-                        ),
-                        Text(
-                          '\$${_accountSummary!.totalOpenOrderInitialMargin.toStringAsFixed(2)}',
-                          style: TradingTypography.bodyMedium.copyWith(
-                            color: TradingTheme.primaryText,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
           ),
         );
       },
@@ -807,7 +837,7 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
               ),
               const SizedBox(width: 12),
               Text(
-                'Recent Positions',
+                'Open Positions',
                 style: TradingTypography.heading3,
               ),
               const Spacer(),
@@ -937,6 +967,190 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
     );
   }
 
+  Widget _buildTradeRequestsCard() {
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: AnimatedBuilder(
+        animation: _fadeAnimation,
+        builder: (context, child) {
+          return Transform.translate(
+            offset: Offset(0, 50 * (1 - _fadeAnimation.value)),
+            child: Opacity(
+              opacity: _fadeAnimation.value,
+              child: AnimatedTradingCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.pending_actions,
+                          color: TradingTheme.primaryAccent,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Trade Requests',
+                          style: TradingTypography.heading3,
+                        ),
+                        const Spacer(),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.refresh,
+                                color: TradingTheme.primaryAccent,
+                                size: 18,
+                              ),
+                              onPressed: _loadTradeRequests,
+                              tooltip: 'Refresh',
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const TradeRequestsPage(),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                'View All',
+                                style: TradingTypography.bodySmall.copyWith(
+                                  color: TradingTheme.primaryAccent,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    if (_tradeRequests.isEmpty)
+                      Center(
+                        child: Column(
+                          children: [
+                            const Icon(
+                              Icons.hourglass_empty,
+                              color: TradingTheme.secondaryText,
+                              size: 48,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'No trade requests',
+                              style: TradingTypography.bodyMedium.copyWith(
+                                color: TradingTheme.secondaryText,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      ...(_tradeRequests
+                          .take(2)
+                          .map((request) => _buildTradeRequestItem(request))
+                          .toList()),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildTradeRequestItem(TradeRequest request) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: TradingTheme.surfaceBackground,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: TradingTheme.secondaryText.withOpacity(0.2),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: _getStatusColor(request.status).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Icon(
+              _getStatusIcon(request.status),
+              color: _getStatusColor(request.status),
+              size: 16,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '\$${request.positionQuantity.toStringAsFixed(2)}',
+                  style: TradingTypography.bodyLarge.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  '${request.leverage}x Leverage • ${request.formattedCreatedAt}',
+                  style: TradingTypography.bodySmall.copyWith(
+                    color: TradingTheme.secondaryText,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: _getStatusColor(request.status).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              request.statusDisplayText,
+              style: TradingTypography.bodySmall.copyWith(
+                color: _getStatusColor(request.status),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return TradingTheme.warningColor;
+      case 'activated':
+        return TradingTheme.successColor;
+      case 'rejected':
+        return TradingTheme.errorColor;
+      default:
+        return TradingTheme.secondaryText;
+    }
+  }
+
+  IconData _getStatusIcon(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Icons.schedule;
+      case 'activated':
+        return Icons.check_circle;
+      case 'rejected':
+        return Icons.cancel;
+      default:
+        return Icons.help;
+    }
+  }
+
   Widget _buildQuickActionsCard() {
     return ScaleTransition(
       scale: _scaleAnimation,
@@ -947,212 +1161,212 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
           return Opacity(
             opacity: opacity,
             child: AnimatedTradingCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
-                    Icons.flash_on,
-                    color: TradingTheme.primaryAccent,
-                    size: 20,
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.flash_on,
+                        color: TradingTheme.primaryAccent,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Quick Actions',
+                        style: TradingTypography.heading3,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Quick Actions',
-                    style: TradingTypography.heading3,
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildAnimatedActionButton(
+                          'New Trade',
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const FutureTradePage(),
+                              ),
+                            );
+                          },
+                          TradingTheme.primaryAccent,
+                          Colors.black,
+                          0,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildAnimatedActionButton(
+                          'History',
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const FutureHistoryPage(),
+                              ),
+                            );
+                          },
+                          TradingTheme.surfaceBackground,
+                          TradingTheme.primaryText,
+                          100,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
+                  const SizedBox(height: 12),
+                  // Performance Report Button
+                  SizedBox(
+                    width: double.infinity,
                     child: _buildAnimatedActionButton(
-                      'New Trade',
+                      'Performance Report',
+                      () {
+                        _showPerformancePopup();
+                      },
+                      TradingTheme.secondaryBackground,
+                      TradingTheme.primaryAccent,
+                      200,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // PnL Tracking Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: _buildAnimatedActionButton(
+                      'PnL Tracking',
+                      () {
+                        _showPnlTrackingPopup();
+                      },
+                      TradingTheme.secondaryBackground,
+                      TradingTheme.successColor,
+                      250,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Critical Monitoring Section
+                  Text(
+                    'Critical Monitoring',
+                    style: TradingTypography.bodyMedium.copyWith(
+                      color: TradingTheme.secondaryText,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildAnimatedActionButton(
+                          'Strategy Monitor',
+                          () {
+                            _showStrategyMonitorPopup();
+                          },
+                          TradingTheme.secondaryBackground,
+                          TradingTheme.primaryAccent,
+                          300,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildAnimatedActionButton(
+                          'TP/SL Monitor',
+                          () {
+                            _showTpSlMonitorPopup();
+                          },
+                          TradingTheme.secondaryBackground,
+                          TradingTheme.warningColor,
+                          350,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // TP/SL Management Section
+                  Text(
+                    'TP/SL Management',
+                    style: TradingTypography.bodyMedium.copyWith(
+                      color: TradingTheme.secondaryText,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildAnimatedActionButton(
+                          'Set TP/SL',
+                          () {
+                            _showSetTpSlPopup();
+                          },
+                          TradingTheme.secondaryBackground,
+                          TradingTheme.warningColor,
+                          375,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildAnimatedActionButton(
+                          'Monitor TP/SL',
+                          () {
+                            _showMonitorTpSlPopup();
+                          },
+                          TradingTheme.secondaryBackground,
+                          TradingTheme.primaryAccent,
+                          400,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // Activate Trade Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: _buildAnimatedActionButton(
+                      'Activate Trade',
                       () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const FutureTradePage(),
+                            builder: (context) => const ActivateTradePage(),
                           ),
                         );
                       },
                       TradingTheme.primaryAccent,
                       Colors.black,
-                      0,
+                      450,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
+                  const SizedBox(height: 12),
+                  // System Health Button
+                  SizedBox(
+                    width: double.infinity,
                     child: _buildAnimatedActionButton(
-                      'History',
+                      'System Health',
                       () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const FutureHistoryPage(),
-                          ),
-                        );
+                        _showSystemHealthPopup();
                       },
-                      TradingTheme.surfaceBackground,
-                      TradingTheme.primaryText,
-                      100,
+                      TradingTheme.secondaryBackground,
+                      TradingTheme.successColor,
+                      425,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Emergency Stop Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: _buildAnimatedActionButton(
+                      '🚨 EMERGENCY STOP',
+                      () {
+                        _showEmergencyStopPopup();
+                      },
+                      TradingTheme.errorColor.withOpacity(0.1),
+                      TradingTheme.errorColor,
+                      450,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              // Performance Report Button
-              SizedBox(
-                width: double.infinity,
-                child: _buildAnimatedActionButton(
-                  'Performance Report',
-                  () {
-                    _showPerformancePopup();
-                  },
-                  TradingTheme.secondaryBackground,
-                  TradingTheme.primaryAccent,
-                  200,
-                ),
-              ),
-              const SizedBox(height: 12),
-              // PnL Tracking Button
-              SizedBox(
-                width: double.infinity,
-                child: _buildAnimatedActionButton(
-                  'PnL Tracking',
-                  () {
-                    _showPnlTrackingPopup();
-                  },
-                  TradingTheme.secondaryBackground,
-                  TradingTheme.successColor,
-                  250,
-                ),
-              ),
-              const SizedBox(height: 16),
-              // Critical Monitoring Section
-              Text(
-                'Critical Monitoring',
-                style: TradingTypography.bodyMedium.copyWith(
-                  color: TradingTheme.secondaryText,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildAnimatedActionButton(
-                      'Strategy Monitor',
-                      () {
-                        _showStrategyMonitorPopup();
-                      },
-                      TradingTheme.secondaryBackground,
-                      TradingTheme.primaryAccent,
-                      300,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildAnimatedActionButton(
-                      'TP/SL Monitor',
-                      () {
-                        _showTpSlMonitorPopup();
-                      },
-                      TradingTheme.secondaryBackground,
-                      TradingTheme.warningColor,
-                      350,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              // TP/SL Management Section
-              Text(
-                'TP/SL Management',
-                style: TradingTypography.bodyMedium.copyWith(
-                  color: TradingTheme.secondaryText,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildAnimatedActionButton(
-                      'Set TP/SL',
-                      () {
-                        _showSetTpSlPopup();
-                      },
-                      TradingTheme.secondaryBackground,
-                      TradingTheme.warningColor,
-                      375,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildAnimatedActionButton(
-                      'Monitor TP/SL',
-                      () {
-                        _showMonitorTpSlPopup();
-                      },
-                      TradingTheme.secondaryBackground,
-                      TradingTheme.primaryAccent,
-                      400,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              // Activate Trade Button
-              SizedBox(
-                width: double.infinity,
-                child: _buildAnimatedActionButton(
-                  'Activate Trade',
-                  () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ActivateTradePage(),
-                      ),
-                    );
-                  },
-                  TradingTheme.primaryAccent,
-                  Colors.black,
-                  450,
-                ),
-              ),
-              const SizedBox(height: 12),
-              // System Health Button
-              SizedBox(
-                width: double.infinity,
-                child: _buildAnimatedActionButton(
-                  'System Health',
-                  () {
-                    _showSystemHealthPopup();
-                  },
-                  TradingTheme.secondaryBackground,
-                  TradingTheme.successColor,
-                  425,
-                ),
-              ),
-              const SizedBox(height: 12),
-              // Emergency Stop Button
-              SizedBox(
-                width: double.infinity,
-                child: _buildAnimatedActionButton(
-                  '🚨 EMERGENCY STOP',
-                  () {
-                    _showEmergencyStopPopup();
-                  },
-                  TradingTheme.errorColor.withOpacity(0.1),
-                  TradingTheme.errorColor,
-                  450,
-                ),
-              ),
-            ],
-          ),
             ),
           );
         },

@@ -971,4 +971,51 @@ class FutureTradingService {
       return false;
     }
   }
+
+  /// Get trade requests history
+  static Future<List<TradeRequest>> getTradeRequests() async {
+    try {
+      print('🔄 Fetching trade requests for user: $commonuserId');
+      print('🔗 API URL: $requestedTradeHistoryUrl');
+
+      final requestBody = {
+        'user_id': int.tryParse(commonuserId) ?? 0,
+      };
+      print('📤 Request body: $requestBody');
+
+      // Try GET method first, then POST if needed
+      final response = await http
+          .get(
+            Uri.parse('$requestedTradeHistoryUrl?user_id=${requestBody['user_id']}'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          )
+          .timeout(_timeout);
+
+      print('📥 Response status: ${response.statusCode}');
+      print('📥 Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final tradeRequestResponse = TradeRequestResponse.fromJson(responseData);
+
+        print('✅ API Response parsed: status=${tradeRequestResponse.status}, message=${tradeRequestResponse.message}');
+        print('📊 Trade requests count: ${tradeRequestResponse.data.length}');
+
+        if (tradeRequestResponse.isSuccess) {
+          return tradeRequestResponse.data;
+        } else {
+          print('❌ API returned error: ${tradeRequestResponse.message}');
+        }
+      } else {
+        print('❌ HTTP Error: ${response.statusCode} - ${response.body}');
+      }
+      return [];
+    } catch (e) {
+      print('❌ Exception fetching trade requests: $e');
+      return [];
+    }
+  }
 }

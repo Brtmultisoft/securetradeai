@@ -56,10 +56,12 @@ class FutureAccountSummary {
           double.tryParse(json['marginBalance']?.toString() ?? '0') ?? 0.0,
       maxWithdrawAmount:
           double.tryParse(json['maxWithdrawAmount']?.toString() ?? '0') ?? 0.0,
-      totalPositionInitialMargin:
-          double.tryParse(json['totalPositionInitialMargin']?.toString() ?? '0') ?? 0.0,
-      totalOpenOrderInitialMargin:
-          double.tryParse(json['totalOpenOrderInitialMargin']?.toString() ?? '0') ?? 0.0,
+      totalPositionInitialMargin: double.tryParse(
+              json['totalPositionInitialMargin']?.toString() ?? '0') ??
+          0.0,
+      totalOpenOrderInitialMargin: double.tryParse(
+              json['totalOpenOrderInitialMargin']?.toString() ?? '0') ??
+          0.0,
       canTrade: json['canTrade'] ?? true,
       canDeposit: json['canDeposit'] ?? true,
       canWithdraw: json['canWithdraw'] ?? true,
@@ -220,18 +222,28 @@ class DualSideOpenPosition {
       id: int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       symbol: json['symbol'] ?? '',
       side: json['side'] ?? '',
-      positionSide: json['side'] ?? '', // API doesn't have positionSide, use side
+      positionSide:
+          json['side'] ?? '', // API doesn't have positionSide, use side
       quantity: double.tryParse(json['quantity']?.toString() ?? '0') ?? 0.0,
-      entryPrice: double.tryParse(json['entry_price']?.toString() ?? '0') ?? 0.0,
-      currentPrice: double.tryParse(json['current_price']?.toString() ?? '0') ?? 0.0,
-      unrealizedPnl: double.tryParse(json['unrealized_pnl']?.toString() ?? '0') ?? 0.0,
-      pnlPercentage: double.tryParse(json['pnl_percentage']?.toString() ?? '0') ?? 0.0,
-      tpPrice: json['tp_price'] != null ? double.tryParse(json['tp_price']?.toString() ?? '0') : null,
-      slPrice: json['sl_price'] != null ? double.tryParse(json['sl_price']?.toString() ?? '0') : null,
+      entryPrice:
+          double.tryParse(json['entry_price']?.toString() ?? '0') ?? 0.0,
+      currentPrice:
+          double.tryParse(json['current_price']?.toString() ?? '0') ?? 0.0,
+      unrealizedPnl:
+          double.tryParse(json['unrealized_pnl']?.toString() ?? '0') ?? 0.0,
+      pnlPercentage:
+          double.tryParse(json['pnl_percentage']?.toString() ?? '0') ?? 0.0,
+      tpPrice: json['tp_price'] != null
+          ? double.tryParse(json['tp_price']?.toString() ?? '0')
+          : null,
+      slPrice: json['sl_price'] != null
+          ? double.tryParse(json['sl_price']?.toString() ?? '0')
+          : null,
       status: json['status'] ?? '',
       strategyId: json['pair_id'] ?? '', // Use pair_id as strategy_id
       leverage: int.tryParse(json['leverage']?.toString() ?? '1') ?? 1,
-      marginUsed: double.tryParse(json['margin_used']?.toString() ?? '0') ?? 0.0,
+      marginUsed:
+          double.tryParse(json['margin_used']?.toString() ?? '0') ?? 0.0,
     );
   }
 
@@ -459,7 +471,7 @@ class FutureOrder {
   bool get isFilled => status.toUpperCase() == 'FILLED';
   bool get isPending => status.toUpperCase() == 'NEW';
   bool get isCanceled => status.toUpperCase() == 'CANCELED';
-  bool get isRejected => status.toUpperCase() == 'REJECTED';
+  bool get isClosed => status.toUpperCase() == 'CLOSED';
   bool get isLongPosition => positionSide.toUpperCase() == 'LONG';
   bool get isShortPosition => positionSide.toUpperCase() == 'SHORT';
 }
@@ -947,7 +959,8 @@ class DualSideInitResponse {
       status: json['status'] ?? '',
       message: json['message'] ?? '',
       responsecode: json['responsecode'] ?? '',
-      data: json['data'] != null ? DualSideInitData.fromJson(json['data']) : null,
+      data:
+          json['data'] != null ? DualSideInitData.fromJson(json['data']) : null,
     );
   }
 
@@ -1005,7 +1018,9 @@ class DualSideTradeHistoryResponse {
       status: json['status'] ?? '',
       message: json['message'] ?? '',
       responsecode: json['responsecode'] ?? '',
-      data: json['data'] != null ? DualSideTradeHistoryData.fromJson(json['data']) : null,
+      data: json['data'] != null
+          ? DualSideTradeHistoryData.fromJson(json['data'])
+          : null,
     );
   }
 
@@ -1026,7 +1041,8 @@ class DualSideTradeHistoryData {
   factory DualSideTradeHistoryData.fromJson(Map<String, dynamic> json) {
     return DualSideTradeHistoryData(
       trades: json['trades'] != null
-          ? List<DualSideTradeRecord>.from(json['trades'].map((x) => DualSideTradeRecord.fromJson(x)))
+          ? List<DualSideTradeRecord>.from(
+              json['trades'].map((x) => DualSideTradeRecord.fromJson(x)))
           : [],
       totalCount: json['total_count'] ?? 0,
       hasMore: json['has_more'] ?? false,
@@ -1075,15 +1091,18 @@ class DualSideTradeRecord {
       symbol: json['symbol']?.toString() ?? '',
       side: json['side']?.toString() ?? 'BUY',
       quantity: double.tryParse(json['quantity']?.toString() ?? '0') ?? 0.0,
-      entryPrice: double.tryParse(json['entry_price']?.toString() ?? '0') ?? 0.0,
+      entryPrice:
+          double.tryParse(json['entry_price']?.toString() ?? '0') ?? 0.0,
       exitPrice: json['exit_price'] != null
           ? double.tryParse(json['exit_price'].toString())
           : null,
       realizedPnl: double.tryParse(json['pnl']?.toString() ?? '0') ?? 0.0,
-      unrealizedPnl: double.tryParse(json['unrealized_pnl']?.toString() ?? '0') ?? 0.0,
+      unrealizedPnl:
+          double.tryParse(json['unrealized_pnl']?.toString() ?? '0') ?? 0.0,
       commission: double.tryParse(json['commission']?.toString() ?? '0') ?? 0.0,
       netPnl: double.tryParse(json['net_pnl']?.toString() ?? '0') ?? 0.0,
-      entryTime: DateTime.tryParse(json['created_at']?.toString() ?? '') ?? DateTime.now(),
+      entryTime: DateTime.tryParse(json['created_at']?.toString() ?? '') ??
+          DateTime.now(),
       exitTime: json['closed_at'] != null
           ? DateTime.tryParse(json['closed_at'].toString())
           : null,
@@ -1098,8 +1117,11 @@ class DualSideTradeRecord {
     // Handle nullable exitTime and exitPrice for open positions
     final closeTime = exitTime ?? DateTime.now();
     final duration = closeTime.difference(entryTime);
-    final actualExitPrice = exitPrice ?? entryPrice; // Use entry price if no exit price
-    final profitPercent = entryPrice > 0 ? ((actualExitPrice - entryPrice) / entryPrice) * 100 : 0.0;
+    final actualExitPrice =
+        exitPrice ?? entryPrice; // Use entry price if no exit price
+    final profitPercent = entryPrice > 0
+        ? ((actualExitPrice - entryPrice) / entryPrice) * 100
+        : 0.0;
 
     // Determine close reason based on status
     String closeReason = 'MANUAL';
@@ -1210,10 +1232,14 @@ class DailyPerformanceRecord {
       winningTrades: json['winning_trades'] ?? 0,
       losingTrades: json['losing_trades'] ?? 0,
       dailyPnl: double.tryParse(json['daily_pnl']?.toString() ?? '0') ?? 0.0,
-      cumulativePnl: double.tryParse(json['cumulative_pnl']?.toString() ?? '0') ?? 0.0,
-      maxDrawdown: double.tryParse(json['max_drawdown']?.toString() ?? '0') ?? 0.0,
+      cumulativePnl:
+          double.tryParse(json['cumulative_pnl']?.toString() ?? '0') ?? 0.0,
+      maxDrawdown:
+          double.tryParse(json['max_drawdown']?.toString() ?? '0') ?? 0.0,
       winRate: double.tryParse(json['win_rate']?.toString() ?? '0') ?? 0.0,
-      avgProfitPerTrade: double.tryParse(json['avg_profit_per_trade']?.toString() ?? '0') ?? 0.0,
+      avgProfitPerTrade:
+          double.tryParse(json['avg_profit_per_trade']?.toString() ?? '0') ??
+              0.0,
       createdAt: json['created_at'] ?? '',
     );
   }
@@ -1248,6 +1274,94 @@ class DailyPerformanceRecord {
       return date;
     }
   }
+}
+
+// Trade Request Model
+class TradeRequest {
+  final String id;
+  final String userId;
+  final String? symbol;
+  final double positionQuantity;
+  final int leverage;
+  final String createdAt;
+  final String status;
+
+  TradeRequest({
+    required this.id,
+    required this.userId,
+    this.symbol,
+    required this.positionQuantity,
+    required this.leverage,
+    required this.createdAt,
+    required this.status,
+  });
+
+  factory TradeRequest.fromJson(Map<String, dynamic> json) {
+    return TradeRequest(
+      id: json['id']?.toString() ?? '',
+      userId: json['user_id']?.toString() ?? '',
+      symbol: json['symbol'],
+      positionQuantity:
+          double.tryParse(json['position_quantity']?.toString() ?? '0') ?? 0.0,
+      leverage: int.tryParse(json['leverage']?.toString() ?? '1') ?? 1,
+      createdAt: json['created_at']?.toString() ?? '',
+      status: json['status']?.toString() ?? 'pending',
+    );
+  }
+
+  // Helper getters
+  bool get isPending => status.toLowerCase() == 'pending';
+  bool get isActivated => status.toLowerCase() == 'activated';
+  bool get isClosed => status.toLowerCase() == 'closed';
+
+  String get formattedCreatedAt {
+    try {
+      final dateTime = DateTime.parse(createdAt);
+      return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return createdAt;
+    }
+  }
+
+  String get statusDisplayText {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return 'Pending';
+      case 'activated':
+        return 'Activated';
+      case 'rejected':
+        return 'Closed';
+      default:
+        return status;
+    }
+  }
+}
+
+// Trade Request Response Model
+class TradeRequestResponse {
+  final String status;
+  final String message;
+  final List<TradeRequest> data;
+
+  TradeRequestResponse({
+    required this.status,
+    required this.message,
+    required this.data,
+  });
+
+  factory TradeRequestResponse.fromJson(Map<String, dynamic> json) {
+    return TradeRequestResponse(
+      status: json['status']?.toString() ?? '',
+      message: json['message']?.toString() ?? '',
+      data: (json['data'] as List<dynamic>?)
+              ?.map(
+                  (item) => TradeRequest.fromJson(item as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+
+  bool get isSuccess => status.toLowerCase() == 'success';
 }
 
 // Dual Side PnL Tracking Response Model
@@ -1297,12 +1411,12 @@ class FutureTradingRevenueData {
       todayProfit: (json['today_profit'] ?? 0).toDouble(),
       cumulativeProfit: (json['cumulative_profit'] ?? 0).toDouble(),
       todayDetails: json['today_details'] != null
-          ? List<FutureTradingRevenueDetail>.from(
-              json['today_details'].map((x) => FutureTradingRevenueDetail.fromJson(x)))
+          ? List<FutureTradingRevenueDetail>.from(json['today_details']
+              .map((x) => FutureTradingRevenueDetail.fromJson(x)))
           : [],
       allDetails: json['all_details'] != null
-          ? List<FutureTradingRevenueDetail>.from(
-              json['all_details'].map((x) => FutureTradingRevenueDetail.fromJson(x)))
+          ? List<FutureTradingRevenueDetail>.from(json['all_details']
+              .map((x) => FutureTradingRevenueDetail.fromJson(x)))
           : [],
     );
   }
@@ -1310,7 +1424,8 @@ class FutureTradingRevenueData {
   Map<String, dynamic> toJson() => {
         'today_profit': todayProfit,
         'cumulative_profit': cumulativeProfit,
-        'today_details': List<dynamic>.from(todayDetails.map((x) => x.toJson())),
+        'today_details':
+            List<dynamic>.from(todayDetails.map((x) => x.toJson())),
         'all_details': List<dynamic>.from(allDetails.map((x) => x.toJson())),
       };
 }
@@ -1341,8 +1456,11 @@ class FutureTradingRevenueDetail {
   factory FutureTradingRevenueDetail.fromJson(Map<String, dynamic> json) {
     // Convert BUY/SELL to LONG/SHORT for futures trading UI
     String apiSide = json['side']?.toString() ?? '';
-    String uiSide = apiSide.toUpperCase() == 'BUY' ? 'LONG' :
-                   apiSide.toUpperCase() == 'SELL' ? 'SHORT' : apiSide;
+    String uiSide = apiSide.toUpperCase() == 'BUY'
+        ? 'LONG'
+        : apiSide.toUpperCase() == 'SELL'
+            ? 'SHORT'
+            : apiSide;
 
     return FutureTradingRevenueDetail(
       id: json['id']?.toString() ?? '',
@@ -1427,14 +1545,18 @@ class PnlTrackingRecord {
     return PnlTrackingRecord(
       period: json['period']?.toString() ?? '',
       tradeCount: int.tryParse(json['trade_count']?.toString() ?? '0') ?? 0,
-      winningTrades: int.tryParse(json['winning_trades']?.toString() ?? '0') ?? 0,
+      winningTrades:
+          int.tryParse(json['winning_trades']?.toString() ?? '0') ?? 0,
       losingTrades: int.tryParse(json['losing_trades']?.toString() ?? '0') ?? 0,
       totalPnl: double.tryParse(json['total_pnl']?.toString() ?? '0') ?? 0.0,
       avgPnl: double.tryParse(json['avg_pnl']?.toString() ?? '0') ?? 0.0,
       bestTrade: double.tryParse(json['best_trade']?.toString() ?? '0') ?? 0.0,
-      worstTrade: double.tryParse(json['worst_trade']?.toString() ?? '0') ?? 0.0,
-      totalVolume: double.tryParse(json['total_volume']?.toString() ?? '0') ?? 0.0,
-      cumulativePnl: double.tryParse(json['cumulative_pnl']?.toString() ?? '0') ?? 0.0,
+      worstTrade:
+          double.tryParse(json['worst_trade']?.toString() ?? '0') ?? 0.0,
+      totalVolume:
+          double.tryParse(json['total_volume']?.toString() ?? '0') ?? 0.0,
+      cumulativePnl:
+          double.tryParse(json['cumulative_pnl']?.toString() ?? '0') ?? 0.0,
       winRate: double.tryParse(json['win_rate']?.toString() ?? '0') ?? 0.0,
     );
   }
@@ -1507,7 +1629,8 @@ class MonitorData {
     return MonitorData(
       tpHits: json['tp_hits'] ?? 0,
       strategiesChecked: json['strategies_checked'] ?? 0,
-      strategiesUpdated: json['strategies_updated'] != null && json['strategies_updated'] is List
+      strategiesUpdated: json['strategies_updated'] != null &&
+              json['strategies_updated'] is List
           ? List<String>.from(json['strategies_updated'])
           : [],
       lastCheck: json['last_check'] ?? '',
@@ -1563,7 +1686,8 @@ class MonitorTpSlData {
     return MonitorTpSlData(
       executedTpSl: json['executed_tp_sl'] ?? 0,
       positionsChecked: json['positions_checked'] ?? 0,
-      executedPositions: json['executed_positions'] != null && json['executed_positions'] is List
+      executedPositions: json['executed_positions'] != null &&
+              json['executed_positions'] is List
           ? List<String>.from(json['executed_positions'])
           : [],
       lastCheck: json['last_check'] ?? '',
@@ -1625,7 +1749,8 @@ class EmergencyStopData {
 
   bool get hasStoppedItems => stoppedStrategies > 0;
   bool get hasErrors => errors.isNotEmpty;
-  String get stopSummary => 'Stopped $stoppedStrategies of $totalStrategies strategies';
+  String get stopSummary =>
+      'Stopped $stoppedStrategies of $totalStrategies strategies';
 }
 
 // Dual Side Risk Settings Response Model
@@ -1694,16 +1819,26 @@ class RiskSettingsData {
     return RiskSettingsData(
       id: json['id']?.toString() ?? '',
       userId: json['user_id']?.toString() ?? '',
-      maxOpenPositions: int.tryParse(json['max_open_positions']?.toString() ?? '0') ?? 0,
-      maxDailyLoss: double.tryParse(json['max_daily_loss']?.toString() ?? '0') ?? 0.0,
-      maxPositionSize: double.tryParse(json['max_position_size']?.toString() ?? '0') ?? 0.0,
-      defaultTpPercentage: double.tryParse(json['default_tp_percentage']?.toString() ?? '0') ?? 0.0,
-      defaultSlPercentage: double.tryParse(json['default_sl_percentage']?.toString() ?? '0') ?? 0.0,
+      maxOpenPositions:
+          int.tryParse(json['max_open_positions']?.toString() ?? '0') ?? 0,
+      maxDailyLoss:
+          double.tryParse(json['max_daily_loss']?.toString() ?? '0') ?? 0.0,
+      maxPositionSize:
+          double.tryParse(json['max_position_size']?.toString() ?? '0') ?? 0.0,
+      defaultTpPercentage:
+          double.tryParse(json['default_tp_percentage']?.toString() ?? '0') ??
+              0.0,
+      defaultSlPercentage:
+          double.tryParse(json['default_sl_percentage']?.toString() ?? '0') ??
+              0.0,
       maxLeverage: int.tryParse(json['max_leverage']?.toString() ?? '0') ?? 0,
       autoTpSlEnabled: json['auto_tp_sl_enabled']?.toString() == '1',
-      duplicatePositionCheck: json['duplicate_position_check']?.toString() == '1',
+      duplicatePositionCheck:
+          json['duplicate_position_check']?.toString() == '1',
       emergencyStopEnabled: json['emergency_stop_enabled']?.toString() == '1',
-      emergencyStopLossPercentage: double.tryParse(json['emergency_stop_loss_percentage']?.toString() ?? '0') ?? 0.0,
+      emergencyStopLossPercentage: double.tryParse(
+              json['emergency_stop_loss_percentage']?.toString() ?? '0') ??
+          0.0,
       createdAt: json['created_at']?.toString() ?? '',
       updatedAt: json['updated_at']?.toString() ?? '',
     );
@@ -1731,9 +1866,12 @@ class RiskSettingsData {
   // Helper getters
   String get formattedMaxDailyLoss => '\$${maxDailyLoss.toStringAsFixed(2)}';
   String get formattedMaxPositionSize => maxPositionSize.toStringAsFixed(8);
-  String get formattedTpPercentage => '${defaultTpPercentage.toStringAsFixed(2)}%';
-  String get formattedSlPercentage => '${defaultSlPercentage.toStringAsFixed(2)}%';
-  String get formattedEmergencyStopPercentage => '${emergencyStopLossPercentage.toStringAsFixed(2)}%';
+  String get formattedTpPercentage =>
+      '${defaultTpPercentage.toStringAsFixed(2)}%';
+  String get formattedSlPercentage =>
+      '${defaultSlPercentage.toStringAsFixed(2)}%';
+  String get formattedEmergencyStopPercentage =>
+      '${emergencyStopLossPercentage.toStringAsFixed(2)}%';
 }
 
 // Dual Side System Health Response Model
@@ -1799,8 +1937,10 @@ class SystemHealthData {
       apiConnectivity: json['api_connectivity'] == true,
       activeStrategies: json['active_strategies'] ?? 0,
       openPositions: json['open_positions'] ?? 0,
-      systemLoad: double.tryParse(json['system_load']?.toString() ?? '0') ?? 0.0,
-      memoryUsage: double.tryParse(json['memory_usage']?.toString() ?? '0') ?? 0.0,
+      systemLoad:
+          double.tryParse(json['system_load']?.toString() ?? '0') ?? 0.0,
+      memoryUsage:
+          double.tryParse(json['memory_usage']?.toString() ?? '0') ?? 0.0,
       errorRate: double.tryParse(json['error_rate']?.toString() ?? '0') ?? 0.0,
     );
   }
@@ -1843,7 +1983,9 @@ class DualSideTradingReportResponse {
       status: json['status'] ?? '',
       message: json['message'] ?? '',
       responsecode: json['responsecode'] ?? '',
-      data: json['data'] != null ? DualSideTradingReportData.fromJson(json['data']) : null,
+      data: json['data'] != null
+          ? DualSideTradingReportData.fromJson(json['data'])
+          : null,
     );
   }
 
@@ -1869,9 +2011,11 @@ class DualSideTradingReportData {
     return DualSideTradingReportData(
       period: ReportPeriod.fromJson(json['period'] ?? {}),
       overview: TradingOverview.fromJson(json['overview'] ?? {}),
-      positionAnalysis: PositionAnalysis.fromJson(json['position_analysis'] ?? {}),
+      positionAnalysis:
+          PositionAnalysis.fromJson(json['position_analysis'] ?? {}),
       symbolBreakdown: json['symbol_breakdown'] != null
-          ? List<SymbolBreakdown>.from(json['symbol_breakdown'].map((x) => SymbolBreakdown.fromJson(x)))
+          ? List<SymbolBreakdown>.from(
+              json['symbol_breakdown'].map((x) => SymbolBreakdown.fromJson(x)))
           : [],
       riskMetrics: RiskMetrics.fromJson(json['risk_metrics'] ?? {}),
     );
@@ -2089,10 +2233,11 @@ class EnhancedMonitorTpSlData {
     return EnhancedMonitorTpSlData(
       executedTpSl: json['executed_tp_sl'] ?? 0,
       totalPositionsChecked: json['total_positions_checked'] ?? 0,
-      executedDetails: json['executed_details'] != null && json['executed_details'] is List
-          ? List<TpSlExecutionDetail>.from(
-              json['executed_details'].map((x) => TpSlExecutionDetail.fromJson(x)))
-          : [],
+      executedDetails:
+          json['executed_details'] != null && json['executed_details'] is List
+              ? List<TpSlExecutionDetail>.from(json['executed_details']
+                  .map((x) => TpSlExecutionDetail.fromJson(x)))
+              : [],
     );
   }
 
@@ -2133,7 +2278,8 @@ class TpSlExecutionDetail {
       symbol: json['symbol']?.toString() ?? '',
       side: json['side']?.toString() ?? '',
       executionType: json['execution_type']?.toString() ?? '',
-      executionPrice: double.tryParse(json['execution_price']?.toString() ?? '0') ?? 0.0,
+      executionPrice:
+          double.tryParse(json['execution_price']?.toString() ?? '0') ?? 0.0,
       pnl: double.tryParse(json['pnl']?.toString() ?? '0') ?? 0.0,
       executedAt: json['executed_at']?.toString() ?? '',
     );

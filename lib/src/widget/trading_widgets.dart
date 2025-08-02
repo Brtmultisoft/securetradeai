@@ -75,7 +75,6 @@ class _AnimatedTradingCardState extends State<AnimatedTradingCard>
               },
               onTapCancel: () => _controller.reverse(),
               child: Container(
-                margin: widget.margin ?? const EdgeInsets.all(8),
                 padding: widget.padding ?? const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   gradient: TradingTheme.cardGradient,
