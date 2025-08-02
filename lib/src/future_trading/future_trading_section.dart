@@ -5,6 +5,7 @@ import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/model/future_trading_models.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/Service/future_trading_service.dart';
+import 'package:securetradeai/src/future_trading/activate_trade_page.dart';
 import 'package:securetradeai/src/future_trading/emergency_stop_popup.dart';
 import 'package:securetradeai/src/future_trading/future_history_page.dart';
 import 'package:securetradeai/src/future_trading/future_positions_page.dart';
@@ -1102,6 +1103,25 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
                     ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 12),
+              // Activate Trade Button
+              SizedBox(
+                width: double.infinity,
+                child: _buildAnimatedActionButton(
+                  'Activate Trade',
+                  () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ActivateTradePage(),
+                      ),
+                    );
+                  },
+                  TradingTheme.primaryAccent,
+                  Colors.black,
+                  450,
+                ),
               ),
               const SizedBox(height: 12),
               // System Health Button

@@ -167,3 +167,6 @@ const String dualSideSystemHealth = "${url}dual_side_system_health";
 
 // Risk Settings API endpoint
 const String dualSideRiskSettings = "${url}dual_side_risk_settings";
+
+// Activate Trade API endpoint
+const String initiateTradeUrl = "${url}initiate_trade";
