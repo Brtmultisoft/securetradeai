@@ -279,12 +279,12 @@ class _HomepageState extends State<Homepage> {
           if (mounted) {
             showDialog(
                 context: context,
-                barrierDismissible: false,
+                barrierDismissible: false, // Prevent dismissing by tapping outside
                 builder: (BuildContext context) {
                   return CustomDialogBox(
-                    title: "Update Now",
+                    title: "Update Required",
                     descriptions:
-                        "New update available, Please update before Use.",
+                        "A new version is available. Please update to continue using the app.",
                     text: "Download Latest Version",
                     onclick: () {
                       print('🌐 User clicked update button, redirecting to website...');
