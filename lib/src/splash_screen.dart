@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:securetradeai/Data/Api.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/tabscreen/tabscreen.dart';
 import 'package:securetradeai/src/user/login.dart';
+import 'package:securetradeai/src/versionpopup/popupdesign.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);

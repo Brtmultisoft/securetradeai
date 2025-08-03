@@ -5,7 +5,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:http/http.dart' as http;
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:securetradeai/data/api.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/method/homepageProvider.dart';
@@ -171,6 +173,7 @@ class _HomepageState extends State<Homepage> {
     super.didChangeDependencies();
     _finalFatchdata();
     _updateRank();
+    _checkAppVersion(); // Add version check on home screen load
     timer = Timer.periodic(
         const Duration(seconds: 2), (Timer t) => _everscountHitMethod());
   }
@@ -195,6 +198,116 @@ class _HomepageState extends State<Homepage> {
       }
     } catch (e) {
       print('Caught error: $e');
+    }
+  }
+
+  // Method to launch URL in browser
+  Future<void> _launchURL(String url) async {
+    try {
+      print('🌐 LAUNCHING URL: $url');
+      final Uri uri = Uri.parse(url);
+      print('🔗 Parsed URI: $uri');
+
+      if (await canLaunchUrl(uri)) {
+        print('✅ URL can be launched, opening in external browser...');
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        print('🚀 URL launched successfully');
+      } else {
+        print('❌ Could not launch URL: $url');
+        print('⚠️ URL launcher failed - URL may be invalid or no browser available');
+      }
+    } catch (e) {
+      print('❌ Error launching URL: $e');
+      print('🔍 Exception details: ${e.toString()}');
+    }
+  }
+
+  // Version check method
+  Future<void> _checkAppVersion() async {
+    try {
+      print('🔍 Starting version check process...');
+      print('🌐 API Endpoint: $getversion');
+
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      print('📱 Current app version: ${packageInfo.version}');
+      print('📱 App name: ${packageInfo.appName}');
+      print('📱 Package name: ${packageInfo.packageName}');
+      print('📱 Build number: ${packageInfo.buildNumber}');
+
+      print('🚀 Making API request to version check endpoint...');
+
+      // Add a timeout to prevent getting stuck
+      final res = await http.get(Uri.parse(getversion))
+          .timeout(Duration(seconds: 10), onTimeout: () {
+        print('⚠️ Version check timed out after 10 seconds');
+        return http.Response('{"status":"timeout"}', 408);
+      });
+
+      print('📡 HTTP Status Code: ${res.statusCode}');
+      print('📡 Response Headers: ${res.headers}');
+      print('🌐 Raw API Response: ${res.body}');
+
+      if (res.statusCode != 200) {
+        print('❌ Version check failed with HTTP status: ${res.statusCode}');
+        print('⚠️ Continuing with app execution');
+        return;
+      }
+
+      var jsondata = jsonDecode(res.body);
+      print('📋 Parsed JSON data: $jsondata');
+
+      if (jsondata['status'] == "success") {
+        String serverVersion = jsondata['version'].toString();
+        String currentVersion = packageInfo.version.toString();
+
+        // Extract major version number for comparison (e.g., "2.0.0" -> "2")
+        String currentMajorVersion = currentVersion.split('.')[0];
+
+        print('🔍 VERSION COMPARISON:');
+        print('   📦 Server version: "$serverVersion"');
+        print('   📱 Current version: "$currentVersion"');
+        print('   📱 Current major version: "$currentMajorVersion"');
+        print('   🔄 Versions match: ${serverVersion == currentMajorVersion}');
+
+        // Fixed version check logic - compare server version with major version
+        if (serverVersion != currentMajorVersion) {
+          print('🚨 UPDATE REQUIRED!');
+          print('   ⬆️ Server has version: $serverVersion');
+          print('   📱 App has version: $currentVersion');
+          print('   🔔 Showing update dialog...');
+
+          if (mounted) {
+            showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return CustomDialogBox(
+                    title: "Update Now",
+                    descriptions:
+                        "New update available, Please update before Use.",
+                    text: "Download Latest Version",
+                    onclick: () {
+                      print('🌐 User clicked update button, redirecting to website...');
+                      // Redirect to website for download instead of app store
+                      _launchURL('https://securetradeai.com');
+                    },
+                  );
+                });
+          }
+        } else {
+          print('✅ VERSION CHECK PASSED!');
+          print('   📱 App is up to date with version: $currentVersion (major: $currentMajorVersion)');
+          print('   ➡️ Continuing with normal app flow...');
+        }
+      } else {
+        print('❌ API returned error status: ${jsondata['status']}');
+        print('📋 Full response: $jsondata');
+        print('⚠️ Continuing with app execution despite version check failure');
+      }
+    } catch (e) {
+      print('❌ Error in version check: $e');
+      print('🔍 Exception details: ${e.toString()}');
+      print('⚠️ Continuing with app execution despite version check error');
     }
   }
 

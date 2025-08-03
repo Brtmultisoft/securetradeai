@@ -6,7 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:securetradeai/src/versionpopup/popupdesign.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:open_store/open_store.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../data/api.dart';
 import '../method/methods.dart';
 import '../model/MineModel.dart';
@@ -34,36 +34,78 @@ class _WelcomePageState extends State<WelcomePage> {
   double minbalance = 0.0;
   var minedata = [];
   bool checkbalance = false;
-  
+
+  // Method to launch URL in browser
+  Future<void> _launchURL(String url) async {
+    try {
+      print('🌐 LAUNCHING URL: $url');
+      final Uri uri = Uri.parse(url);
+      print('🔗 Parsed URI: $uri');
+
+      if (await canLaunchUrl(uri)) {
+        print('✅ URL can be launched, opening in external browser...');
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        print('🚀 URL launched successfully');
+      } else {
+        print('❌ Could not launch URL: $url');
+        print('⚠️ URL launcher failed - URL may be invalid or no browser available');
+      }
+    } catch (e) {
+      print('❌ Error launching URL: $e');
+      print('🔍 Exception details: ${e.toString()}');
+    }
+  }
+
   Future _getAppInfo() async {
     try {
-      print('🔍 Checking app version...');
+      print('🔍 Starting version check process...');
+      print('🌐 API Endpoint: $getversion');
+
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       print('📱 Current app version: ${packageInfo.version}');
-      
+      print('📱 App name: ${packageInfo.appName}');
+      print('📱 Package name: ${packageInfo.packageName}');
+      print('📱 Build number: ${packageInfo.buildNumber}');
+
+      print('🚀 Making API request to version check endpoint...');
+
       // Add a timeout to prevent getting stuck
       final res = await http.get(Uri.parse(getversion))
           .timeout(Duration(seconds: 10), onTimeout: () {
-        print('⚠️ Version check timed out, proceeding to login');
+        print('⚠️ Version check timed out after 10 seconds, proceeding to login');
         return http.Response('{"status":"timeout"}', 408);
       });
-      
-      print('🌐 Version check response: ${res.body}');
-      
+
+      print('📡 HTTP Status Code: ${res.statusCode}');
+      print('📡 Response Headers: ${res.headers}');
+      print('🌐 Raw API Response: ${res.body}');
+
       if (res.statusCode != 200) {
-        print('⚠️ Version check failed, proceeding to login');
+        print('❌ Version check failed with HTTP status: ${res.statusCode}');
+        print('⚠️ Proceeding to login due to API failure');
         _proceedToLogin();
         return;
       }
-      
+
       var jsondata = jsonDecode(res.body);
+      print('📋 Parsed JSON data: $jsondata');
+
       if (jsondata['status'] == "success") {
-        var data = jsondata['data'];
-        print('📦 Server version: ${data['app_version']}');
-        
+        String serverVersion = jsondata['version'].toString();
+        String currentVersion = packageInfo.version.toString();
+
+        print('🔍 VERSION COMPARISON:');
+        print('   📦 Server version: "$serverVersion"');
+        print('   📱 Current version: "$currentVersion"');
+        print('   🔄 Versions match: ${serverVersion == currentVersion}');
+
         // Fixed version check logic
-        if (data['app_version'] != packageInfo.version.toString()) {
-          print('🔄 Update required, showing dialog...');
+        if (serverVersion != currentVersion) {
+          print('🚨 UPDATE REQUIRED!');
+          print('   ⬆️ Server has version: $serverVersion');
+          print('   📱 App has version: $currentVersion');
+          print('   🔔 Showing update dialog...');
+
           showDialog(
               context: context,
               barrierDismissible: false,
@@ -72,22 +114,24 @@ class _WelcomePageState extends State<WelcomePage> {
                   title: "Update Now",
                   descriptions:
                       "New update available, Please update before Use.",
-                  text: "Update",
+                  text: "Download Latest Version",
                   onclick: () {
-                    OpenStore.instance.open(
-                      appStoreId: '', // AppStore id of your app for iOS
-                      androidAppBundleId:
-                          'com.trustcoin.finalapp', // Android app bundle package name
-                    );
+                    print('🌐 User clicked update button, redirecting to website...');
+                    // Redirect to website for download instead of app store
+                    _launchURL('https://securetradeai.com');
                   },
                 );
               });
         } else {
-          print('✅ Version check passed, proceeding to login...');
+          print('✅ VERSION CHECK PASSED!');
+          print('   📱 App is up to date with version: $currentVersion');
+          print('   ➡️ Proceeding to login...');
           _proceedToLogin();
         }
       } else {
-        print('⚠️ Version check failed with status: ${jsondata['status']}, proceeding to login');
+        print('❌ API returned error status: ${jsondata['status']}');
+        print('📋 Full response: $jsondata');
+        print('⚠️ Proceeding to login despite version check failure');
         _proceedToLogin();
       }
     } catch (e) {
