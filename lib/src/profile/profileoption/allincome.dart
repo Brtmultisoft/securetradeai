@@ -316,10 +316,10 @@ class _AllIncomeState extends State<AllIncome>
               fontSize: 14,
             ),
             tabs: const [
-              Tab(
-                icon: Icon(Icons.dashboard, size: 20),
-                text: 'All',
-              ),
+              // Tab(
+              //   icon: Icon(Icons.dashboard, size: 20),
+              //   text: 'All',
+              // ),
               Tab(
                 icon: Icon(Icons.person_add, size: 20),
                 text: 'Direct',
@@ -344,7 +344,7 @@ class _AllIncomeState extends State<AllIncome>
             : TabBarView(
                 controller: _tabController,
                 children: [
-                  _buildAllIncomeView(),
+                  // _buildAllIncomeView(),
                   // _buildProfitSharingView(),
                   // _buildRewardView(),
                   // _buildRoyaltyView(),

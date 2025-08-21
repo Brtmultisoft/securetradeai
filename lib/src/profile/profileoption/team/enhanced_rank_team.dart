@@ -327,69 +327,69 @@ class EnhancedRankTeamState extends State<EnhancedRankTeam> {
                 ),
 
                 // Progress to next rank
-                if (userRank < 6) ...[
-                  const SizedBox(height: 30),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Progress to ${rankInfo[userRank + 1]['name']}",
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 14,
-                          fontFamily: fontFamily,
-                        ),
-                      ),
-                      Text(
-                        "$currentReferrals/$nextRankRequirement referrals",
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 14,
-                          fontFamily: fontFamily,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Stack(
-                    children: [
-                      Container(
-                        height: 10,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                      Container(
-                        height: 10,
-                        width: MediaQuery.of(context).size.width *
-                            progressPercentage *
-                            0.9,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              rankInfo[userRank]['color'],
-                              rankInfo[userRank + 1]['color'],
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    userRank < 6
-                        ? "Need ${nextRankRequirement - currentReferrals} more referrals to reach ${rankInfo[userRank + 1]['name']}"
-                        : "You've reached the highest rank!",
-                    style: TextStyle(
-                      color: Colors.black.withOpacity(0.7),
-                      fontSize: 12,
-                      fontFamily: fontFamily,
-                    ),
-                  ),
-                ],
+                // if (userRank < 6) ...[
+                //   // const SizedBox(height: 30),
+                //   // Row(
+                //   //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   //   children: [
+                //   //     Text(
+                //   //       "Progress to ${rankInfo[userRank + 1]['name']}",
+                //   //       style: const TextStyle(
+                //   //         color: Colors.black,
+                //   //         fontSize: 14,
+                //   //         fontFamily: fontFamily,
+                //   //       ),
+                //   //     ),
+                //   //     Text(
+                //   //       "$currentReferrals/$nextRankRequirement referrals",
+                //   //       style: const TextStyle(
+                //   //         color: Colors.black,
+                //   //         fontSize: 14,
+                //   //         fontFamily: fontFamily,
+                //   //       ),
+                //   //     ),
+                //   //   ],
+                //   // ),
+                //   // const SizedBox(height: 10),
+                //   // Stack(
+                //   //   children: [
+                //   //     Container(
+                //   //       height: 10,
+                //   //       width: double.infinity,
+                //   //       decoration: BoxDecoration(
+                //   //         color: Colors.white.withOpacity(0.1),
+                //   //         borderRadius: BorderRadius.circular(5),
+                //   //       ),
+                //   //     ),
+                //   //     Container(
+                //   //       height: 10,
+                //   //       width: MediaQuery.of(context).size.width *
+                //   //           progressPercentage *
+                //   //           0.9,
+                //   //       decoration: BoxDecoration(
+                //   //         gradient: LinearGradient(
+                //   //           colors: [
+                //   //             rankInfo[userRank]['color'],
+                //   //             rankInfo[userRank + 1]['color'],
+                //   //           ],
+                //   //         ),
+                //   //         borderRadius: BorderRadius.circular(5),
+                //   //       ),
+                //   //     ),
+                //   //   ],
+                //   // ),
+                //   // const SizedBox(height: 10),
+                //   // Text(
+                //   //   userRank < 6
+                //   //       ? "Need ${nextRankRequirement - currentReferrals} more referrals to reach ${rankInfo[userRank + 1]['name']}"
+                //   //       : "You've reached the highest rank!",
+                //   //   style: TextStyle(
+                //   //     color: Colors.black.withOpacity(0.7),
+                //   //     fontSize: 12,
+                //   //     fontFamily: fontFamily,
+                //   //   ),
+                //   // ),
+                // ],
               ],
             ),
           ),

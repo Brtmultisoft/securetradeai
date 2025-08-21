@@ -270,19 +270,23 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
               children: [
                 // Search Bar
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: TextField(
                     decoration: InputDecoration(
-                      hintText: 'Search by referral, investment, or description',
+                      hintText:
+                          'Search by referral, investment, or description',
                       hintStyle: const TextStyle(color: Colors.white54),
-                      prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                      prefixIcon:
+                          const Icon(Icons.search, color: Colors.white54),
                       filled: true,
                       fillColor: const Color(0xFF232A3B),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 0, horizontal: 0),
                     ),
                     style: const TextStyle(color: Colors.white),
                     onChanged: (value) {
@@ -412,7 +416,8 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
         : incomeData.where((income) {
             final query = _searchQuery.toLowerCase();
             final fourthCol = _getFourthColumnData(income).toLowerCase();
-            final descr = (income['description'] ?? '').toString().toLowerCase();
+            final descr =
+                (income['description'] ?? '').toString().toLowerCase();
             return fourthCol.contains(query) || descr.contains(query);
           }).toList();
     if (filteredData.isEmpty) {
@@ -460,6 +465,11 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
 
   Widget _buildCustomTable([List<Map<String, dynamic>>? dataOverride]) {
     final data = dataOverride ?? incomeData;
+
+    // ✅ Reverse only if it's Level TPS
+    final displayData =
+        widget.incomeType == 'level_income' ? data.reversed.toList() : data;
+
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF1E2026),
@@ -530,7 +540,6 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                       ),
                     ),
                   ),
-                  // Conditional fourth column
                   if (_shouldShowFourthColumn())
                     SizedBox(
                       width: 90,
@@ -550,28 +559,14 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                         ),
                       ),
                     ),
-                  // Expanded(
-                  //   flex: 1,
-                  //   child: Padding(
-                  //     padding: const EdgeInsets.all(12.0),
-                  //     child: Text(
-                  //       'Type',
-                  //       textAlign: TextAlign.center,
-                  //       style: TextStyle(
-                  //         color: Colors.white,
-                  //         fontWeight: FontWeight.bold,
-                  //         fontSize: 12,
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
                 ],
               ),
             ),
             // Data Rows
-            ...data.asMap().entries.map((entry) {
+            ...displayData.asMap().entries.map((entry) {
               int index = entry.key;
               Map<String, dynamic> income = entry.value;
+
               return Container(
                 color: index % 2 == 0
                     ? const Color(0xFF1E2026)
@@ -586,7 +581,10 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                           vertical: 12,
                         ),
                         child: Text(
-                          '${index + 1}',
+                          // ✅ numbering logic:
+                          widget.incomeType == 'level_income'
+                              ? '${displayData.length - index}' // highest first for Level TPS
+                              : '${index + 1}', // normal numbering for others
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.white,
@@ -630,7 +628,6 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                         ),
                       ),
                     ),
-                    // Conditional fourth column
                     if (_shouldShowFourthColumn())
                       SizedBox(
                         width: 90,
@@ -649,20 +646,6 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                           ),
                         ),
                       ),
-                    // Expanded(
-                    //   flex: 1,
-                    //   child: Padding(
-                    //     padding: const EdgeInsets.all(12.0),
-                    //     child: Text(
-                    //       _getIncomeTypeDisplay(income['type']),
-                    //       textAlign: TextAlign.center,
-                    //       style: TextStyle(
-                    //         color: Colors.white,
-                    //         fontSize: 11,
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
                   ],
                 ),
               );
@@ -676,7 +659,9 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
   // Helper method to determine if fourth column should be shown
   bool _shouldShowFourthColumn() {
     String titleLower = widget.title.toLowerCase();
-    return titleLower.contains('direct') || titleLower.contains('total roi') || titleLower.contains('level');
+    return titleLower.contains('direct') ||
+        titleLower.contains('total roi') ||
+        titleLower.contains('level');
   }
 
   // Helper method to get fourth column header text

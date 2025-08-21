@@ -1658,7 +1658,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                icon: const Icon(Icons.lock_open, color: Colors.black, size: 18),
+                icon:
+                    const Icon(Icons.lock_open, color: Colors.black, size: 18),
                 label: const Text(
                   'Release Principal',
                   style: TextStyle(
@@ -1679,7 +1680,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     context: context,
                     builder: (context) => AlertDialog(
                       backgroundColor: const Color(0xFF1E2026),
-                      title: const Text('Release Principal', style: TextStyle(color: Colors.white)),
+                      title: const Text('Release Principal',
+                          style: TextStyle(color: Colors.white)),
                       content: const Text(
                         'Are you sure you want to release (withdraw) your principal for this investment? This action cannot be undone.',
                         style: TextStyle(color: Colors.white70),
@@ -1687,7 +1689,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text('Cancel', style: TextStyle(color: Color(0xFF848E9C))),
+                          child: const Text('Cancel',
+                              style: TextStyle(color: Color(0xFF848E9C))),
                         ),
                         ElevatedButton(
                           onPressed: () => Navigator.of(context).pop(true),
@@ -1703,12 +1706,15 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                   if (confirm == true) {
                     try {
                       // Call backend to release principal
-                      final res = await CommonMethod().releaseArbitragePrincipal(investment.id);
+                      final res = await CommonMethod()
+                          .releaseArbitragePrincipal(investment.id);
                       if (res['status'] == 'success') {
-                        _showSuccessToast(res['message'] ?? 'Principal released successfully!');
+                        _showSuccessToast(res['message'] ??
+                            'Principal released successfully!');
                         await _loadInvestmentData();
                       } else {
-                        _showErrorToast(res['message'] ?? 'Failed to release principal.');
+                        _showErrorToast(
+                            res['message'] ?? 'Failed to release principal.');
                       }
                     } catch (e) {
                       _showErrorToast('Network error. Please try again.');
