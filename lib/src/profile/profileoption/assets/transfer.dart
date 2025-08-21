@@ -130,15 +130,7 @@ class _TransferState extends State<Transfer> {
                   padding: EdgeInsets.symmetric(vertical: 15),
                   alignment: Alignment.center,
                   decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: [0.0, 1.0],
-                      colors: [
-                        Colors.green,
-                        Colors.blue,
-                      ],
-                    ),
+                    color: const Color(0xFFF0B90B), // Binance yellow
                     borderRadius: const BorderRadius.all(Radius.circular(5)),
                     boxShadow: const <BoxShadow>[
                       BoxShadow(

@@ -5,9 +5,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:securetradeai/data/api.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/method/homepageProvider.dart';
@@ -31,7 +31,7 @@ import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 import 'package:securetradeai/src/widget/page_transitions.dart';
 import 'package:securetradeai/src/widget/trading_animations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../future_trading/future_trading_section.dart';
 import '../profile/profileoption/Transaction/payment_section.dart';
@@ -192,35 +192,18 @@ class _HomepageState extends State<Homepage> {
         body: {'user_id': commonuserId},
       );
       if (response.statusCode == 200) {
-        print('Rank updated successfully');
-        // Optionally, handle the response data or update your UI here
-      } else {
-        print('Failed to update rank with status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Caught error: $e');
-    }
+      } else {}
+    } catch (e) {}
   }
 
   // Method to launch URL in browser
   Future<void> _launchURL(String url) async {
     try {
-      print('🌐 LAUNCHING URL: $url');
       final Uri uri = Uri.parse(url);
-      print('🔗 Parsed URI: $uri');
-
       if (await canLaunchUrl(uri)) {
-        print('✅ URL can be launched, opening in external browser...');
         await launchUrl(uri, mode: LaunchMode.externalApplication);
-        print('🚀 URL launched successfully');
-      } else {
-        print('❌ Could not launch URL: $url');
-        print('⚠️ URL launcher failed - URL may be invalid or no browser available');
-      }
-    } catch (e) {
-      print('❌ Error launching URL: $e');
-      print('🔍 Exception details: ${e.toString()}');
-    }
+      } else {}
+    } catch (e) {}
   }
 
   // Version check method
@@ -238,7 +221,8 @@ class _HomepageState extends State<Homepage> {
       print('🚀 Making API request to version check endpoint...');
 
       // Add a timeout to prevent getting stuck
-      final res = await http.get(Uri.parse(getversion))
+      final res = await http
+          .get(Uri.parse(getversion))
           .timeout(Duration(seconds: 10), onTimeout: () {
         print('⚠️ Version check timed out after 10 seconds');
         return http.Response('{"status":"timeout"}', 408);
@@ -280,7 +264,8 @@ class _HomepageState extends State<Homepage> {
           if (mounted) {
             showDialog(
                 context: context,
-                barrierDismissible: false, // Prevent dismissing by tapping outside
+                barrierDismissible:
+                    false, // Prevent dismissing by tapping outside
                 builder: (BuildContext context) {
                   return CustomDialogBox(
                     title: "Update Required",
@@ -288,7 +273,8 @@ class _HomepageState extends State<Homepage> {
                         "A new version is available. Please update to continue using the app.",
                     text: "Download Latest Version",
                     onclick: () {
-                      print('🌐 User clicked update button, redirecting to website...');
+                      print(
+                          '🌐 User clicked update button, redirecting to website...');
                       // Redirect to website for download instead of app store
                       _launchURL('https://securetradeai.com');
                     },
@@ -297,7 +283,8 @@ class _HomepageState extends State<Homepage> {
           }
         } else {
           print('✅ VERSION CHECK PASSED!');
-          print('   📱 App is up to date with version: $currentVersion (major: $currentMajorVersion)');
+          print(
+              '   📱 App is up to date with version: $currentVersion (major: $currentMajorVersion)');
           print('   ➡️ Continuing with normal app flow...');
         }
       } else {
@@ -825,77 +812,73 @@ class _HomepageState extends State<Homepage> {
                       )
                     : Consumer<HomePageProvider>(
                         builder: (context, list, child) {
-                        return TabBarView(
-                          children: [
-                            exchanger == "Binance"
-                                ? list.check_TransactionData
-                                    ? Container(
-                                        margin: const EdgeInsets.only(top: 20),
-                                        padding: const EdgeInsets.all(20),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF1A2234),
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.3),
-                                              spreadRadius: 1,
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 3),
-                                            ),
-                                          ],
-                                        ),
-                                        child:
-                                            Image.asset("assets/img/logo.png"),
-                                      )
-                                    : list.finalTransactionData.isEmpty
-                                        ? const Center(
-                                            child: LottieLoadingWidget.medium())
-                                        : Column(
-                                            children: [
-                                              Expanded(
-                                                  child: _display1(list
-                                                      .finalTransactionData)),
-                                              const SizedBox(
-                                                height: 20,
-                                              )
-                                            ],
-                                          )
-                                : list.check_TransactionDatahuobi
-                                    ? Container(
-                                        padding: const EdgeInsets.all(20),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF1A2234),
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.3),
-                                              spreadRadius: 1,
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 3),
-                                            ),
-                                          ],
-                                        ),
-                                        child:
-                                            Image.asset("assets/img/logo.png"),
-                                      )
-                                    : list.finalTransactionDataHuobi.isEmpty
-                                        ? const Center(
-                                            child: LottieLoadingWidget.medium())
-                                        : Column(
-                                            children: [
-                                              Expanded(
-                                                  child: _display1Huobi(list
-                                                      .finalTransactionDataHuobi)),
-                                              const SizedBox(
-                                                height: 20,
-                                              )
+                        return SizedBox.shrink(
+                          child: TabBarView(
+                            children: [
+                              exchanger == "Binance"
+                                  ? list.check_TransactionData
+                                      ? Container(
+                                          margin:
+                                              const EdgeInsets.only(top: 20),
+                                          padding: const EdgeInsets.all(20),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF1A2234),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.3),
+                                                spreadRadius: 1,
+                                                blurRadius: 10,
+                                                offset: const Offset(0, 3),
+                                              ),
                                             ],
                                           ),
-                          ],
+                                          child: Image.asset(
+                                              "assets/img/logo.png"),
+                                        )
+                                      : list.finalTransactionData.isEmpty
+                                          ? const Center(
+                                              child:
+                                                  LottieLoadingWidget.medium())
+                                          : _display1(list.finalTransactionData)
+                                  : list.check_TransactionDatahuobi
+                                      ? Container(
+                                          padding: const EdgeInsets.all(20),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF1A2234),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(0.3),
+                                                spreadRadius: 1,
+                                                blurRadius: 10,
+                                                offset: const Offset(0, 3),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Image.asset(
+                                              "assets/img/logo.png"),
+                                        )
+                                      : list.finalTransactionDataHuobi.isEmpty
+                                          ? const Center(
+                                              child:
+                                                  LottieLoadingWidget.medium())
+                                          : Column(
+                                              children: [
+                                                Expanded(
+                                                    child: _display1Huobi(list
+                                                        .finalTransactionDataHuobi)),
+                                                const SizedBox(
+                                                  height: 20,
+                                                )
+                                              ],
+                                            ),
+                            ],
+                          ),
                         );
                       }),
               ),
@@ -2587,28 +2570,32 @@ class _NotificationsSheetState extends State<_NotificationsSheet> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Padding(
                     padding: EdgeInsets.all(16.0),
-                    child:
-                        Center(child: CircularProgressIndicator(color: Color(0xFF4A90E2))),
+                    child: Center(
+                        child: CircularProgressIndicator(
+                            color: Color(0xFF4A90E2))),
                   );
                 }
                 final items = snapshot.data ?? [];
                 if (items.isEmpty) {
                   return const Padding(
                     padding: EdgeInsets.all(16.0),
-                    child: Text('No notifications', style: TextStyle(color: Colors.white70)),
+                    child: Text('No notifications',
+                        style: TextStyle(color: Colors.white70)),
                   );
                 }
                 return Flexible(
                   child: ListView.separated(
                     shrinkWrap: true,
                     itemCount: items.length,
-                    separatorBuilder: (_, __) => const Divider(color: Color(0xFF2A3A5A)),
+                    separatorBuilder: (_, __) =>
+                        const Divider(color: Color(0xFF2A3A5A)),
                     itemBuilder: (context, i) {
                       final n = items[i];
                       final createdAt = n['created_at'];
                       String when = createdAt;
                       try {
-                        if (createdAt != null && createdAt.toString().isNotEmpty) {
+                        if (createdAt != null &&
+                            createdAt.toString().isNotEmpty) {
                           final dt = DateTime.tryParse(createdAt);
                           if (dt != null) {
                             when = DateFormat('yMMMd • HH:mm').format(dt);
@@ -2616,17 +2603,25 @@ class _NotificationsSheetState extends State<_NotificationsSheet> {
                         }
                       } catch (_) {}
                       return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-                        leading: const Icon(Icons.notifications, color: Color(0xFF4A90E2)),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 4),
+                        leading: const Icon(Icons.notifications,
+                            color: Color(0xFF4A90E2)),
                         title: Text(n['title'] ?? 'Notification',
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600)),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if ((n['message'] ?? '').toString().isNotEmpty)
-                              Text(n['message'], style: const TextStyle(color: Colors.white70)),
+                              Text(n['message'],
+                                  style:
+                                      const TextStyle(color: Colors.white70)),
                             const SizedBox(height: 4),
-                            Text(when, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                            Text(when,
+                                style: const TextStyle(
+                                    color: Colors.white38, fontSize: 12)),
                           ],
                         ),
                       );
