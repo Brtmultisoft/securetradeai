@@ -31,6 +31,7 @@ import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 import 'package:securetradeai/src/widget/page_transitions.dart';
 import 'package:securetradeai/src/widget/trading_animations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 import '../future_trading/future_trading_section.dart';
 import '../profile/profileoption/Transaction/payment_section.dart';
@@ -522,6 +523,7 @@ class _HomepageState extends State<Homepage> {
                     SliverList(
                       delegate: SliverChildListDelegate([
                         const SizedBox(height: 15.0),
+                        _homeHeader(context),
                         // Enhanced banner carousel with better styling
                         FadeSlideTransition(
                           delay: const Duration(milliseconds: 200),
@@ -2452,6 +2454,62 @@ class _HomepageState extends State<Homepage> {
       ),
     );
   }
+
+  Widget _homeHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4),
+      child: Row(
+        children: [
+          const Text(
+            'Home',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+          const Spacer(),
+          IconButton(
+            tooltip: 'Notifications',
+            onPressed: _openNotifications,
+            icon: const Icon(Icons.notifications_none, color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openNotifications() async {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF121824),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => _NotificationsSheet(fetch: _fetchNotifications),
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchNotifications() async {
+    try {
+      final res = await http.get(Uri.parse(userNotificationsUrl));
+      if (res.statusCode == 200 && res.body.isNotEmpty) {
+        final data = jsonDecode(res.body);
+        if (data['status'] == 'success') {
+          final List list = data['data'] is List ? data['data'] : [];
+          return list
+              .map((e) => {
+                    'title': e['title']?.toString() ?? 'Notification',
+                    'message': e['message']?.toString() ?? '',
+                    'created_at': e['created_at']?.toString() ?? '',
+                  })
+              .cast<Map<String, dynamic>>()
+              .toList();
+        }
+      }
+    } catch (_) {}
+    return [];
+  }
 }
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
@@ -2482,5 +2540,104 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
     return false;
+  }
+}
+
+class _NotificationsSheet extends StatefulWidget {
+  final Future<List<Map<String, dynamic>>> Function() fetch;
+  const _NotificationsSheet({Key? key, required this.fetch}) : super(key: key);
+
+  @override
+  State<_NotificationsSheet> createState() => _NotificationsSheetState();
+}
+
+class _NotificationsSheetState extends State<_NotificationsSheet> {
+  late Future<List<Map<String, dynamic>>> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = widget.fetch();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: const [
+                Text('Notifications',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16)),
+                Spacer(),
+              ],
+            ),
+            const SizedBox(height: 8),
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: _future,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child:
+                        Center(child: CircularProgressIndicator(color: Color(0xFF4A90E2))),
+                  );
+                }
+                final items = snapshot.data ?? [];
+                if (items.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text('No notifications', style: TextStyle(color: Colors.white70)),
+                  );
+                }
+                return Flexible(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: items.length,
+                    separatorBuilder: (_, __) => const Divider(color: Color(0xFF2A3A5A)),
+                    itemBuilder: (context, i) {
+                      final n = items[i];
+                      final createdAt = n['created_at'];
+                      String when = createdAt;
+                      try {
+                        if (createdAt != null && createdAt.toString().isNotEmpty) {
+                          final dt = DateTime.tryParse(createdAt);
+                          if (dt != null) {
+                            when = DateFormat('yMMMd • HH:mm').format(dt);
+                          }
+                        }
+                      } catch (_) {}
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                        leading: const Icon(Icons.notifications, color: Color(0xFF4A90E2)),
+                        title: Text(n['title'] ?? 'Notification',
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if ((n['message'] ?? '').toString().isNotEmpty)
+                              Text(n['message'], style: const TextStyle(color: Colors.white70)),
+                            const SizedBox(height: 4),
+                            Text(when, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -73,27 +73,6 @@ class SharescreenState extends State<Sharescreen> {
               padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
               child: Column(
                 children: [
-                  // Logo and illustration
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                        width: 200,
-                        height: 200,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1E2329).withOpacity(0.5),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      Image.asset(
-                        "assets/img/logo.png",
-                        height: 120,
-                        fit: BoxFit.contain,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  // Heading
                   const Text(
                     "Invite Friends & Earn Rewards",
                     textAlign: TextAlign.center,
@@ -301,62 +280,6 @@ class SharescreenState extends State<Sharescreen> {
                         },
                       ),
                     ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Rewards info
-            Container(
-              margin: const EdgeInsets.all(20),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E2329),
-                borderRadius: BorderRadius.circular(16.0),
-                border:
-                    Border.all(color: const Color(0xFFF0B90B).withOpacity(0.3)),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF0B90B).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.card_giftcard,
-                          color: Color(0xFFF0B90B),
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      const Expanded(
-                        child: Text(
-                          "Referral Rewards",
-                          style: TextStyle(
-                            fontFamily: fontFamily,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-                  _buildRewardItem(
-                    title: "Standard Commission",
-                    value: "20%",
-                    description: "of trading fees from your referrals",
-                  ),
-                  const SizedBox(height: 10),
-                  _buildRewardItem(
-                    title: "VIP Commission",
-                    value: "40%",
-                    description: "for referrals who deposit over \$1,000",
                   ),
                 ],
               ),

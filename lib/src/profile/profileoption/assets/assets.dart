@@ -213,20 +213,6 @@ class _AssetsState extends State<Assets> {
                     },
                   ),
                   _buildActionButton(
-                    icon: Icons.arrow_forward,
-                    label: "Transfer",
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Transfer(
-                            balance: totalBalance.toStringAsFixed(4),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildActionButton(
                     icon: Icons.swap_horiz,
                     label: "Swap",
                     onTap: () {
@@ -315,6 +301,106 @@ class _AssetsState extends State<Assets> {
     );
   }
 
+  String _typeLabelFor(dynamic tx) {
+    final t = (tx.type ?? '').toString().toLowerCase();
+    final d = (tx.descr ?? '').toString().toLowerCase();
+    final h = (tx.hashkey ?? '').toString().toLowerCase();
+
+    final isSwap = t.contains('swap') || d.contains('swap') || h.contains('swap') || ((t == 'tfr' || t.contains('transfer')) && (d.contains('gas') || d.contains('gaswallet') || d.contains('gas_wallet') || h.contains('gas')));
+    if (isSwap) return (d.contains('gas') || h.contains('gas')) ? 'Swap to Gas Wallet' : 'Swap';
+
+    if (t == 'tfr' || t.contains('transfer')) return 'Transfer';
+    if (t.contains('dep')) return 'Deposit';
+    if (t.contains('with') || t.contains('wd')) return 'Withdrawal';
+    return 'Transaction';
+  }
+
+  void _showTransactionDetails(dynamic transaction) {
+    final bool isCredit = transaction.dr == "0";
+    final String amount = isCredit ? transaction.cr : transaction.dr;
+    final String typeLabel = _typeLabelFor(transaction);
+    final String desc = (transaction.descr ?? '').toString();
+    final String dateStr = transaction.createdDate.toString();
+    final String status = (transaction.status ?? '').toString();
+    final String hash = (transaction.hashkey ?? '').toString();
+
+    String fromText = 'N/A';
+    String toText = 'N/A';
+    if (typeLabel.startsWith('Swap') || typeLabel == 'Transfer') {
+      final lower = desc.toLowerCase();
+      if (lower.contains('from') && lower.contains('to')) {
+        final parts = lower.split('to');
+        if (parts.length >= 2) {
+          fromText = parts[0].replaceAll('from', '').trim();
+          toText = parts[1].trim();
+        }
+      }
+    }
+
+    showModalBottomSheet(
+        context: context,
+        backgroundColor: const Color(0xFF1A2235),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+        builder: (_) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.receipt_long, color: Colors.white70),
+                    const SizedBox(width: 8),
+                    Text(typeLabel,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16)),
+                    const Spacer(),
+                    Text(dateStr.substring(0, 16),
+                        style:
+                            const TextStyle(color: Colors.white54, fontSize: 12))
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _kv('Amount', '${isCredit ? '+' : '-'}$amount USD'),
+                _kv('Status', status.isEmpty ? '—' : status),
+                _kv('Type', typeLabel),
+                if (typeLabel.startsWith('Swap') || typeLabel == 'Transfer') ...[
+                  _kv('From', fromText),
+                  _kv('To', toText),
+                ],
+                if (hash.isNotEmpty) _kv('Hash/Ref', hash),
+                if (desc.isNotEmpty) _kv('Description', desc),
+                const SizedBox(height: 8),
+              ],
+            ),
+          );
+        });
+  }
+
+  Widget _kv(String k, String v) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+              width: 110,
+              child: Text(k,
+                  style: const TextStyle(
+                      color: Colors.white70, fontWeight: FontWeight.w500))),
+          const SizedBox(width: 8),
+          Expanded(
+              child: Text(v,
+                  style: const TextStyle(color: Colors.white, fontSize: 14))),
+        ],
+      ),
+    );
+  }
+
   Widget listdata() {
     // Theme colors
     const Color darkBlue = Color(0xFF0D1321);
@@ -390,82 +476,99 @@ class _AssetsState extends State<Assets> {
                       final amount = isCredit ? transaction.cr : transaction.dr;
                       final formattedDate =
                           transaction.createdDate.toString().substring(0, 16);
+                      final typeLabel = _typeLabelFor(transaction);
 
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: mediumBlue,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: const Color(0xFF2A3A5A),
-                            width: 1,
+                      return InkWell(
+                        onTap: () => _showTransactionDetails(transaction),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: mediumBlue,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: const Color(0xFF2A3A5A),
+                              width: 1,
+                            ),
                           ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
-                            children: [
-                              // Transaction icon
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: darkBlue,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    isCredit
-                                        ? Icons.arrow_downward
-                                        : Icons.arrow_upward,
-                                    color: isCredit ? Colors.green : Colors.red,
-                                    size: 20,
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Row(
+                              children: [
+                                // Transaction icon
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: darkBlue,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      isCredit
+                                          ? Icons.arrow_downward
+                                          : Icons.arrow_upward,
+                                      color:
+                                          isCredit ? Colors.green : Colors.red,
+                                      size: 20,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
+                                const SizedBox(width: 12),
 
-                              // Transaction details
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      (transaction.descr == null ||
-                                              transaction.descr == "")
-                                          ? "Description not available"
-                                          : transaction.descr!,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
+                                // Transaction details
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        typeLabel,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      formattedDate,
-                                      style: const TextStyle(
-                                        color: Color(0xFF8A9CC0),
-                                        fontSize: 12,
+                                      if ((transaction.descr ?? '')
+                                          .toString()
+                                          .isNotEmpty)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 2.0),
+                                          child: Text(
+                                            transaction.descr!,
+                                            style: const TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 12,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        formattedDate,
+                                        style: const TextStyle(
+                                          color: Color(0xFF8A9CC0),
+                                          fontSize: 12,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
 
-                              // Amount
-                              Text(
-                                "${isCredit ? '+' : '-'}$amount USD",
-                                style: TextStyle(
-                                  color: isCredit ? Colors.green : Colors.red,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                                // Amount
+                                Text(
+                                  "${isCredit ? '+' : '-'}$amount USD",
+                                  style: TextStyle(
+                                    color: isCredit ? Colors.green : Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       );

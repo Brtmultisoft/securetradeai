@@ -10,6 +10,7 @@ import '../../../../method/methods.dart';
 import '../../../../model/DeposittransactionModel.dart';
 import '../../../Service/assets_service.dart';
 import '../../../Service/wallet_service.dart';
+import 'transfer.dart';
 
 class AutoDeposit extends StatefulWidget {
   const AutoDeposit({Key? key}) : super(key: key);
@@ -597,6 +598,23 @@ class _AutoDepositState extends State<AutoDeposit>
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          TextButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Transfer(balance: userBalance),
+                ),
+              );
+            },
+            icon: const Icon(Icons.swap_horiz, color: Colors.white, size: 20),
+            label: const Text(
+              'Transfer',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: const Color(0xFFF0B90B), // Binance yellow

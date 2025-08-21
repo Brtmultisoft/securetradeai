@@ -28,11 +28,7 @@ class _LevelTeamState extends State<LevelTeam> {
   int level8 = 0;
   int level9 = 0;
   int level10 = 0;
-  int level11 = 0;
-  int level12 = 0;
-  int level13 = 0;
-  int level14 = 0;
-  int level15 = 0;
+ 
 
   @override
   void initState() {
@@ -87,21 +83,7 @@ class _LevelTeamState extends State<LevelTeam> {
             if (element["level"] == "Level 10") {
               setState(() => level10++);
             }
-            if (element["level"] == "Level 11") {
-              setState(() => level11++);
-            }
-            if (element["level"] == "Level 12") {
-              setState(() => level12++);
-            }
-            if (element["level"] == "Level 13") {
-              setState(() => level13++);
-            }
-            if (element["level"] == "Level 14") {
-              setState(() => level14++);
-            }
-            if (element["level"] == "Level 15") {
-              setState(() => level15++);
-            }
+           
           }
           if (mounted) {
             setState(() {
@@ -190,7 +172,7 @@ class _LevelTeamState extends State<LevelTeam> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildStatCard("Total Members", "${level1 + level2 + level3 + level4 + level5 + level6 + level7 + level8 + level9 + level10 + level11 + level12 + level13 + level14 + level15}"),
+                    _buildStatCard("Total Members", "${level1 + level2 + level3 + level4 + level5 + level6 + level7 + level8 + level9 + level10}"),
                     _buildStatCard("Direct Referrals", "$level1"),
                     _buildStatCard("Active Members", "${teamData.where((e) => e['days_bal'] != "0").length}"),
                   ],
@@ -465,131 +447,7 @@ class _LevelTeamState extends State<LevelTeam> {
                 style:
                     TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               )),
-          ListTile(
-              onTap: () {
-                _goToDetailPage("11");
-              },
-              leading: CircleAvatar(
-                radius: 20.0,
-                backgroundImage: NetworkImage(
-                  widget.image == null
-                      ? imagepath + "default.jpg"
-                      : imagepath + widget.image,
-                ),
-              ),
-              title: const Text(
-                "Level 11",
-                style: TextStyle(color: Colors.white),
-              ),
-              subtitle: Text(
-                "Total " + level11.toString(),
-                style: TextStyle(color: Colors.white),
-              ),
-              trailing: const Text(
-                "View",
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              )),
-          ListTile(
-              onTap: () {
-                _goToDetailPage("12");
-              },
-              leading: CircleAvatar(
-                radius: 20.0,
-                backgroundImage: NetworkImage(
-                  widget.image == null
-                      ? imagepath + "default.jpg"
-                      : imagepath + widget.image,
-                ),
-              ),
-              title: const Text(
-                "Level 12",
-                style: TextStyle(color: Colors.white),
-              ),
-              subtitle: Text(
-                "Total " + level12.toString(),
-                style: TextStyle(color: Colors.white),
-              ),
-              trailing: const Text(
-                "View",
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              )),
-          ListTile(
-              onTap: () {
-                _goToDetailPage("13");
-              },
-              leading: CircleAvatar(
-                radius: 20.0,
-                backgroundImage: NetworkImage(
-                  widget.image == null
-                      ? imagepath + "default.jpg"
-                      : imagepath + widget.image,
-                ),
-              ),
-              title: const Text(
-                "Level 13",
-                style: TextStyle(color: Colors.white),
-              ),
-              subtitle: Text(
-                "Total " + level13.toString(),
-                style: const TextStyle(color: Colors.white),
-              ),
-              trailing: const Text(
-                "View",
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              )),
-          ListTile(
-              onTap: () {
-                _goToDetailPage("14");
-              },
-              leading: CircleAvatar(
-                radius: 20.0,
-                backgroundImage: NetworkImage(
-                  widget.image == null
-                      ? imagepath + "default.jpg"
-                      : imagepath + widget.image,
-                ),
-              ),
-              title: const Text(
-                "Level 14",
-                style: TextStyle(color: Colors.white),
-              ),
-              subtitle: Text(
-                "Total " + level14.toString(),
-                style: TextStyle(color: Colors.white),
-              ),
-              trailing: const Text(
-                "View",
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              )),
-          ListTile(
-              onTap: () {
-                _goToDetailPage("15");
-              },
-              leading: CircleAvatar(
-                radius: 20.0,
-                backgroundImage: NetworkImage(
-                  widget.image == null
-                      ? imagepath + "default.jpg"
-                      : imagepath + widget.image,
-                ),
-              ),
-              title: const Text(
-                "Level 15",
-                style: TextStyle(color: Colors.white),
-              ),
-              subtitle: Text(
-                "Total " + level15.toString(),
-                style: TextStyle(color: Colors.white),
-              ),
-              trailing: const Text(
-                "View",
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              )),
+          // Levels 11-15 are removed/commented out
         ],
       ),
     );
@@ -740,135 +598,6 @@ class _LevelTeamState extends State<LevelTeam> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildHierarchyVisualization() {
-    return Container(
-      height: 180,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: const Color(0xFF0B0E11),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Stack(
-        children: [
-          // Level 1 (You)
-          Positioned(
-            top: 20,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: _buildHierarchyNode("You", const Color(0xFFF0B90B), true),
-            ),
-          ),
-          // Connecting lines
-          Positioned(
-            top: 60,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                width: 2,
-                height: 20,
-                color: const Color(0xFF2A3A5A),
-              ),
-            ),
-          ),
-          // Level 2 (Direct referrals)
-          Positioned(
-            top: 80,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildHierarchyNode("Level 1", const Color(0xFF4A90E2), false),
-                const SizedBox(width: 40),
-                _buildHierarchyNode("Level 1", const Color(0xFF4A90E2), false),
-                const SizedBox(width: 40),
-                _buildHierarchyNode("Level 1", const Color(0xFF4A90E2), false),
-              ],
-            ),
-          ),
-          // Connecting lines to level 3
-          Positioned(
-            top: 120,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(width: 2, height: 20, color: const Color(0xFF2A3A5A)),
-                const SizedBox(width: 40),
-                Container(width: 2, height: 20, color: const Color(0xFF2A3A5A)),
-                const SizedBox(width: 40),
-                Container(width: 2, height: 20, color: const Color(0xFF2A3A5A)),
-              ],
-            ),
-          ),
-          // Level 3
-          Positioned(
-            bottom: 20,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildHierarchyNode("L2", const Color(0xFF7E57C2), false),
-                _buildHierarchyNode("L2", const Color(0xFF7E57C2), false),
-                _buildHierarchyNode("L2", const Color(0xFF7E57C2), false),
-                _buildHierarchyNode("L2", const Color(0xFF7E57C2), false),
-                _buildHierarchyNode("L2", const Color(0xFF7E57C2), false),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHierarchyNode(String label, Color color, bool isYou) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: isYou ? 40 : 30,
-          height: isYou ? 40 : 30,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
-            shape: BoxShape.circle,
-            border: Border.all(color: color, width: 2),
-            boxShadow: [
-              BoxShadow(
-                color: color.withOpacity(0.3),
-                blurRadius: 8,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-          child: Center(
-            child: Text(
-              isYou ? "Y" : label[0],
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: isYou ? 16 : 12,
-              ),
-            ),
-          ),
-        ),
-        if (isYou) const SizedBox(height: 4),
-        if (isYou)
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontFamily: fontFamily,
-            ),
-          ),
-      ],
     );
   }
 }

@@ -575,8 +575,8 @@ class CommonMethod {
             summary: InvestmentSummary(
               totalArbitrageInvestment: 0.0,
               totalBotInvestment: 0.0,
-              total_arbitrage_investment: 0.0,
               totalInvestment: 0.0,
+              total_arbitrage_investment: 0.0,
               totalRoiEarned: 0.0,
             ),
           ),
@@ -1045,5 +1045,17 @@ class CommonMethod {
         ),
       );
     }
+  }
+
+  Future<Map<String, dynamic>> releaseArbitragePrincipal(int investmentId) async {
+    final res = await http.post(
+      Uri.parse(arbitragePrincipalRelease),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'user_id': commonuserId,
+        'investment_id': investmentId,
+      }),
+    );
+    return jsonDecode(res.body);
   }
 }

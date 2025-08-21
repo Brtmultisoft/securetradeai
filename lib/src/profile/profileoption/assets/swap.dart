@@ -119,7 +119,7 @@ class _SwapState extends State<Swap> {
                     ],
                   ),
                   child: Text(
-                    "Transfer to Gas Wallet",
+                    "Swap to Gas Wallet",
                     style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
                 ),

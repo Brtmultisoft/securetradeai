@@ -619,8 +619,11 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                       const Divider(color: Color(0xFF2A3A5A), height: 24),
                       _buildDetailRow("Email", memberEmail, Icons.email),
                       const Divider(color: Color(0xFF2A3A5A), height: 24),
-                      _buildDetailRow("Mobile", memberMobile, Icons.phone),
-                      const Divider(color: Color(0xFF2A3A5A), height: 24),
+                      if (widget.level.toString() == '1' || widget.level.toString() == 'Level 1')
+                        ...[
+                          _buildDetailRow("Mobile", memberMobile, Icons.phone),
+                          const Divider(color: Color(0xFF2A3A5A), height: 24),
+                        ],
                       _buildDetailRow("Gender", memberGender, Icons.person),
                       const Divider(color: Color(0xFF2A3A5A), height: 24),
                       _buildDetailRow(

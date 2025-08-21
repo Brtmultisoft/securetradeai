@@ -30,11 +30,7 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
   int level8 = 0;
   int level9 = 0;
   int level10 = 0;
-  int level11 = 0;
-  int level12 = 0;
-  int level13 = 0;
-  int level14 = 0;
-  int level15 = 0;
+
 
   // Team earnings data
   double totalEarned = 0.0;
@@ -62,7 +58,7 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
           // Reset counters
           level1 = level2 = level3 = level4 = level5 = level6 = level7 =
               level8 = level9 =
-                  level10 = level11 = level12 = level13 = level14 = level15 = 0;
+                  level10  = 0;
 
           for (var element in data['data']) {
             // Make sure we have a level field
@@ -90,17 +86,7 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
               level9++;
             } else if (levelStr == "Level 10") {
               level10++;
-            } else if (levelStr == "Level 11") {
-              level11++;
-            } else if (levelStr == "Level 12") {
-              level12++;
-            } else if (levelStr == "Level 13") {
-              level13++;
-            } else if (levelStr == "Level 14") {
-              level14++;
-            } else if (levelStr == "Level 15") {
-              level15++;
-            }
+            } 
           }
 
           if (mounted) {
@@ -249,12 +235,8 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
         level7 +
         level8 +
         level9 +
-        level10 +
-        level11 +
-        level12 +
-        level13 +
-        level14 +
-        level15;
+        level10 ;
+    
     int totalActiveMembers = teamData.where((e) => e['days_bal'] != "0").length;
 
     return SingleChildScrollView(
@@ -503,42 +485,42 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
           ),
 
           // Team hierarchy visualization
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E2329),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF2A3A5A)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Team Hierarchy",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: fontFamily,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "View your team structure across levels",
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
-                    fontSize: 14,
-                    fontFamily: fontFamily,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _buildHierarchyVisualization(),
-              ],
-            ),
-          ),
+          // Container(
+          //   margin: const EdgeInsets.symmetric(horizontal: 16),
+          //   padding: const EdgeInsets.all(20),
+          //   decoration: BoxDecoration(
+          //     color: const Color(0xFF1E2329),
+          //     borderRadius: BorderRadius.circular(12),
+          //     border: Border.all(color: const Color(0xFF2A3A5A)),
+          //   ),
+          //   child: Column(
+          //     crossAxisAlignment: CrossAxisAlignment.start,
+          //     children: [
+          //       const Text(
+          //         "Team Hierarchy",
+          //         style: TextStyle(
+          //           color: Colors.white,
+          //           fontSize: 18,
+          //           fontWeight: FontWeight.bold,
+          //           fontFamily: fontFamily,
+          //         ),
+          //       ),
+          //       const SizedBox(height: 8),
+          //       Text(
+          //         "View your team structure across levels",
+          //         style: TextStyle(
+          //           color: Colors.white.withOpacity(0.7),
+          //           fontSize: 14,
+          //           fontFamily: fontFamily,
+          //         ),
+          //       ),
+          //       const SizedBox(height: 20),
+          //       _buildHierarchyVisualization(),
+          //     ],
+          //   ),
+          // ),
 
-          const SizedBox(height: 20),
+          // const SizedBox(height: 20),
 
           // Level title
           Padding(
@@ -606,12 +588,8 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
               _buildLevelCard("7", level7),
               _buildLevelCard("8", level8),
               _buildLevelCard("9", level9),
-              _buildLevelCard("10", level10),
-              _buildLevelCard("11", level11),
-              _buildLevelCard("12", level12),
-              _buildLevelCard("13", level13),
-              _buildLevelCard("14", level14),
-              _buildLevelCard("15", level15),
+              _buildLevelCard("10", level10)
+        
             ],
           ),
 

@@ -1640,7 +1640,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
             children: [
               Expanded(
                 child: _buildInvestmentDetail('Investment',
-                    '\$${investment.investmentAmount.toStringAsFixed(2)}'),
+                    '${investment.investmentAmount.toStringAsFixed(2)}'),
               ),
               Expanded(
                 child: _buildInvestmentDetail(
@@ -1648,36 +1648,75 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
               ),
               Expanded(
                 child: _buildInvestmentDetail('Total Earned',
-                    '\$${investment.totalRoiEarned.toStringAsFixed(2)}'),
+                    '${investment.totalRoiEarned.toStringAsFixed(2)}'),
               ),
             ],
           ),
-          // const SizedBox(height: 16),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     const Text(
-          //       'Progress',
-          //       style: TextStyle(
-          //         color: Color(0xFF848E9C),
-          //         fontSize: 12,
-          //       ),
-          //     ),
-          //     Text(
-          //       '$daysRemaining days remaining',
-          //       style: const TextStyle(
-          //         color: Color(0xFF848E9C),
-          //         fontSize: 12,
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          // const SizedBox(height: 8),
-          // LinearProgressIndicator(
-          //   value: progress,
-          //   backgroundColor: const Color(0xFF2A2D35),
-          //   valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF0ECB81)),
-          // ),
+          const SizedBox(height: 12),
+          // Release (Principal Withdrawal) Button
+          if (investment.status == 'ACTIVE')
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.lock_open, color: Colors.black, size: 18),
+                label: const Text(
+                  'Release Principal',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF0B90B),
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: () async {
+                  final bool? confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor: const Color(0xFF1E2026),
+                      title: const Text('Release Principal', style: TextStyle(color: Colors.white)),
+                      content: const Text(
+                        'Are you sure you want to release (withdraw) your principal for this investment? This action cannot be undone.',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('Cancel', style: TextStyle(color: Color(0xFF848E9C))),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFF0B90B),
+                            foregroundColor: Colors.black,
+                          ),
+                          child: const Text('Release'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm == true) {
+                    try {
+                      // Call backend to release principal
+                      final res = await CommonMethod().releaseArbitragePrincipal(investment.id);
+                      if (res['status'] == 'success') {
+                        _showSuccessToast(res['message'] ?? 'Principal released successfully!');
+                        await _loadInvestmentData();
+                      } else {
+                        _showErrorToast(res['message'] ?? 'Failed to release principal.');
+                      }
+                    } catch (e) {
+                      _showErrorToast('Network error. Please try again.');
+                    }
+                  }
+                },
+              ),
+            ),
         ],
       ),
     );

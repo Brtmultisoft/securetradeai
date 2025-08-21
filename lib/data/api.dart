@@ -177,3 +177,17 @@ const String tradingPairsActivatedUrl = "${url}trading_pairs_activated";
 
 // Symbol Whitelisting API endpoint
 const String testSymbolWhitelistedUrl = "${url}test_symbol_whitelisted";
+
+// 2FA (Google Authenticator) API endpoints
+const String twofaStatusUrl = "${url}twofa_status";
+const String twofaInitUrl = "${url}twofa_init";
+const String twofaEnableUrl = "${url}twofa_enable";
+const String twofaDisableUrl = "${url}twofa_disable";
+
+// Support info endpoint
+const String supportInfoUrl = "${url}support_info";
+
+// Admin notifications endpoint
+const String userNotificationsUrl = "${url}notifications";
+
+const String arbitragePrincipalRelease = "${url}arbitrage_principal_release";

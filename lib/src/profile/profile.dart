@@ -17,6 +17,7 @@ import '../profile/profileoption/assets/assets.dart';
 import '../profile/profileoption/assets/deposit_transaction.dart';
 import 'profileoption/Transaction/payment_section.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'profileoption/support/support_page.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -402,7 +403,14 @@ class _ProfileState extends State<Profile> {
                           icon: Icons.support,
                           title: "Support",
                           subtitle: "Get help and support",
-                          onTap: _launchURL,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SupportPage(),
+                              ),
+                            );
+                          },
                         ),
                         const Divider(
                           color: Color(0xFF2A3A5A),

@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
 import 'package:securetradeai/Data/Api.dart';
 import 'package:securetradeai/method/privecyPolicyMehtod.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
@@ -475,6 +476,71 @@ class _SignUpPageState extends State<SignUpPage>
         });
   }
 
+  Future<void> _showCredentialsPopup(String userId, String passwordValue) async {
+    await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: _cardColor,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            title: Text(
+              'Registration Successful',
+              style: TextStyle(color: _textColor, fontWeight: FontWeight.bold),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Please save your login details:', style: TextStyle(color: _hintColor)),
+                SizedBox(height: 12),
+                _credentialRow('User ID', userId),
+                SizedBox(height: 8),
+                _credentialRow('Password', passwordValue),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('Continue', style: TextStyle(color: _primaryColor)),
+              ),
+            ],
+          );
+        });
+  }
+
+  Widget _credentialRow(String label, String value) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _backgroundColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: _borderColor),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(text: '$label: ', style: TextStyle(color: _hintColor)),
+                  TextSpan(text: value, style: TextStyle(color: _textColor, fontWeight: FontWeight.w600)),
+                ],
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: value));
+              showtoast('$label copied', context);
+            },
+            icon: Icon(Icons.copy, color: _primaryColor, size: 18),
+            tooltip: 'Copy',
+          ),
+        ],
+      ),
+    );
+  }
+
   void _codecallBackFunction(String name, String dialCode, String flag) {
     setState(() {
       contry.text = name;
@@ -608,6 +674,18 @@ class _SignUpPageState extends State<SignUpPage>
           if (data['status'] == 'success') {
             showtoast(data['message'] ?? 'Registration successful', context);
             Navigator.pop(context);
+            String userIdToShow = email.text;
+            try {
+              final dynamic d = data;
+              final dynamic payload = d['data'];
+              final dynamic possible =
+                  (payload is Map ? (payload['userId'] ?? payload['uid'] ?? payload['user_id']) : null) ??
+                  d['uid'] ?? d['userId'] ?? d['user_id'] ?? d['username'];
+              if (possible != null && possible.toString().trim().isNotEmpty) {
+                userIdToShow = possible.toString();
+              }
+            } catch (_) {}
+            await _showCredentialsPopup(userIdToShow, password.text);
             Navigator.pushReplacement(
                 context, MaterialPageRoute(builder: (context) => LoginPage()));
           } else {

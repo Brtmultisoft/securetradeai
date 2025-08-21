@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../data/api.dart';
 import '../../../sharedpreferences.dart';
+import 'twofa_settings.dart';
 
 class SystemCenter extends StatefulWidget {
   const SystemCenter({Key? key}) : super(key: key);
@@ -31,19 +32,7 @@ class _SystemCenterState extends State<SystemCenter> {
   ];
   final List currency = [
     {
-      'symbol': 'Euro',
-    },
-    {
-      'symbol': 'Rupees',
-    },
-    {
-      'symbol': 'USD',
-    },
-    {
-      'symbol': 'Yuan',
-    },
-    {
-      'symbol': 'Pound',
+      'symbol': 'USDT Bep 20',
     },
   ];
   showLocaleDialog(BuildContext context) {
@@ -232,33 +221,37 @@ class _SystemCenterState extends State<SystemCenter> {
                   SizedBox(
                     height: 10,
                   ),
-                  // GestureDetector(
-                  //   onTap: () {
-                  //     Navigator.push(
-                  //         context,
-                  //         MaterialPageRoute(
-                  //             builder: (context) => const ContectUs()));
-                  //   },
-                  //   child: Row(
-                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //     children: [
-                  //       Text(
-                  //         "contectus".tr,
-                  //         style: TextStyle(fontWeight: FontWeight.bold),
-                  //       ),
-                  //       Icon(
-                  //         Icons.arrow_forward_ios,
-                  //         size: 20,
-                  //       )
-                  //     ],
-                  //   ),
-                  // ),
-                  // Divider(
-                  //   color: Colors.grey,
-                  // ),
-                  // SizedBox(
-                  //   height: 10,
-                  // ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TwoFASettings(),
+                        ),
+                      );
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Google 2FA",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 20,
+                          color: Colors.white,
+                        )
+                      ],
+                    ),
+                  ),
+                  Divider(
+                    color: Colors.grey,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
                   GestureDetector(
                     onTap: () {
                       changeCurrency(context);

@@ -25,6 +25,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
   bool isLoading = false;
   List<Map<String, dynamic>> incomeData = [];
   double totalAmount = 0.0;
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -267,6 +268,30 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
             )
           : Column(
               children: [
+                // Search Bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search by referral, investment, or description',
+                      hintStyle: const TextStyle(color: Colors.white54),
+                      prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                      filled: true,
+                      fillColor: const Color(0xFF232A3B),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value.trim();
+                      });
+                    },
+                  ),
+                ),
                 // Summary Card
                 _buildSummaryCard(),
                 // Income List
@@ -382,7 +407,15 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
   }
 
   Widget _buildIncomeList() {
-    if (incomeData.isEmpty) {
+    final filteredData = _searchQuery.isEmpty
+        ? incomeData
+        : incomeData.where((income) {
+            final query = _searchQuery.toLowerCase();
+            final fourthCol = _getFourthColumnData(income).toLowerCase();
+            final descr = (income['description'] ?? '').toString().toLowerCase();
+            return fourthCol.contains(query) || descr.contains(query);
+          }).toList();
+    if (filteredData.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -420,12 +453,13 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
       onRefresh: _loadIncomeData,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: _buildCustomTable(),
+        child: _buildCustomTable(filteredData),
       ),
     );
   }
 
-  Widget _buildCustomTable() {
+  Widget _buildCustomTable([List<Map<String, dynamic>>? dataOverride]) {
+    final data = dataOverride ?? incomeData;
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF1E2026),
@@ -535,7 +569,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
               ),
             ),
             // Data Rows
-            ...incomeData.asMap().entries.map((entry) {
+            ...data.asMap().entries.map((entry) {
               int index = entry.key;
               Map<String, dynamic> income = entry.value;
               return Container(
@@ -642,7 +676,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
   // Helper method to determine if fourth column should be shown
   bool _shouldShowFourthColumn() {
     String titleLower = widget.title.toLowerCase();
-    return titleLower.contains('direct') || titleLower.contains('total roi');
+    return titleLower.contains('direct') || titleLower.contains('total roi') || titleLower.contains('level');
   }
 
   // Helper method to get fourth column header text
@@ -653,7 +687,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
     } else if (titleLower.contains('direct')) {
       return 'Referral';
     }
-    return 'Referral';
+    return 'level';
   }
 
   // Helper method to get fourth column data
@@ -669,6 +703,8 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
           : (income['reference_id']?.toString().isNotEmpty == true)
               ? income['reference_id'].toString()
               : 'N/A';
+    } else if (titleLower.contains('level')) {
+      return income['description']?.toString() ?? 'N/A';
     }
     return 'N/A';
   }

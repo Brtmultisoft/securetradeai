@@ -150,8 +150,7 @@ class _CustomDialogBoxState extends State<CustomDialogBox> {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E2329), // Dark text on yellow button
-                      fontFamily: "Nunito",
+                      color: Color(0xFF1E2329),
                     ),
                   ),
                 ],
