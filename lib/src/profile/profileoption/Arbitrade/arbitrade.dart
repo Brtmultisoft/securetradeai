@@ -1821,7 +1821,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                   ...directIncomeHistory.map((income) =>
                       _buildNewIncomeHistoryItem('Direct Income', income.amount,
                           income.createdAt, income.status, income.description)),
-                  ...levelTPSIncomeHistory.map((income) =>
+                  ...levelTPSIncomeHistory.reversed.map((income) =>
                       _buildNewIncomeHistoryItem(
                           'Level TPS Income',
                           income.amount,
@@ -1831,12 +1831,6 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                   ...salaryIncomeHistory.map((income) =>
                       _buildNewIncomeHistoryItem('Salary Income', income.amount,
                           income.createdAt, income.status, income.description)),
-                  // Show existing income history if no new data
-                  // if (directIncomeHistory.isEmpty &&
-                  //     levelTPSIncomeHistory.isEmpty &&
-                  //     salaryIncomeHistory.isEmpty)
-                  //   ...incomeHistory
-                  //       .map((income) => _buildIncomeHistoryItem(income)),
                 ],
               ),
             ),
