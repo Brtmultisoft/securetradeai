@@ -97,20 +97,21 @@ class _SwapState extends State<Swap> {
                 },
                 child: Container(
                   width: MediaQuery.of(context).size.width,
-                  padding: EdgeInsets.symmetric(vertical: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   alignment: Alignment.center,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: [0.0, 1.0],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                       colors: [
-                        Colors.green,
-                        Colors.blue,
+                        Color(0xFFF0B90B), // Golden yellow
+                        Color(0xFFFFD700), // Bright gold
+                        Color(0xFFF0B90B), // Golden yellow
                       ],
+                      stops: [0.0, 0.5, 1.0],
                     ),
-                    borderRadius: const BorderRadius.all(Radius.circular(5)),
-                    boxShadow: const <BoxShadow>[
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    boxShadow: <BoxShadow>[
                       BoxShadow(
                           color: Colors.black12,
                           offset: Offset(2, 4),
@@ -120,10 +121,14 @@ class _SwapState extends State<Swap> {
                   ),
                   child: Text(
                     "Swap to Gas Wallet",
-                    style: TextStyle(fontSize: 20, color: Colors.white),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/model/DeposittransactionModel.dart'
     as DepositTransactionModelAlias;
+import 'package:securetradeai/src/profile/profileoption/assets/transfer.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 import '../../../../method/methods.dart';
@@ -147,7 +148,7 @@ class _DepositTransactionState extends State<DepositTransaction> {
         ),
         body: Column(
           children: [
-            // Balance card
+            // Balance card with transfer button
             Container(
               margin: const EdgeInsets.all(16),
               width: double.infinity,
@@ -168,13 +169,65 @@ class _DepositTransactionState extends State<DepositTransaction> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Balance label
-                    const Text(
-                      "Current Balance",
-                      style: TextStyle(
-                        color: Color(0xFF8A9CC0),
-                        fontSize: 14,
-                      ),
+                    // Balance label and transfer button row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Current Balance",
+                          style: TextStyle(
+                            color: Color(0xFF8A9CC0),
+                            fontSize: 14,
+                          ),
+                        ),
+                        // Transfer button
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    Transfer(balance: totalBalance),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF0B90B),
+                              borderRadius: BorderRadius.circular(6),
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      const Color(0xFFF0B90B).withOpacity(0.3),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Icon(
+                                  Icons.send,
+                                  color: Colors.black,
+                                  size: 16,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  "Transfer",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 8),
 
