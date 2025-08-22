@@ -6,7 +6,6 @@ import 'package:securetradeai/Data/Api.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/profile/profileoption/assets/swap.dart';
-import 'package:securetradeai/src/profile/profileoption/assets/transfer.dart';
 import 'package:securetradeai/src/profile/profileoption/assets/withdrawal.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
 
@@ -306,8 +305,18 @@ class _AssetsState extends State<Assets> {
     final d = (tx.descr ?? '').toString().toLowerCase();
     final h = (tx.hashkey ?? '').toString().toLowerCase();
 
-    final isSwap = t.contains('swap') || d.contains('swap') || h.contains('swap') || ((t == 'tfr' || t.contains('transfer')) && (d.contains('gas') || d.contains('gaswallet') || d.contains('gas_wallet') || h.contains('gas')));
-    if (isSwap) return (d.contains('gas') || h.contains('gas')) ? 'Swap to Gas Wallet' : 'Swap';
+    final isSwap = t.contains('swap') ||
+        d.contains('swap') ||
+        h.contains('swap') ||
+        ((t == 'tfr' || t.contains('transfer')) &&
+            (d.contains('gas') ||
+                d.contains('gaswallet') ||
+                d.contains('gas_wallet') ||
+                h.contains('gas')));
+    if (isSwap)
+      return (d.contains('gas') || h.contains('gas'))
+          ? 'Swap to Gas Wallet'
+          : 'Swap';
 
     if (t == 'tfr' || t.contains('transfer')) return 'Transfer';
     if (t.contains('dep')) return 'Deposit';
@@ -360,15 +369,16 @@ class _AssetsState extends State<Assets> {
                             fontSize: 16)),
                     const Spacer(),
                     Text(dateStr.substring(0, 16),
-                        style:
-                            const TextStyle(color: Colors.white54, fontSize: 12))
+                        style: const TextStyle(
+                            color: Colors.white54, fontSize: 12))
                   ],
                 ),
                 const SizedBox(height: 12),
                 _kv('Amount', '${isCredit ? '+' : '-'}$amount USD'),
                 _kv('Status', status.isEmpty ? '—' : status),
                 _kv('Type', typeLabel),
-                if (typeLabel.startsWith('Swap') || typeLabel == 'Transfer') ...[
+                if (typeLabel.startsWith('Swap') ||
+                    typeLabel == 'Transfer') ...[
                   _kv('From', fromText),
                   _kv('To', toText),
                 ],

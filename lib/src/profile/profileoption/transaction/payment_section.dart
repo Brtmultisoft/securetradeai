@@ -1,7 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:securetradeai/method/methods.dart';
 import 'package:securetradeai/model/DeposittransactionModel.dart';
+import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
+
+import '../../../../Data/Api.dart';
 
 class PaymentSection extends StatefulWidget {
   const PaymentSection({Key? key}) : super(key: key);
@@ -18,45 +24,165 @@ class _PaymentSectionState extends State<PaymentSection> {
   int page = 1;
   bool hasMoreData = true;
 
+  var detailList = [];
+  // double totalBalance = 0.0;
+  double totalAssetsincr = 0.0;
+  var scrollController = ScrollController();
+  bool updating = false;
+  int count = 1;
+  bool checkdata = false;
+  Timer? timer;
+  _getDetail() async {
+    try {
+      final data = await CommonMethod().getAssetTransactionDetail(count);
+      if (data.status == "success") {
+        if (data.data.details.isNotEmpty) {
+          setState(() {
+            if (count == 1) {
+              // Clear the list if it's the first page
+              detailList.clear();
+            }
+            // Add new items to the list
+            detailList.addAll(data.data.details);
+            totalBalance = double.tryParse(data.data.totalBalance) ?? 0.0;
+            checkdata = false; // Reset checkdata when we have data
+          });
+        } else {
+          if (count == 1) {
+            showtoast("Data not found", context);
+            setState(() {
+              checkdata = true;
+              detailList.clear(); // Clear list when no data
+            });
+          }
+        }
+      } else {
+        // API returned error status
+        if (count == 1) {
+          showtoast(data.message, context);
+          setState(() {
+            checkdata = true;
+            detailList.clear(); // Clear list on error
+          });
+        }
+      }
+    } catch (e) {
+      // Exception occurred
+      if (count == 1) {
+        setState(() {
+          checkdata = true;
+          detailList.clear(); // Clear list on exception
+        });
+      }
+      print(e);
+    }
+  }
+
+  _getCurrency() async {
+    var totalcurrency = await CommonMethod().getCurrency(0.0);
+    if (mounted) {
+      setState(() {
+        totalAssetsincr = totalBalance * totalcurrency;
+      });
+    }
+  }
+
+  _fatchdata() async {
+    await _getDetail();
+    await _getCurrency();
+    await http.get(Uri.parse("${mainUrl}deposit_autapprove.php"));
+    await http.get(Uri.parse("${mainUrl}withdraw_autoapprove.php"));
+  }
+
+  checkUpdate() async {
+    showLoading(context);
+    var scrollposition = scrollController.position;
+    if (scrollposition.pixels == scrollposition.maxScrollExtent) {
+      setState(() {
+        count++;
+      });
+      await _getDetail();
+    }
+    Navigator.pop(context);
+  }
+
   @override
   void initState() {
     super.initState();
+    count = 1; // Reset count when screen initializes
     _loadData();
+    _fatchdata(); // Load transaction history data
+    timer = Timer.periodic(const Duration(minutes: 2), (Timer t) {
+      count = 1; // Reset count when refreshing
+      _fatchdata();
+    });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
+    print('🔄 PaymentSection: Starting _loadData...');
     try {
       setState(() {
         isLoading = true;
       });
+      print('🔄 PaymentSection: Set isLoading = true');
 
       // Get user profile data which includes balance
+      print('🔄 PaymentSection: Getting user data...');
       final userData = await CommonMethod().getMineData();
       if (userData.status == "success" && userData.data.isNotEmpty) {
         setState(() {
           totalBalance = double.tryParse(userData.data[0].balance) ?? 0.0;
         });
+        print('✅ PaymentSection: User data loaded, balance: $totalBalance');
+      } else {
+        print('❌ PaymentSection: User data failed: ${userData.status}');
       }
 
       // Get deposit/withdrawal transaction data
-      final depositData =
-          await CommonMethod().getDepositTransactionDetail(page);
-      if (depositData.status == "success") {
+      try {
+        print('🔄 PaymentSection: Getting deposit data...');
+        final depositData =
+            await CommonMethod().getDepositTransactionDetail(page);
+        if (depositData.status == "success") {
+          setState(() {
+            transactions = depositData.data.details;
+          });
+          print(
+              '✅ PaymentSection: Deposit data loaded, ${transactions.length} transactions');
+        } else {
+          print('❌ PaymentSection: Deposit data error: ${depositData.message}');
+          setState(() {
+            transactions = []; // Set empty list if no data
+          });
+        }
+      } catch (depositError) {
+        print('❌ PaymentSection: Error getting deposit data: $depositError');
         setState(() {
-          transactions = depositData.data.details;
+          transactions = []; // Set empty list on error
         });
       }
     } catch (e) {
-      print('Error loading data: $e');
+      print('❌ PaymentSection: Error loading data: $e');
     } finally {
       setState(() {
         isLoading = false;
       });
+      print('✅ PaymentSection: Set isLoading = false, loading complete');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    const Color darkBlue = Color(0xFF0D1321);
+    const Color mediumBlue = Color(0xFF1A2235);
+    const Color lightBlue = Color(0xFF4A6FA5);
+
     return Scaffold(
       backgroundColor: const Color(0xFF0C0E12),
       appBar: CommonAppBar.basic(
@@ -227,103 +353,121 @@ class _PaymentSectionState extends State<PaymentSection> {
               // ),
 
               // Transaction History Header in Binance style
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                width: double.infinity,
-                color: const Color(0xFF161A1E), // Binance section header color
-                child: const Text(
-                  'Transaction History',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
+              // Container(
+              //   padding:
+              //       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              //   width: double.infinity,
+              //   color: const Color(0xFF161A1E), // Binance section header color
+              //   child: const Text(
+              //     'Transaction History',
+              //     style: TextStyle(
+              //       color: Colors.white,
+              //       fontSize: 16,
+              //       fontWeight: FontWeight.w500,
+              //     ),
+              //   ),
+              // ),
 
               // Transaction filters in Binance style
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                color: const Color(0xFF1E2026), // Binance card background
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(
-                              0xFF2B3139), // Binance input background
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.search,
-                              color: Color(0xFF848E9C),
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'Search',
-                              style: TextStyle(
-                                color: Color(0xFF848E9C),
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color:
-                            const Color(0xFF2B3139), // Binance input background
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        children: [
-                          const Text(
-                            'Filter',
-                            style: TextStyle(
-                              color: Color(0xFF848E9C),
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.filter_list,
-                            color: Color(0xFF848E9C),
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Container(
+              //   padding:
+              //       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              //   color: const Color(0xFF1E2026), // Binance card background
+              //   child: Row(
+              //     children: [
+              //       Expanded(
+              //         child: Container(
+              //           padding: const EdgeInsets.symmetric(
+              //               horizontal: 12, vertical: 8),
+              //           decoration: BoxDecoration(
+              //             color: const Color(
+              //                 0xFF2B3139), // Binance input background
+              //             borderRadius: BorderRadius.circular(4),
+              //           ),
+              //           child: Row(
+              //             children: [
+              //               const Icon(
+              //                 Icons.search,
+              //                 color: Color(0xFF848E9C),
+              //                 size: 20,
+              //               ),
+              //               const SizedBox(width: 8),
+              //               const Text(
+              //                 'Search',
+              //                 style: TextStyle(
+              //                   color: Color(0xFF848E9C),
+              //                   fontSize: 14,
+              //                 ),
+              //               ),
+              //             ],
+              //           ),
+              //         ),
+              //       ),
+              //       const SizedBox(width: 12),
+              //       Container(
+              //         padding: const EdgeInsets.symmetric(
+              //             horizontal: 12, vertical: 8),
+              //         decoration: BoxDecoration(
+              //           color:
+              //               const Color(0xFF2B3139), // Binance input background
+              //           borderRadius: BorderRadius.circular(4),
+              //         ),
+              //         child: Row(
+              //           children: [
+              //             const Text(
+              //               'Filter',
+              //               style: TextStyle(
+              //                 color: Color(0xFF848E9C),
+              //                 fontSize: 14,
+              //               ),
+              //             ),
+              //             const SizedBox(width: 4),
+              //             const Icon(
+              //               Icons.filter_list,
+              //               color: Color(0xFF848E9C),
+              //               size: 20,
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
 
-              // Recent Transactions Section
+              // // Recent Transactions Section
+              // Container(
+              //   color: const Color(0xFF1E2026), // Binance card background
+              //   width: double.infinity,
+              //   padding: const EdgeInsets.symmetric(vertical: 8),
+              //   child: isLoading
+              //       ? Center(
+              //           child: Padding(
+              //             padding: const EdgeInsets.all(24.0),
+              //             child: CircularProgressIndicator(
+              //               valueColor: AlwaysStoppedAnimation<Color>(
+              //                   const Color(0xFFF0B90B)),
+              //             ),
+              //           ),
+              //         )
+              //       : _buildRecentTransactions(),
+              // ),
+
+              // Transaction history
               Container(
-                color: const Color(0xFF1E2026), // Binance card background
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: isLoading
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24.0),
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                const Color(0xFFF0B90B)),
-                          ),
-                        ),
-                      )
-                    : _buildRecentTransactions(),
+                height: 300,
+                child: RefreshIndicator(
+                  color: lightBlue,
+                  backgroundColor: mediumBlue,
+                  onRefresh: () async {
+                    setState(() {
+                      count = 1;
+                      detailList.clear();
+                    });
+                    await _fatchdata();
+                    return Future.value();
+                  },
+                  child: listdata(),
+                ),
               ),
             ],
           ),
@@ -511,6 +655,303 @@ class _PaymentSectionState extends State<PaymentSection> {
           ),
         ],
       ),
+    );
+  }
+
+  String _typeLabelFor(dynamic tx) {
+    final t = (tx.type ?? '').toString().toLowerCase();
+    final d = (tx.descr ?? '').toString().toLowerCase();
+    final h = (tx.hashkey ?? '').toString().toLowerCase();
+
+    final isSwap = t.contains('swap') ||
+        d.contains('swap') ||
+        h.contains('swap') ||
+        ((t == 'tfr' || t.contains('transfer')) &&
+            (d.contains('gas') ||
+                d.contains('gaswallet') ||
+                d.contains('gas_wallet') ||
+                h.contains('gas')));
+    if (isSwap)
+      return (d.contains('gas') || h.contains('gas'))
+          ? 'Swap to Gas Wallet'
+          : 'Swap';
+
+    if (t == 'tfr' || t.contains('transfer')) return 'Transfer';
+    if (t.contains('dep')) return 'Deposit';
+    if (t.contains('with') || t.contains('wd')) return 'Withdrawal';
+    return 'Transaction';
+  }
+
+  void _showTransactionDetails(dynamic transaction) {
+    final bool isCredit = transaction.dr == "0";
+    final String amount = isCredit ? transaction.cr : transaction.dr;
+    final String typeLabel = _typeLabelFor(transaction);
+    final String desc = (transaction.descr ?? '').toString();
+    final String dateStr = transaction.createdDate.toString();
+    final String status = (transaction.status ?? '').toString();
+    final String hash = (transaction.hashkey ?? '').toString();
+
+    String fromText = 'N/A';
+    String toText = 'N/A';
+    if (typeLabel.startsWith('Swap') || typeLabel == 'Transfer') {
+      final lower = desc.toLowerCase();
+      if (lower.contains('from') && lower.contains('to')) {
+        final parts = lower.split('to');
+        if (parts.length >= 2) {
+          fromText = parts[0].replaceAll('from', '').trim();
+          toText = parts[1].trim();
+        }
+      }
+    }
+
+    showModalBottomSheet(
+        context: context,
+        backgroundColor: const Color(0xFF1A2235),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+        builder: (_) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.receipt_long, color: Colors.white70),
+                    const SizedBox(width: 8),
+                    Text(typeLabel,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16)),
+                    const Spacer(),
+                    Text(dateStr.substring(0, 16),
+                        style: const TextStyle(
+                            color: Colors.white54, fontSize: 12))
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _kv('Amount', '${isCredit ? '+' : '-'}$amount USD'),
+                _kv('Status', status.isEmpty ? '—' : status),
+                _kv('Type', typeLabel),
+                if (typeLabel.startsWith('Swap') ||
+                    typeLabel == 'Transfer') ...[
+                  _kv('From', fromText),
+                  _kv('To', toText),
+                ],
+                if (hash.isNotEmpty) _kv('Hash/Ref', hash),
+                if (desc.isNotEmpty) _kv('Description', desc),
+                const SizedBox(height: 8),
+              ],
+            ),
+          );
+        });
+  }
+
+  Widget _kv(String k, String v) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+              width: 110,
+              child: Text(k,
+                  style: const TextStyle(
+                      color: Colors.white70, fontWeight: FontWeight.w500))),
+          const SizedBox(width: 8),
+          Expanded(
+              child: Text(v,
+                  style: const TextStyle(color: Colors.white, fontSize: 14))),
+        ],
+      ),
+    );
+  }
+
+  Widget listdata() {
+    // Theme colors
+    const Color darkBlue = Color(0xFF0D1321);
+    const Color mediumBlue = Color(0xFF1A2235);
+    const Color lightBlue = Color(0xFF4A6FA5);
+
+    if (detailList.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFF4A6FA5)),
+      );
+    }
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (noti) {
+        if (noti is ScrollEndNotification) {
+          checkUpdate();
+        }
+        return true;
+      },
+      child: checkdata
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    "assets/img/logo.png",
+                    height: 120,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "No transactions found",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ],
+              ),
+            )
+          : Column(
+              children: [
+                // Section title
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 4,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: lightBlue,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        "Transaction History",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Expanded(
+                  child: ListView.builder(
+                    controller: scrollController,
+                    physics: const BouncingScrollPhysics(),
+                    itemBuilder: (c, i) {
+                      final transaction = detailList[i];
+                      final isCredit = transaction.dr == "0";
+                      final amount = isCredit ? transaction.cr : transaction.dr;
+                      final formattedDate =
+                          transaction.createdDate.toString().substring(0, 16);
+                      final typeLabel = _typeLabelFor(transaction);
+
+                      return InkWell(
+                        onTap: () => _showTransactionDetails(transaction),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: mediumBlue,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: const Color(0xFF2A3A5A),
+                              width: 1,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Row(
+                              children: [
+                                // Transaction icon
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: darkBlue,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      isCredit
+                                          ? Icons.arrow_downward
+                                          : Icons.arrow_upward,
+                                      color:
+                                          isCredit ? Colors.green : Colors.red,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+
+                                // Transaction details
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        typeLabel,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      if ((transaction.descr ?? '')
+                                          .toString()
+                                          .isNotEmpty)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 2.0),
+                                          child: Text(
+                                            transaction.descr!,
+                                            style: const TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 12,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        formattedDate,
+                                        style: const TextStyle(
+                                          color: Color(0xFF8A9CC0),
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                // Amount
+                                Text(
+                                  "${isCredit ? '+' : '-'}$amount USD",
+                                  style: TextStyle(
+                                    color: isCredit ? Colors.green : Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    itemCount: detailList.length,
+                  ),
+                ),
+
+                if (updating)
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(color: Color(0xFF4A6FA5)),
+                  )
+              ],
+            ),
     );
   }
 }
