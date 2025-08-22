@@ -232,21 +232,21 @@ class _AssetsState extends State<Assets> {
             const SizedBox(height: 16),
 
             // Transaction history
-            Expanded(
-              child: RefreshIndicator(
-                color: lightBlue,
-                backgroundColor: mediumBlue,
-                onRefresh: () async {
-                  setState(() {
-                    count = 1;
-                    detailList.clear();
-                  });
-                  await _fatchdata();
-                  return Future.value();
-                },
-                child: listdata(),
-              ),
-            ),
+            // Expanded(
+            //   child: RefreshIndicator(
+            //     color: lightBlue,
+            //     backgroundColor: mediumBlue,
+            //     onRefresh: () async {
+            //       setState(() {
+            //         count = 1;
+            //         detailList.clear();
+            //       });
+            //       await _fatchdata();
+            //       return Future.value();
+            //     },
+            //     child: listdata(),
+            //   ),
+            // ),
           ],
         ),
       ),
