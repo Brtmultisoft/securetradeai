@@ -174,34 +174,6 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                     fontFamily: fontFamily,
                   ),
                 ),
-                const Spacer(),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E2329),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF2A3A5A)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.filter_list,
-                        color: Color(0xFFF0B90B),
-                        size: 16,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        "Filter",
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
-                          fontSize: 12,
-                          fontFamily: fontFamily,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
@@ -488,9 +460,10 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
             member['email'] != null ? member['email'].toString() : "";
         String memberMobile =
             member['mobile'] != null ? member['mobile'].toString() : "";
-        String memberGender = member['gender'] != null
-            ? member['gender'].toString()
-            : "Not specified";
+        // String memberGender = member['gender'] != null
+        //     ? member['gender'].toString()
+        //     : "Not specified";
+        //     : "Not specified";Search
         String memberId =
             member['user_id'] != null ? member['user_id'].toString() : "";
 
@@ -619,13 +592,13 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                       const Divider(color: Color(0xFF2A3A5A), height: 24),
                       _buildDetailRow("Email", memberEmail, Icons.email),
                       const Divider(color: Color(0xFF2A3A5A), height: 24),
-                      if (widget.level.toString() == '1' || widget.level.toString() == 'Level 1')
-                        ...[
-                          _buildDetailRow("Mobile", memberMobile, Icons.phone),
-                          const Divider(color: Color(0xFF2A3A5A), height: 24),
-                        ],
-                      _buildDetailRow("Gender", memberGender, Icons.person),
-                      const Divider(color: Color(0xFF2A3A5A), height: 24),
+                      if (widget.level.toString() == '1' ||
+                          widget.level.toString() == 'Level 1') ...[
+                        _buildDetailRow("Mobile", memberMobile, Icons.phone),
+                        const Divider(color: Color(0xFF2A3A5A), height: 24),
+                      ],
+                      // _buildDetailRow("Gender", memberGender, Icons.person),
+                      // const Divider(color: Color(0xFF2A3A5A), height: 24),
                       _buildDetailRow(
                           "Level", "Level ${widget.level}", Icons.layers),
                       const Divider(color: Color(0xFF2A3A5A), height: 24),

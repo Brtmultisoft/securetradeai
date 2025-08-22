@@ -479,7 +479,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(11),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          // mainAxisSize: MainAxisSize.min,
           children: [
             // Header Row
             Container(
@@ -487,11 +487,11 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
               child: Row(
                 children: [
                   const SizedBox(
-                    width: 50,
+                    // width: 40,
                     child: Padding(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 8.0,
-                        vertical: 12,
+                        horizontal: 4.0,
+                        vertical: 6,
                       ),
                       child: Text(
                         'S.No',
@@ -499,7 +499,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                          fontSize: 10,
                         ),
                       ),
                     ),
@@ -508,7 +508,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                     flex: 2,
                     child: Padding(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 8.0,
+                        horizontal: 4.0,
                         vertical: 12,
                       ),
                       child: Text(
@@ -517,7 +517,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                          fontSize: 10,
                         ),
                       ),
                     ),
@@ -526,7 +526,6 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                     flex: 1,
                     child: Padding(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 8.0,
                         vertical: 12,
                       ),
                       child: Text(
@@ -535,7 +534,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                          fontSize: 10,
                         ),
                       ),
                     ),
@@ -545,7 +544,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                       width: 90,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0,
+                          horizontal: 4.0,
                           vertical: 12,
                         ),
                         child: Text(
@@ -554,7 +553,26 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (_shouldShowFifthColumn())
+                    const Expanded(
+                      flex: 2,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 4.0,
+                          vertical: 12,
+                        ),
+                        child: Text(
+                          'Description',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
                           ),
                         ),
                       ),
@@ -574,7 +592,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                 child: Row(
                   children: [
                     SizedBox(
-                      width: 50,
+                      // width: 50,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8.0,
@@ -588,7 +606,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 11,
+                            fontSize: 10,
                           ),
                         ),
                       ),
@@ -597,7 +615,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                       flex: 2,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0,
+                          horizontal: 4.0,
                           vertical: 12,
                         ),
                         child: Text(
@@ -605,7 +623,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 11,
+                            fontSize: 10,
                           ),
                         ),
                       ),
@@ -614,7 +632,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                       flex: 1,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0,
+                          horizontal: 4.0,
                           vertical: 12,
                         ),
                         child: Text(
@@ -622,7 +640,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: widget.color,
-                            fontSize: 11,
+                            fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -630,10 +648,10 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                     ),
                     if (_shouldShowFourthColumn())
                       SizedBox(
-                        width: 90,
+                        // width: 90,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8.0,
+                            horizontal: 4.0,
                             vertical: 12,
                           ),
                           child: Text(
@@ -641,7 +659,25 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 11,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (_shouldShowFifthColumn())
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4.0,
+                            vertical: 12,
+                          ),
+                          child: Text(
+                            income['description']?.toString() ?? 'N/A',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
                             ),
                           ),
                         ),
@@ -664,13 +700,21 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
         titleLower.contains('level');
   }
 
+  // Helper method to determine if fifth column should be shown (for Level TPS description)
+  bool _shouldShowFifthColumn() {
+    String titleLower = widget.title.toLowerCase();
+    return titleLower.contains('level');
+  }
+
   // Helper method to get fourth column header text
   String _getFourthColumnHeader() {
     String titleLower = widget.title.toLowerCase();
     if (titleLower.contains('total roi')) {
       return 'Investment';
     } else if (titleLower.contains('direct')) {
-      return 'Referral';
+      return 'From User';
+    } else if (titleLower.contains('level')) {
+      return 'From User';
     }
     return 'level';
   }
@@ -689,7 +733,12 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
               ? income['reference_id'].toString()
               : 'N/A';
     } else if (titleLower.contains('level')) {
-      return income['description']?.toString() ?? 'N/A';
+      // For Level TPS Income, show referral ID (same as direct income)
+      return (income['From_Users']?.toString().isNotEmpty == true)
+          ? income['From_Users'].toString()
+          : (income['reference_id']?.toString().isNotEmpty == true)
+              ? income['reference_id'].toString()
+              : 'N/A';
     }
     return 'N/A';
   }

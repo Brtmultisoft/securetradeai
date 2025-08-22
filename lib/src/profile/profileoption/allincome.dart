@@ -299,7 +299,7 @@ class _AllIncomeState extends State<AllIncome>
       child: Scaffold(
         backgroundColor: backgroundColor,
         appBar: CommonAppBar.basic(
-          title: 'All Income',
+          title: 'Bot Trading Income',
           tabBar: TabBar(
             controller: _tabController,
             isScrollable: true,

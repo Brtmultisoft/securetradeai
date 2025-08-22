@@ -1922,7 +1922,7 @@ class _HomepageState extends State<Homepage> {
                     delay: const Duration(milliseconds: 700),
                     child: _buildGridOptionItem(
                       icon: "assets/img/user.png",
-                      label: "Reward Details",
+                      label: "Bot Trading Bonus",
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -2283,7 +2283,7 @@ class _HomepageState extends State<Homepage> {
         duration: TradingAnimations.normalAnimation,
         curve: TradingAnimations.defaultCurve,
         child: Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               begin: Alignment.topLeft,

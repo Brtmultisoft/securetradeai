@@ -31,7 +31,6 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
   int level9 = 0;
   int level10 = 0;
 
-
   // Team earnings data
   double totalEarned = 0.0;
   double monthlyTarget = 2000.0;
@@ -56,9 +55,8 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
 
         if (data['status'] == "success") {
           // Reset counters
-          level1 = level2 = level3 = level4 = level5 = level6 = level7 =
-              level8 = level9 =
-                  level10  = 0;
+          level1 = level2 = level3 =
+              level4 = level5 = level6 = level7 = level8 = level9 = level10 = 0;
 
           for (var element in data['data']) {
             // Make sure we have a level field
@@ -86,7 +84,7 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
               level9++;
             } else if (levelStr == "Level 10") {
               level10++;
-            } 
+            }
           }
 
           if (mounted) {
@@ -235,8 +233,8 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
         level7 +
         level8 +
         level9 +
-        level10 ;
-    
+        level10;
+
     int totalActiveMembers = teamData.where((e) => e['days_bal'] != "0").length;
 
     return SingleChildScrollView(
@@ -411,7 +409,7 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
                               ),
                             ],
                           ),
-                          _buildEarningsButton(),
+                          // _buildEarningsButton(),
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -589,7 +587,6 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
               _buildLevelCard("8", level8),
               _buildLevelCard("9", level9),
               _buildLevelCard("10", level10)
-        
             ],
           ),
 
