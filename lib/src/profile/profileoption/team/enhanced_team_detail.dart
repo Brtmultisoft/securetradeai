@@ -278,7 +278,10 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (memberEmail.isNotEmpty)
+                          // Show email only for level 1
+                          if ((widget.level.toString() == '1' ||
+                                  widget.level.toString() == 'Level 1') &&
+                              memberEmail.isNotEmpty)
                             Padding(
                               padding: const EdgeInsets.only(top: 4),
                               child: Text(
@@ -290,10 +293,27 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                                 ),
                               ),
                             ),
+                          // Show rank for levels beyond 1
+                          if (widget.level.toString() != '1' &&
+                              widget.level.toString() != 'Level 1')
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                "Rank: ${_getRankName(memberRank)}",
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 12,
+                                  fontFamily: fontFamily,
+                                ),
+                              ),
+                            ),
                           Padding(
                             padding: const EdgeInsets.only(top: 4),
                             child: Text(
-                              "Joined ${_getDaysAgo(widget.data[i]['days_bal'] != null ? widget.data[i]['days_bal'].toString() : widget.data[i]['days'].toString())}",
+                              widget.level.toString() == '1' ||
+                                      widget.level.toString() == 'Level 1'
+                                  ? "Joined ${_getDaysAgo(widget.data[i]['days_bal'] != null ? widget.data[i]['days_bal'].toString() : widget.data[i]['days'].toString())}"
+                                  : "Commission: ${_getCommissionRate(widget.level)}%",
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.7),
                                 fontSize: 12,
@@ -588,36 +608,47 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _buildDetailRow("User ID", memberId, Icons.badge),
-                      const Divider(color: Color(0xFF2A3A5A), height: 24),
-                      _buildDetailRow("Email", memberEmail, Icons.email),
-                      const Divider(color: Color(0xFF2A3A5A), height: 24),
+                      // Show different details based on level
                       if (widget.level.toString() == '1' ||
                           widget.level.toString() == 'Level 1') ...[
+                        // Level 1: Show all details including phone number
+                        _buildDetailRow("User ID", memberId, Icons.badge),
+                        const Divider(color: Color(0xFF2A3A5A), height: 24),
+                        _buildDetailRow("Email", memberEmail, Icons.email),
+                        const Divider(color: Color(0xFF2A3A5A), height: 24),
                         _buildDetailRow("Mobile", memberMobile, Icons.phone),
                         const Divider(color: Color(0xFF2A3A5A), height: 24),
+                        _buildDetailRow(
+                            "Level", "Level ${widget.level}", Icons.layers),
+                        const Divider(color: Color(0xFF2A3A5A), height: 24),
+                        _buildDetailRow("Rank", _getRankName(memberRank),
+                            Icons.military_tech),
+                        const Divider(color: Color(0xFF2A3A5A), height: 24),
+                        _buildDetailRow(
+                            "Joined",
+                            _getDaysAgo(member['days_bal'] != null
+                                ? member['days_bal'].toString()
+                                : (member['days'] != null
+                                    ? member['days'].toString()
+                                    : "0")),
+                            Icons.calendar_today),
+                        const Divider(color: Color(0xFF2A3A5A), height: 24),
+                        _buildDetailRow(
+                            "Commission Rate",
+                            "${_getCommissionRate(widget.level)}%",
+                            Icons.attach_money),
+                      ] else ...[
+                        // Level 2 and beyond: Only show UID, Rank, and Commission
+                        _buildDetailRow("User ID", memberId, Icons.badge),
+                        const Divider(color: Color(0xFF2A3A5A), height: 24),
+                        _buildDetailRow("Rank", _getRankName(memberRank),
+                            Icons.military_tech),
+                        const Divider(color: Color(0xFF2A3A5A), height: 24),
+                        _buildDetailRow(
+                            "Commission Rate",
+                            "${_getCommissionRate(widget.level)}%",
+                            Icons.attach_money),
                       ],
-                      // _buildDetailRow("Gender", memberGender, Icons.person),
-                      // const Divider(color: Color(0xFF2A3A5A), height: 24),
-                      _buildDetailRow(
-                          "Level", "Level ${widget.level}", Icons.layers),
-                      const Divider(color: Color(0xFF2A3A5A), height: 24),
-                      _buildDetailRow("Rank", _getRankName(memberRank),
-                          Icons.military_tech),
-                      const Divider(color: Color(0xFF2A3A5A), height: 24),
-                      _buildDetailRow(
-                          "Joined",
-                          _getDaysAgo(member['days_bal'] != null
-                              ? member['days_bal'].toString()
-                              : (member['days'] != null
-                                  ? member['days'].toString()
-                                  : "0")),
-                          Icons.calendar_today),
-                      const Divider(color: Color(0xFF2A3A5A), height: 24),
-                      _buildDetailRow(
-                          "Commission Rate",
-                          "${_getCommissionRate(widget.level)}%",
-                          Icons.attach_money),
                     ],
                   ),
                 ),

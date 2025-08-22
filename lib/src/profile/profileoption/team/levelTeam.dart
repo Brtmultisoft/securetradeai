@@ -264,7 +264,7 @@ class _LevelTeamState extends State<LevelTeam> {
                 style: TextStyle(color: Colors.white),
               ),
               subtitle: Text(
-                "Total " + level3.toString(),
+                "Total ***",
                 style: TextStyle(color: Colors.white),
               ),
               trailing: const Text(
