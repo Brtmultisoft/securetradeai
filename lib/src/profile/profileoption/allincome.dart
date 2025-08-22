@@ -69,10 +69,11 @@ class _AllIncomeState extends State<AllIncome>
   double poolCumulative = 0.0;
   List<dynamic> poolDetails = [];
 
-  // Direct Income Data
-  DirectIncomeModel? directIncomeData;
-  double directTotalIncome = 0.0;
-  List<DirectIncomeHistory> directIncomeHistory = [];
+  // Bot Trading Bonus - Direct Income Data
+  BotTradingBonusModel? botTradingDirectData;
+  double botTradingDirectToday = 0.0;
+  double botTradingDirectCumulative = 0.0;
+  List<BotTradingBonusDetail> botTradingDirectDetails = [];
 
   // Level TPS Income Data
   LevelIncomeModel? levelTPSIncomeData;

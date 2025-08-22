@@ -47,6 +47,7 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
   }
 
   Future<void> _getRevenueData() async {
+    if (!mounted) return;
     setState(() {
       isAPIcalled = true;
       getRevenueDetail = [];
@@ -57,6 +58,7 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
         var a = data.data.cumulativeProfit;
         var b = data.data.profitToday;
 
+        if (!mounted) return;
         setState(() {
           today = b != 0 ? b.toStringAsFixed(6) : "0.000000";
           cumulative = a != 0 ? a.toStringAsFixed(6) : "0.000000";
@@ -100,17 +102,20 @@ class _RevenueState extends State<Revenue> with SingleTickerProviderStateMixin {
         });
         await _updateCurrencyValues();
       } else {
+        if (!mounted) return;
         setState(() {
           checkData = true;
         });
         showtoast(data.message, context);
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         checkData = true;
       });
       showtoast("Failed to load revenue data", context);
     } finally {
+      if (!mounted) return;
       setState(() {
         isAPIcalled = false;
       });

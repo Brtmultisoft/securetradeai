@@ -130,6 +130,11 @@ const String getDirectIncomeUrl = "${url}get_direct_income";
 const String getLevelIncomeUrl = "${url}get_level_income";
 const String getSalaryIncomeUrl = "${url}get_salary_income";
 
+// Bot Trading Bonus API endpoints
+const String levelIncomeDetailsUrl = "${url}level_incomedetails";
+const String directIncomeDetailsUrl = "${url}direct_incomedetails";
+const String salaryIncomeDetailsUrl = "${url}universal_pool_incomedetails";
+
 // User Investments API endpoint
 const String getUserInvestmentsUrl = "${url}get_user_investments";
 

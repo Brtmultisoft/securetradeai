@@ -1058,4 +1058,88 @@ class CommonMethod {
     );
     return jsonDecode(res.body);
   }
+
+  /// Get Bot Trading Bonus - Level Income Details
+  Future<BotTradingBonusModel> getBotTradingLevelIncome() async {
+    try {
+      print('🔄 Making API call to: $levelIncomeDetailsUrl');
+      print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
+
+      final res = await http.post(Uri.parse(levelIncomeDetailsUrl),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({"user_id": commonuserId}));
+
+      print('📥 Response status: ${res.statusCode}');
+      print('📥 Response body: ${res.body}');
+
+      if (res.statusCode != 200) {
+        throw Exception("Server returned status code: ${res.statusCode}");
+      }
+
+      return botTradingBonusFromJson(res.body);
+    } catch (e) {
+      print('❌ Error in getBotTradingLevelIncome: $e');
+      throw Exception(
+        'Failed to load bot trading level income: ${e.toString()}',
+      );
+    }
+  }
+
+  /// Get Bot Trading Bonus - Direct Income Details
+  Future<BotTradingBonusModel> getBotTradingDirectIncome() async {
+    try {
+      print('🔄 Making API call to: $directIncomeDetailsUrl');
+      print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
+
+      final res = await http.post(Uri.parse(directIncomeDetailsUrl),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({"user_id": commonuserId}));
+
+      print('📥 Response status: ${res.statusCode}');
+      print('📥 Response body: ${res.body}');
+
+      if (res.statusCode != 200) {
+        throw Exception("Server returned status code: ${res.statusCode}");
+      }
+
+      return botTradingBonusFromJson(res.body);
+    } catch (e) {
+      print('❌ Error in getBotTradingDirectIncome: $e');
+      throw Exception(
+        'Failed to load direct income details: ${e.toString()}',
+      );
+    }
+  }
+
+  /// Get Bot Trading Bonus - Universal Pool Income Details (Salary)
+  Future<BotTradingBonusModel> getBotTradingSalaryIncome() async {
+    try {
+      print('🔄 Making API call to: $salaryIncomeDetailsUrl');
+      print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
+
+      final res = await http.post(Uri.parse(salaryIncomeDetailsUrl),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode({"user_id": commonuserId}));
+
+      print('📥 Response status: ${res.statusCode}');
+      print('📥 Response body: ${res.body}');
+
+      if (res.statusCode != 200) {
+        throw Exception("Server returned status code: ${res.statusCode}");
+      }
+
+      return botTradingBonusFromJson(res.body);
+    } catch (e) {
+      print('❌ Error in getBotTradingSalaryIncome: $e');
+      throw Exception(
+        'Failed to load universal pool income details: ${e.toString()}',
+      );
+    }
+  }
 }

@@ -6,6 +6,87 @@
 
 import 'dart:convert';
 
+// Bot Trading Bonus Models
+BotTradingBonusModel botTradingBonusFromJson(String str) =>
+    BotTradingBonusModel.fromJson(json.decode(str));
+
+String botTradingBonusToJson(BotTradingBonusModel data) => json.encode(data.toJson());
+
+class BotTradingBonusModel {
+  BotTradingBonusModel({
+    required this.status,
+    required this.message,
+    required this.responsecode,
+    required this.data,
+  });
+
+  String status;
+  String message;
+  String responsecode;
+  BotTradingBonusData data;
+
+  factory BotTradingBonusModel.fromJson(Map<String, dynamic> json) => BotTradingBonusModel(
+        status: json["status"] ?? "",
+        message: json["message"] ?? "",
+        responsecode: json["responsecode"] ?? "",
+        data: BotTradingBonusData.fromJson(json["data"] ?? {}),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "status": status,
+        "message": message,
+        "responsecode": responsecode,
+        "data": data.toJson(),
+      };
+}
+
+class BotTradingBonusData {
+  BotTradingBonusData({
+    required this.details,
+    this.profitToday,
+    required this.cumulativeProfit,
+  });
+
+  List<BotTradingBonusDetail> details;
+  String? profitToday;
+  double cumulativeProfit;
+
+  factory BotTradingBonusData.fromJson(Map<String, dynamic> json) => BotTradingBonusData(
+        details: json["details"] != null
+            ? List<BotTradingBonusDetail>.from(
+                json["details"].map((x) => BotTradingBonusDetail.fromJson(x)))
+            : [],
+        profitToday: json["profit_today"],
+        cumulativeProfit: (json["cumulative_profit"] ?? 0).toDouble(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "details": List<dynamic>.from(details.map((x) => x.toJson())),
+        "profit_today": profitToday,
+        "cumulative_profit": cumulativeProfit,
+      };
+}
+
+class BotTradingBonusDetail {
+  BotTradingBonusDetail({
+    required this.totalbal,
+    required this.createdDate,
+  });
+
+  String totalbal;
+  String createdDate;
+
+  factory BotTradingBonusDetail.fromJson(Map<String, dynamic> json) => BotTradingBonusDetail(
+        totalbal: json["totalbal"]?.toString() ?? "0.00",
+        createdDate: json["created_date"]?.toString() ?? "",
+      );
+
+  Map<String, dynamic> toJson() => {
+        "totalbal": totalbal,
+        "created_date": createdDate,
+      };
+}
+
 // Direct Income Model
 DirectIncomeModel directIncomeFromJson(String str) =>
     DirectIncomeModel.fromJson(json.decode(str));

@@ -20,7 +20,7 @@ import 'package:securetradeai/src/more/revenue.dart';
 import 'package:securetradeai/src/more/userguide.dart';
 import 'package:securetradeai/src/more/videos.dart';
 import 'package:securetradeai/src/profile/profileoption/APIBinding/apibinding.dart';
-import 'package:securetradeai/src/profile/profileoption/Allincome.dart';
+import 'package:securetradeai/src/profile/profileoption/BotTradingBonus.dart';
 import 'package:securetradeai/src/profile/profileoption/Arbitrade/arbitrade.dart';
 import 'package:securetradeai/src/profile/profileoption/Team/team.dart';
 import 'package:securetradeai/src/profile/profileoption/assets/withdrawal.dart';
@@ -1927,7 +1927,7 @@ class _HomepageState extends State<Homepage> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  const AllIncome(initialTabIndex: 2))),
+                                  const BotTradingBonus(initialTabIndex: 0))),
                     ),
                   ),
 
