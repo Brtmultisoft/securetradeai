@@ -118,23 +118,23 @@ class _PaymentSectionState extends State<PaymentSection> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF0B90B).withOpacity(
-                                0.1), // Binance yellow with opacity
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: const Text(
-                            'Hide',
-                            style: TextStyle(
-                              color: Color(0xFFF0B90B), // Binance yellow
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
+                        // Container(
+                        //   padding: const EdgeInsets.symmetric(
+                        //       horizontal: 8, vertical: 4),
+                        //   decoration: BoxDecoration(
+                        //     color: const Color(0xFFF0B90B).withOpacity(
+                        //         0.1), // Binance yellow with opacity
+                        //     borderRadius: BorderRadius.circular(4),
+                        //   ),
+                        //   child: const Text(
+                        //     'Hide',
+                        //     style: TextStyle(
+                        //       color: Color(0xFFF0B90B), // Binance yellow
+                        //       fontSize: 12,
+                        //       fontWeight: FontWeight.w500,
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                     const SizedBox(height: 16),

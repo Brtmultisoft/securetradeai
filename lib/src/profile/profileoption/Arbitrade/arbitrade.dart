@@ -1163,7 +1163,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     const SizedBox(height: 24),
                     // Package Features
                     _buildFeatureRow(
-                        Icons.trending_up, 'Daily TPS', '0.33% - 0.55%'),
+                        Icons.trending_up, 'Daily TPS', '0.33% - 0.50%'),
                     // const SizedBox(height: 12),
                     // _buildFeatureRow(Icons.schedule, 'Duration', '30 Days'),
                     const SizedBox(height: 12),
@@ -1404,7 +1404,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Daily TPS: 0.33% - 0.55%',
+                  'Daily TPS: 0.33% - 0.50%',
                   style: TextStyle(color: Colors.white),
                 ),
                 // const SizedBox(height: 8),
