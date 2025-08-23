@@ -26,6 +26,8 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
   List<Map<String, dynamic>> incomeData = [];
   double totalAmount = 0.0;
   String _searchQuery = '';
+  DateTime? _startDate;
+  DateTime? _endDate;
 
   @override
   void initState() {
@@ -209,6 +211,90 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
     }
   }
 
+  // Date picker methods
+  Future<void> _selectStartDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _startDate ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.dark(
+              primary: widget.color,
+              onPrimary: Colors.black,
+              surface: const Color(0xFF1A2234),
+              onSurface: Colors.white,
+              background: const Color(0xFF0B0E11),
+              onBackground: Colors.white,
+              secondary: widget.color,
+              onSecondary: Colors.black,
+            ),
+            dialogBackgroundColor: const Color(0xFF1A2234),
+            textTheme: const TextTheme(
+              headlineMedium: TextStyle(color: Colors.white),
+              bodyLarge: TextStyle(color: Colors.white),
+              bodyMedium: TextStyle(color: Colors.white),
+              labelLarge: TextStyle(color: Colors.white),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _startDate) {
+      setState(() {
+        _startDate = picked;
+      });
+    }
+  }
+
+  Future<void> _selectEndDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _endDate ?? DateTime.now(),
+      firstDate: _startDate ?? DateTime(2020),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.dark(
+              primary: widget.color,
+              onPrimary: Colors.black,
+              surface: const Color(0xFF1A2234),
+              onSurface: Colors.white,
+              background: const Color(0xFF0B0E11),
+              onBackground: Colors.white,
+              secondary: widget.color,
+              onSecondary: Colors.black,
+            ),
+            dialogBackgroundColor: const Color(0xFF1A2234),
+            textTheme: const TextTheme(
+              headlineMedium: TextStyle(color: Colors.white),
+              bodyLarge: TextStyle(color: Colors.white),
+              bodyMedium: TextStyle(color: Colors.white),
+              labelLarge: TextStyle(color: Colors.white),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _endDate) {
+      setState(() {
+        _endDate = picked;
+      });
+    }
+  }
+
+  void _clearDateFilters() {
+    setState(() {
+      _startDate = null;
+      _endDate = null;
+    });
+  }
+
   String _getIncomeTypeDisplay(String type) {
     switch (type) {
       case 'roi':
@@ -268,32 +354,129 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
             )
           : Column(
               children: [
-                // Search Bar
+                // Search Bar and Date Filters
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText:
-                          'Search by referral, investment, or description',
-                      hintStyle: const TextStyle(color: Colors.white54),
-                      prefixIcon:
-                          const Icon(Icons.search, color: Colors.white54),
-                      filled: true,
-                      fillColor: const Color(0xFF232A3B),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide.none,
+                  child: Column(
+                    children: [
+                      // Search Bar
+                      TextField(
+                        decoration: InputDecoration(
+                          hintText:
+                              'Search by referral, investment, or description',
+                          hintStyle: const TextStyle(color: Colors.white54),
+                          prefixIcon:
+                              const Icon(Icons.search, color: Colors.white54),
+                          filled: true,
+                          fillColor: const Color(0xFF232A3B),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              vertical: 0, horizontal: 0),
+                        ),
+                        style: const TextStyle(color: Colors.white),
+                        onChanged: (value) {
+                          setState(() {
+                            _searchQuery = value.trim();
+                          });
+                        },
                       ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          vertical: 0, horizontal: 0),
-                    ),
-                    style: const TextStyle(color: Colors.white),
-                    onChanged: (value) {
-                      setState(() {
-                        _searchQuery = value.trim();
-                      });
-                    },
+                      const SizedBox(height: 12),
+                      // Date Filter Row
+                      Row(
+                        children: [
+                          // Start Date
+                          Expanded(
+                            child: InkWell(
+                              onTap: () => _selectStartDate(),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 16),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF232A3B),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.calendar_today,
+                                        color: Colors.white54, size: 20),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        _startDate != null
+                                            ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
+                                            : 'Start Date',
+                                        style: TextStyle(
+                                          color: _startDate != null
+                                              ? Colors.white
+                                              : Colors.white54,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // End Date
+                          Expanded(
+                            child: InkWell(
+                              onTap: () => _selectEndDate(),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 16),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF232A3B),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.calendar_today,
+                                        color: Colors.white54, size: 20),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        _endDate != null
+                                            ? '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}'
+                                            : 'End Date',
+                                        style: TextStyle(
+                                          color: _endDate != null
+                                              ? Colors.white
+                                              : Colors.white54,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Clear Filters Button
+                          InkWell(
+                            onTap: () => _clearDateFilters(),
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: widget.color.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.clear,
+                                color: widget.color,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
                 // Summary Card
@@ -364,6 +547,29 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                         fontSize: 14,
                       ),
                     ),
+                    // Filter indicator
+                    if (_searchQuery.isNotEmpty || _startDate != null || _endDate != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.filter_alt,
+                              color: widget.color,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Filters active',
+                              style: TextStyle(
+                                color: widget.color,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -411,15 +617,39 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
   }
 
   Widget _buildIncomeList() {
-    final filteredData = _searchQuery.isEmpty
-        ? incomeData
-        : incomeData.where((income) {
-            final query = _searchQuery.toLowerCase();
-            final fourthCol = _getFourthColumnData(income).toLowerCase();
-            final descr =
-                (income['description'] ?? '').toString().toLowerCase();
-            return fourthCol.contains(query) || descr.contains(query);
-          }).toList();
+    // Apply both search and date filters
+    final filteredData = incomeData.where((income) {
+      // Search filter
+      bool matchesSearch = true;
+      if (_searchQuery.isNotEmpty) {
+        final query = _searchQuery.toLowerCase();
+        final fourthCol = _getFourthColumnData(income).toLowerCase();
+        final descr =
+            (income['description'] ?? '').toString().toLowerCase();
+        matchesSearch = fourthCol.contains(query) || descr.contains(query);
+      }
+
+      // Date filter
+      bool matchesDate = true;
+      if (_startDate != null || _endDate != null) {
+        try {
+          final incomeDate = DateTime.parse(income['created_at']);
+          if (_startDate != null) {
+            matchesDate = matchesDate &&
+                incomeDate.isAfter(_startDate!.subtract(const Duration(days: 1)));
+          }
+          if (_endDate != null) {
+            matchesDate = matchesDate &&
+                incomeDate.isBefore(_endDate!.add(const Duration(days: 1)));
+          }
+        } catch (e) {
+          // If date parsing fails, exclude the item
+          matchesDate = false;
+        }
+      }
+
+      return matchesSearch && matchesDate;
+    }).toList();
     if (filteredData.isEmpty) {
       return Center(
         child: Column(
@@ -440,9 +670,11 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Income records will appear here',
-              style: TextStyle(
+            Text(
+              _searchQuery.isNotEmpty || _startDate != null || _endDate != null
+                  ? 'No records match your filters'
+                  : 'Income records will appear here',
+              style: const TextStyle(
                 color: Color(0xFF848E9C),
                 fontSize: 14,
               ),
@@ -486,9 +718,9 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
               color: const Color(0xFF2A2D35),
               child: Row(
                 children: [
-                  const SizedBox(
-                    // width: 40,
-                    child: Padding(
+                  SizedBox(
+                    width: _shouldShowFifthColumn() ? 40 : 50,
+                    child: const Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: 4.0,
                         vertical: 6,
@@ -522,9 +754,9 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                       ),
                     ),
                   ),
-                  const Expanded(
-                    flex: 1,
-                    child: Padding(
+                  SizedBox(
+                    width: _shouldShowFifthColumn() ? 60 : 80,
+                    child: const Padding(
                       padding: EdgeInsets.symmetric(
                         vertical: 12,
                       ),
@@ -541,7 +773,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                   ),
                   if (_shouldShowFourthColumn())
                     SizedBox(
-                      width: 90,
+                      width: _shouldShowFifthColumn() ? 90 : 110,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 4.0,
@@ -592,10 +824,10 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                 child: Row(
                   children: [
                     SizedBox(
-                      // width: 50,
+                      width: _shouldShowFifthColumn() ? 40 : 50,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0,
+                          horizontal: 4.0,
                           vertical: 12,
                         ),
                         child: Text(
@@ -628,8 +860,8 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                         ),
                       ),
                     ),
-                    Expanded(
-                      flex: 1,
+                    SizedBox(
+                      width: _shouldShowFifthColumn() ? 60 : 80,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 4.0,
@@ -648,7 +880,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                     ),
                     if (_shouldShowFourthColumn())
                       SizedBox(
-                        // width: 90,
+                        width: _shouldShowFifthColumn() ? 90 : 110,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 4.0,
