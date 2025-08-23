@@ -700,10 +700,10 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
         titleLower.contains('level');
   }
 
-  // Helper method to determine if fifth column should be shown (for Level TPS description)
+  // Helper method to determine if fifth column should be shown (for Level TPS and Salary description)
   bool _shouldShowFifthColumn() {
     String titleLower = widget.title.toLowerCase();
-    return titleLower.contains('level');
+    return titleLower.contains('level') || titleLower.contains('salary');
   }
 
   // Helper method to get fourth column header text
