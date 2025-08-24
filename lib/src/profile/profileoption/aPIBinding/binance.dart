@@ -8,8 +8,10 @@ import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:http/http.dart' as http;
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/Service/otp_service.dart';
 import 'package:securetradeai/src/profile/profileoption/APIBinding/notice_carefully_page.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
+import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 import 'package:timer_builder/timer_builder.dart';
 
 import '../../../../Data/Api.dart';
@@ -32,6 +34,12 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
   var secretKey = TextEditingController();
   var verificatation = TextEditingController();
   late DateTime alert;
+
+  // OTP verification states
+  bool isOtpSent = false;
+  bool isOtpVerified = false;
+  bool isOtpSending = false;
+  bool isOtpVerifying = false;
   Future _getdata() async {
     setState(() {
       isAPIcallded = true;
@@ -81,6 +89,7 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
     super.initState();
     _getdata();
     alert = DateTime.now().add(const Duration(seconds: 0));
+    OtpService.clearRequestId(); // Clear any previous OTP session
   }
 
   Widget build(BuildContext context) {
@@ -128,13 +137,13 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                           margin: const EdgeInsets.only(
                               left: 15, top: 5, right: 15),
                           child: Text("binanc_notice_1".tr,
-                              style: TextStyle(color: Colors.white)),
+                              style: const TextStyle(color: Colors.white)),
                         ),
                         Container(
                           margin: const EdgeInsets.only(
                               left: 15, top: 5, right: 15),
                           child: Text("binance_notice_2".tr,
-                              style: TextStyle(color: Colors.white)),
+                              style: const TextStyle(color: Colors.white)),
                         )
                       ],
                     ),
@@ -246,7 +255,7 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                               padding: const EdgeInsets.only(left: 8.0),
                               child: TextField(
                                   controller: apiKey,
-                                  style: TextStyle(color: Colors.white),
+                                  style: const TextStyle(color: Colors.white),
                                   decoration: const InputDecoration(
                                     hintStyle: TextStyle(
                                         fontSize: 13, color: Colors.white),
@@ -291,7 +300,7 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                               padding: const EdgeInsets.only(left: 8.0),
                               child: TextField(
                                   controller: secretKey,
-                                  style: TextStyle(color: Colors.white),
+                                  style: const TextStyle(color: Colors.white),
                                   decoration: const InputDecoration(
                                     hintStyle: TextStyle(
                                         fontSize: 13, color: Colors.white),
@@ -306,12 +315,13 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                       ),
                     ],
                   ),
-                ),
+                ),const SizedBox(height: 5),
                 const Divider(
                   color: Colors.grey,
                   indent: 15,
                   endIndent: 15,
                 ),
+                const SizedBox(height: 5),
                 Container(
                   margin: const EdgeInsets.only(
                     left: 15,
@@ -320,99 +330,121 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                   child: Row(
                     children: [
                       Text("verificationCode".tr,
-                          style: TextStyle(
+                          style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontFamily: fontFamily)),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: Container(
-                            child: Container(
-                          height: 50,
+                      const SizedBox(width: 10),
+
+
+                      // Verify Button (shown when OTP is sent but not verified)
+                      if (isOtpSent && !isOtpVerified)
+                        Container(
+                          height: 35,
+                          alignment: Alignment.center,
                           decoration: BoxDecoration(
-                              border: Border.all(color: Colors.white),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(10))),
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: TextField(
-                                  keyboardType: TextInputType.number,
-                                  controller: verificatation,
-                                  style: TextStyle(color: Colors.white),
-                                  decoration: const InputDecoration(
-                                    hintStyle: TextStyle(
-                                        fontSize: 13, color: Colors.white),
-                                    hintText: "Enter OTP",
-                                    border: InputBorder.none,
-                                    enabledBorder: InputBorder.none,
-                                    focusedBorder: InputBorder.none,
-                                  )),
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              stops: [0.0, 1.0],
+                              colors: [primaryColor, Colors.blue],
                             ),
+                            borderRadius: const BorderRadius.all(Radius.circular(5)),
                           ),
-                        )),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Container(
-                        child:
-                            TimerBuilder.scheduled([alert], builder: (context) {
-                          var now = DateTime.now();
-                          var reached = now.compareTo(alert) >= 0;
-                          return !reached
-                              ? TimerBuilder.periodic(
-                                  const Duration(seconds: 1),
-                                  alignment: Duration.zero, builder: (context) {
-                                  // This function will be called every second until the alert time
-                                  var now = DateTime.now();
-                                  var remaining = alert.difference(now);
-                                  return Text(
-                                    formatDuration(remaining),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                            ),
+                            onPressed: isOtpVerifying ? null : _verifyOtpForBinding,
+                            child: isOtpVerifying
+                                ? const SizedBox(
+                                    width: 50,
+                                    height: 50,
+                                    child: LottieLoadingWidget.large()
+                                  )
+                                : const Text(
+                                    'Verify',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                          ),
+                        ),
+
+                      // Send OTP Button (with timer)
+                      if (!isOtpSent || isOtpVerified)
+                        Container(
+                          child: TimerBuilder.scheduled([alert], builder: (context) {
+                            var now = DateTime.now();
+                            var reached = now.compareTo(alert) >= 0;
+                            return !reached
+                                ? const SizedBox.shrink()
+                                : Container(
+                                    // width: 80,
+                                    height: 35,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        stops: [0.0, 1.0],
+                                        colors: [primaryColor, Colors.blue],
+                                      ),
+                                      borderRadius:
+                                          const BorderRadius.all(Radius.circular(5)),
+                                    ),
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.transparent,
+                                        shadowColor: Colors.transparent,
+                                      ),
+                                      onPressed: isOtpSending ? null : _sendOtpForBinding,
+                                      child: isOtpSending
+                                          ? const SizedBox(
+                                              width: 15,
+                                              height: 15,
+                                              child: LottieLoadingWidget()
+                                            )
+                                          : const Text(
+                                              'Send OTP',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                    ),
                                   );
-                                })
-                              : Container(
-                                  width: 80,
-                                  height: 35,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      stops: [0.0, 1.0],
-                                      colors: [
-                                        primaryColor,
-                                        Colors.blue,
-                                      ],
-                                    ),
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5)),
-                                  ),
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.transparent,
-                                      disabledForegroundColor:
-                                          Colors.transparent.withOpacity(0.38),
-                                      disabledBackgroundColor:
-                                          Colors.transparent.withOpacity(0.12),
-                                      shadowColor: Colors.transparent,
-                                    ),
-                                    onPressed: () {
-                                      _sendMailOTP();
-                                    },
-                                    child: const Text(
-                                      'Send',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                );
-                        }),
-                      ),
+                          }),
+                        ),
                     ],
+                  ),
+                ),
+                Container(
+                  height: 50,
+                  margin: const EdgeInsets.only(left: 15 , right: 15 , top: 15),
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                        color: isOtpVerified ? Colors.green : Colors.white,
+                      ),
+                      borderRadius:
+                      const BorderRadius.all(Radius.circular(10))),
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: TextField(
+                          keyboardType: TextInputType.number,
+                          controller: verificatation,
+                          enabled: !isOtpVerified,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: const InputDecoration(
+                            hintStyle: TextStyle(
+                                fontSize: 13, color: Colors.white),
+                            hintText: "Enter OTP",
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                          )),
+                    ),
                   ),
                 ),
               ]),
@@ -434,10 +466,11 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                       colors: [
                         primaryColor,
                         Colors.blue,
+
                       ],
                     ),
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
-                    boxShadow: <BoxShadow>[
+                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                    boxShadow: const <BoxShadow>[
                       BoxShadow(
                           color: Colors.black12,
                           offset: Offset(2, 4),
@@ -454,9 +487,9 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
                           Colors.transparent.withOpacity(0.12),
                       shadowColor: Colors.transparent,
                     ),
-                    onPressed: () {
+                    onPressed: isOtpVerified ? () {
                       binddata();
-                    },
+                    } : null,
                     child: const Text(
                       "Bind",
                       style: TextStyle(fontSize: 20, color: Colors.white),
@@ -534,7 +567,7 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
               children: [
                 TextSpan(
                     text: 'ihaveAPIbinding'.tr,
-                    style: TextStyle(color: Colors.white)),
+                    style: const TextStyle(color: Colors.white)),
                 TextSpan(
                   text: 'theRisk'.tr,
                   recognizer: TapGestureRecognizer()
@@ -555,33 +588,66 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
     );
   }
 
-  Future _sendMailOTP() async {
+  // Send OTP for API binding
+  Future<void> _sendOtpForBinding() async {
     if (commonEmail == "") {
       showtoast("Please relogin and try again", context);
-    } else {
-      try {
-        final response = await http.post(
-          Uri.parse(apibindingOtp),
-          body: jsonEncode({"email": commonEmail}),
-        );
-        if (response.statusCode != 200) {
-        } else if (response.body != '') {
-          var data = jsonDecode(response.body);
-          print(data);
-          if (data['status'] == 'success') {
-            setState(() {
-              alert = DateTime.now().add(const Duration(minutes: 2));
-            });
-            showtoast("OTP send successfully", context);
-          } else {
-            showtoast(data['message'], context);
-            print(data['message']);
-          }
-        }
-      } on SocketException {
-        showtoast("Check Internet", context);
-        print('Socket Exception');
+      return;
+    }
+
+    setState(() {
+      isOtpSending = true;
+    });
+
+    try {
+      final response = await OtpService.sendOtpToEmail(
+        email: commonEmail,
+        type: "Email",
+        context: context,
+      );
+
+      if (response.isSuccess) {
+        setState(() {
+          isOtpSent = true;
+          alert = DateTime.now().add(const Duration(minutes: 2));
+        });
       }
+    } finally {
+      setState(() {
+        isOtpSending = false;
+      });
+    }
+  }
+
+  // Verify OTP for API binding
+  Future<void> _verifyOtpForBinding() async {
+    String otpValue = verificatation.text.trim();
+
+    if (otpValue.isEmpty) {
+      showtoast("OTP field is empty", context);
+      return;
+    }
+
+    setState(() {
+      isOtpVerifying = true;
+    });
+
+    try {
+      final response = await OtpService.verifyOtpCode(
+        email: commonEmail,
+        otp: otpValue,
+        context: context,
+      );
+
+      if (response.isSuccess) {
+        setState(() {
+          isOtpVerified = true;
+        });
+      }
+    } finally {
+      setState(() {
+        isOtpVerifying = false;
+      });
     }
   }
 
@@ -601,7 +667,8 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
               "secret_key": "",
               "admin_ip": ipvalue,
               "email": commonEmail,
-              "otp": verificatation.text
+              "otp": verificatation.text,
+              "requestId": OtpService.currentRequestId
             }));
         if (resp.statusCode != 200) {
           showtoast("Server Error", context);
@@ -649,7 +716,8 @@ class _BinanaceBindingState extends State<BinanaceBinding> {
               "secret_key": secretKey.text,
               "admin_ip": ipvalue,
               "email": commonEmail,
-              "otp": verificatation.text
+              "otp": verificatation.text,
+              "requestId": OtpService.currentRequestId
             }));
         if (resp.statusCode != 200) {
           showtoast("Server Error", context);

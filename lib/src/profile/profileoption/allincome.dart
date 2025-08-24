@@ -57,6 +57,11 @@ class _AllIncomeState extends State<AllIncome>
   double profitSharingCumulative = 0.0;
   List<trade.Detail> profitSharingDetails = [];
 
+  // Direct Income Data
+  dynamic directIncomeData;
+  double directTotalIncome = 0.0;
+  List<DirectIncomeHistory> directIncomeHistory = [];
+
   // Royalty Data
   dynamic royaltyData;
   double royaltyToday = 0.0;

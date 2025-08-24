@@ -8,13 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
-import 'package:securetradeai/Data/Api.dart';
+import 'package:securetradeai/data/api.dart';
 import 'package:securetradeai/method/privecyPolicyMehtod.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/Widget/country_picker.dart';
 import 'package:securetradeai/src/policiesAndAgreement/pricacyPolicies.dart';
 import 'package:securetradeai/src/policiesAndAgreement/serviceAgreement.dart';
 import 'package:securetradeai/src/user/login.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 import 'package:slider_captcha/slider_captcha.dart';
 import 'package:toast/toast.dart';
 
@@ -32,6 +33,10 @@ class _SignUpPageState extends State<SignUpPage>
   ValueNotifier<bool> pressed = ValueNotifier(false);
   final _formKey = GlobalKey<FormState>();
   bool isEnabled = true;
+  bool isOtpSent = false;
+  bool isOtpVerified = false;
+  bool isOtpSending = false;
+  bool isOtpVerifying = false;
   var contry = TextEditingController();
   var name = TextEditingController();
   var email = TextEditingController();
@@ -41,6 +46,7 @@ class _SignUpPageState extends State<SignUpPage>
   var verificatioCode = TextEditingController();
   var invitationCode = TextEditingController();
   late DateTime alert;
+  String? otpRequestId; // Store the request ID from send OTP response
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
@@ -197,6 +203,209 @@ class _SignUpPageState extends State<SignUpPage>
     );
   }
 
+  Widget _emailFieldWithOtpButton() {
+    if (!_isInitialized) {
+      return const SizedBox.shrink();
+    }
+
+    return SlideTransition(
+      position: _slideAnimation,
+      child: FadeTransition(
+        opacity: _fadeAnimation,
+        child: Container(
+          margin: EdgeInsets.symmetric(vertical: 10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                "Enter Email",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  color: _textColor,
+                ),
+              ),
+              SizedBox(height: 5),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: _cardColor,
+                        border: Border.all(color: _borderColor),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: TextFormField(
+                          style: TextStyle(color: _textColor),
+                          controller: email,
+                          cursorColor: _primaryColor,
+                          maxLines: 1,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(vertical: 13.0),
+                            hintText: "Enter your Email",
+                            hintStyle: TextStyle(color: _hintColor),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  SizedBox(
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: isOtpSending ? null : _sendOtp,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: isOtpSending
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(_backgroundColor),
+                              ),
+                            )
+                          : Text(
+                              isOtpSent ? "Resend" : "Send OTP",
+                              style: TextStyle(
+                                color: _backgroundColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _otpFieldWithVerifyButton() {
+    if (!_isInitialized) {
+      return const SizedBox.shrink();
+    }
+
+    return SlideTransition(
+      position: _slideAnimation,
+      child: FadeTransition(
+        opacity: _fadeAnimation,
+        child: Container(
+          margin: EdgeInsets.symmetric(vertical: 10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: [
+                  Text(
+                    "Enter OTP",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      color: _textColor,
+                    ),
+                  ),
+                  if (isOtpVerified)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 20,
+                      ),
+                    ),
+                ],
+              ),
+              SizedBox(height: 5),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: _cardColor,
+                        border: Border.all(
+                          color: isOtpVerified ? Colors.green : _borderColor,
+                        ),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: TextFormField(
+                          style: TextStyle(color: _textColor),
+                          controller: verificatioCode,
+                          cursorColor: _primaryColor,
+                          maxLines: 1,
+                          enabled: !isOtpVerified,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(vertical: 13.0),
+                            hintText: "Enter your OTP",
+                            hintStyle: TextStyle(color: _hintColor),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  SizedBox(
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: (isOtpVerifying || isOtpVerified || !isOtpSent)
+                          ? () {
+                              print('🔍 VERIFY BUTTON DISABLED - isOtpVerifying: $isOtpVerifying, isOtpVerified: $isOtpVerified, isOtpSent: $isOtpSent');
+                            }
+                          : () {
+                              print('🔍 VERIFY BUTTON CLICKED - Starting verification...');
+                              _verifyOtp();
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isOtpVerified ? Colors.green : _primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: isOtpVerifying
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(_backgroundColor),
+                              ),
+                            )
+                          : Text(
+                              isOtpVerified ? "Verified" : "Verify",
+                              style: TextStyle(
+                                color: _backgroundColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _submitButton() {
     if (!_isInitialized) {
       return const SizedBox.shrink();
@@ -207,24 +416,26 @@ class _SignUpPageState extends State<SignUpPage>
       child: FadeTransition(
         opacity: _fadeAnimation,
         child: InkWell(
-          onTap: _showCapChacode,
+          onTap: isOtpVerified ? _showCapChacode : null,
           child: Container(
             width: MediaQuery.of(context).size.width,
             padding: const EdgeInsets.symmetric(vertical: 15),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: _primaryColor,
+              color: isOtpVerified ? _primaryColor : _primaryColor.withOpacity(0.5),
               borderRadius: const BorderRadius.all(Radius.circular(5)),
               boxShadow: <BoxShadow>[
                 BoxShadow(
-                  color: _primaryColor.withOpacity(0.3),
+                  color: isOtpVerified
+                      ? _primaryColor.withOpacity(0.3)
+                      : _primaryColor.withOpacity(0.1),
                   blurRadius: 8,
                   spreadRadius: 2,
                 ),
               ],
             ),
             child: Text(
-              'Register'.tr,
+              isOtpVerified ? 'Register'.tr : 'Verify OTP First',
               style: TextStyle(
                 fontSize: 20,
                 color: _backgroundColor,
@@ -291,13 +502,14 @@ class _SignUpPageState extends State<SignUpPage>
           SizedBox(height: 10),
           _entryField("entermobile".tr, mobileno),
           SizedBox(height: 10),
-          _entryField("Enter Email", email),
+          _emailFieldWithOtpButton(),
+          SizedBox(height: 10),
+          _otpFieldWithVerifyButton(),
           SizedBox(height: 10),
           _entryField("loginpassword".tr, password, isPassword: true),
           SizedBox(height: 10),
           _entryField("confirmPass".tr, conformPasword, isPassword: true),
-          SizedBox(height: 10),
-          _entryField("Enter OTP", verificatioCode),
+
           SizedBox(height: 10),
           _entryField("Invitation Code", invitationCode),
         ],
@@ -314,7 +526,7 @@ class _SignUpPageState extends State<SignUpPage>
       position: _slideAnimation,
       child: FadeTransition(
         opacity: _fadeAnimation,
-        child: Container(
+        child: SizedBox(
           width: double.infinity,
           child: Row(
             children: [
@@ -384,23 +596,12 @@ class _SignUpPageState extends State<SignUpPage>
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: _backgroundColor,
-      appBar: AppBar(
-        backgroundColor: _backgroundColor,
-        elevation: 0,
-        title: Text(
-          "signUp".tr,
-          style: TextStyle(color: _textColor),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: _textColor),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
+      appBar: CommonAppBar(title: 'signUp'.tr),
       body: Column(
         children: [
           _logo(),
           Expanded(
-            child: Container(
+            child: SizedBox(
               height: height,
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 20),
@@ -439,6 +640,8 @@ class _SignUpPageState extends State<SignUpPage>
       showtoast("Confirm Password Field is empty", context);
     } else if (verificatioCode.text == "") {
       showtoast("Verification Field is empty", context);
+    } else if (!isOtpVerified) {
+      showtoast("Please verify your OTP first", context);
     } else if (password.text != conformPasword.text) {
       showtoast("Password not match", context);
     } else if (checkedStatus == false) {
@@ -460,7 +663,7 @@ class _SignUpPageState extends State<SignUpPage>
           return Dialog(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Container(
+              child: SizedBox(
                 height: 270,
                 child: SliderCaptcha(
                     image: Image.asset(
@@ -584,37 +787,42 @@ class _SignUpPageState extends State<SignUpPage>
     print(data.status);
   }
 
-  Future _sendMailOTP() async {
-    String emailtxt = email.text;
-    final bool isValid = EmailValidator.validate(emailtxt);
+  Future _sendOtp() async {
+    String emailValue = email.text;
+    final bool isValid = EmailValidator.validate(emailValue);
     if (email.text == "") {
       showtoast("Email Field is empty", context);
     } else if (isValid != true) {
       showtoast("Email not valid", context);
     } else {
       setState(() {
-        alert = DateTime.now().add(Duration(minutes: 2));
+        isOtpSending = true;
       });
       try {
-        print('🔍 OTP REQUEST: ${email.text}'); // Debug logging
+        print('🔍 OTP REQUEST: ${email.text}');
 
         final response = await http.post(
           Uri.parse(sendOtp),
           headers: {
-            'Content-Type': 'application/json',  // FIX: Add required headers
+            'Content-Type': 'application/json',
             'Accept': 'application/json',
             'User-Agent': 'SecureTradeAI-Mobile-App',
           },
-          body: jsonEncode({"email": email.text, "type": "Email"}),
-        ).timeout(const Duration(seconds: 15));  // FIX: Add timeout
-
-        print('🔍 OTP RESPONSE: ${response.statusCode} - ${response.body}'); // Debug logging
+          body: jsonEncode({"email": email.text}),
+        ).timeout(const Duration(seconds: 15));
 
         if (response.statusCode == 200) {
           if (response.body.isNotEmpty) {
             var data = jsonDecode(response.body);
             if (data['status'] == 'success') {
+              // Store the requestId from the nested data object
+              otpRequestId = data['data']?['requestId']?.toString();
+
               showtoast("OTP sent successfully", context);
+              setState(() {
+                isOtpSent = true;
+                alert = DateTime.now().add(Duration(minutes: 2));
+              });
             } else {
               showtoast(data['message'] ?? 'Failed to send OTP', context);
             }
@@ -622,18 +830,78 @@ class _SignUpPageState extends State<SignUpPage>
             showtoast("Empty response from server", context);
           }
         } else {
-          showtoast("Server Error: ${response.statusCode}", context);  // FIX: Show actual error code
+          showtoast("Server Error: ${response.statusCode}", context);
+        }
+      } catch (e) {
+        showtoast("Network error: ${e.toString()}", context);
+      } finally {
+        setState(() {
+          isOtpSending = false;
+        });
+      }
+    }
+  }
+
+  Future _verifyOtp() async {
+    if (verificatioCode.text == "") {
+      showtoast("OTP Field is empty", context);
+    } else {
+      setState(() {
+        isOtpVerifying = true;
+      });
+      try {
+
+        // Create request body - include requestId only if it exists
+        Map<String, dynamic> requestBody = {
+          "email": email.text,
+          "otp": verificatioCode.text,
+        };
+
+        if (otpRequestId != null) {
+          requestBody["requestId"] = otpRequestId;
         }
 
-      } on SocketException {
-        showtoast("No internet connection", context);
-        print('Socket Exception');
-      } on TimeoutException {
-        showtoast("Request timeout - server is slow", context);  // FIX: Handle timeout
-        print('Timeout Exception');
+        final response = await http.post(
+          Uri.parse(verifyOtp),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'User-Agent': 'SecureTradeAI-Mobile-App',
+          },
+          body: jsonEncode(requestBody),
+        ).timeout(const Duration(seconds: 15));
+
+        print('🔍 VERIFY OTP RESPONSE: ${response.statusCode} - ${response.body}');
+
+        if (response.statusCode == 200) {
+          if (response.body.isNotEmpty) {
+            var data = jsonDecode(response.body);
+            if (data['status'] == 'success' &&
+                data['data'] != null &&
+                (data['data']['status'] == 'success' || data['data']['status'] == 'Success')) {
+              showtoast("OTP verified successfully", context);
+              setState(() {
+                isOtpVerified = true;
+              });
+            } else {
+              final errorMsg = data['data']?['message'] ?? data['message'] ?? 'Invalid OTP';
+              showtoast(errorMsg, context);
+              setState(() {
+                isOtpVerified = false;
+              });
+            }
+          } else {
+            showtoast("Empty response from server", context);
+          }
+        } else {
+          showtoast("Server Error: ${response.statusCode}", context);
+        }
       } catch (e) {
-        showtoast("OTP error: ${e.toString()}", context);  // FIX: Show actual error
-        print('OTP ERROR: $e');
+        showtoast("Network error: ${e.toString()}", context);
+      } finally {
+        setState(() {
+          isOtpVerifying = false;
+        });
       }
     }
   }
@@ -654,8 +922,6 @@ class _SignUpPageState extends State<SignUpPage>
         "code": invitationCode.text
       });
 
-      print('🔍 SIGNUP REQUEST: $bodydata'); // Debug logging
-
       final response = await http.post(
         Uri.parse(ragisterurl),
         headers: {
@@ -665,8 +931,6 @@ class _SignUpPageState extends State<SignUpPage>
         },
         body: bodydata,
       ).timeout(const Duration(seconds: 15));  // FIX: Add timeout
-
-      print('🔍 SIGNUP RESPONSE: ${response.statusCode} - ${response.body}'); // Debug logging
 
       if (response.statusCode == 200) {
         if (response.body.isNotEmpty) {
@@ -704,15 +968,12 @@ class _SignUpPageState extends State<SignUpPage>
     } on SocketException {
       showtoast("No internet connection", context);
       Navigator.pop(context);
-      print('Socket Exception');
     } on TimeoutException {
       showtoast("Request timeout - server is slow", context);  // FIX: Handle timeout
       Navigator.pop(context);
-      print('Timeout Exception');
-    } catch (e) {
+     } catch (e) {
       showtoast("Registration error: ${e.toString()}", context);  // FIX: Show actual error
       Navigator.pop(context);
-      print('SIGNUP ERROR: $e');
     }
   }
 }

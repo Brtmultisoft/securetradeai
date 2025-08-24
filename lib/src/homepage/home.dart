@@ -19,6 +19,7 @@ import 'package:securetradeai/src/homepage/SubbinMode.dart';
 import 'package:securetradeai/src/more/revenue.dart';
 import 'package:securetradeai/src/more/userguide.dart';
 import 'package:securetradeai/src/more/videos.dart';
+import 'package:securetradeai/src/more/live_trading.dart';
 import 'package:securetradeai/src/profile/profileoption/APIBinding/apibinding.dart';
 import 'package:securetradeai/src/profile/profileoption/BotTradingBonus.dart';
 import 'package:securetradeai/src/profile/profileoption/Arbitrade/arbitrade.dart';
@@ -611,46 +612,6 @@ class _HomepageState extends State<Homepage> {
                                                         Colors.black
                                                             .withOpacity(0.3),
                                                       ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              // Decorative corner accent
-                                              Positioned(
-                                                top: 15,
-                                                right: 15,
-                                                child: Container(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 6,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        const Color(0xFFF0B90B)
-                                                            .withOpacity(0.9),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: const Color(
-                                                                0xFFF0B90B)
-                                                            .withOpacity(0.3),
-                                                        spreadRadius: 0,
-                                                        blurRadius: 8,
-                                                        offset:
-                                                            const Offset(0, 2),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  child: const Text(
-                                                    'Featured',
-                                                    style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 12,
                                                     ),
                                                   ),
                                                 ),
@@ -2245,6 +2206,16 @@ class _HomepageState extends State<Homepage> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => const VideoScreen())),
+                  ),
+
+                  /// Live Trading
+                  _buildGridOptionItem(
+                    icon: "assets/img/chart.png",
+                    label: "Live Trading",
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LiveTradingPage())),
                   ),
 
                   /// Invite Friends

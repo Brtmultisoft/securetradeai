@@ -528,6 +528,10 @@ class _ProfileState extends State<Profile> {
       children: <Widget>[
         Container(
           // Background
+          color: red800,
+          // height: MediaQuery.of(context).size.height * 0.2,
+          width: MediaQuery.of(context).size.width,
+          // Background
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             const SizedBox(height: 10),
@@ -542,9 +546,9 @@ class _ProfileState extends State<Profile> {
                 backgroundColor: Colors.transparent,
                 radius: 23.0,
                 backgroundImage: isAPIcalle
-                    ? const NetworkImage(imagepath + "default.jpg")
+                    ? const NetworkImage("${imagepath}default.jpg")
                     : data.image == null
-                        ? const NetworkImage(imagepath + "default.jpg")
+                        ? const NetworkImage("${imagepath}default.jpg")
                         : NetworkImage(imagepath + data.image),
               ),
               title: Text(
@@ -571,6 +575,10 @@ class _ProfileState extends State<Profile> {
             ),
             Container(
               height: 70.0,
+              decoration: BoxDecoration(
+                color: securetradeaicolor.withOpacity(0.7),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(30.0)),
+              ),
               child: Container(
                   child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -621,15 +629,8 @@ class _ProfileState extends State<Profile> {
                   ),
                 ],
               )),
-              decoration: BoxDecoration(
-                color: securetradeaicolor.withOpacity(0.7),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(30.0)),
-              ),
             ),
           ]),
-          color: red800,
-          // height: MediaQuery.of(context).size.height * 0.2,
-          width: MediaQuery.of(context).size.width,
         ),
       ],
     );
