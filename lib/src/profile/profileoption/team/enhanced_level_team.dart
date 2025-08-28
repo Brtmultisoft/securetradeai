@@ -51,7 +51,7 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
         });
       } else {
         var data = jsonDecode(res.body);
-        print("API Response: $data"); // Debug print to see the full response
+
 
         if (data['status'] == "success") {
           // Reset counters
@@ -1009,6 +1009,7 @@ class EnhancedLevelTeamState extends State<EnhancedLevelTeam> {
           "days": element['days_bal'],
           "days_bal": element['days_bal'], // Alternative key name
           "user_id": element['user_id'],
+          "uid": element['uid'], // Make sure uid is included
           "email": element['email'],
           "mobile": element['mobile'],
           "gender": element['gender'],
