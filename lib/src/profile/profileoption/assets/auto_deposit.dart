@@ -49,7 +49,7 @@ class _AutoDepositState extends State<AutoDeposit>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _checkExistingWallet();
     _loadDepositHistory();
 
@@ -178,7 +178,7 @@ class _AutoDepositState extends State<AutoDeposit>
         final balance = result['data']['balance'] ?? '0.00';
         setState(() {
           walletAddress = result['data']['wallet_address'];
-          privateKey = result['data']['pay_private_key'];
+          privateKey = result['data']['private_key'] ?? '';
           isAddressLoading = false;
           userBalance = balance.toString();
           isBalanceLoading = false;
@@ -609,7 +609,6 @@ class _AutoDepositState extends State<AutoDeposit>
           unselectedLabelColor: const Color(0xFF848E9C),
           tabs: const [
             Tab(text: 'Deposit'),
-            // Tab(text: 'History'),
             Tab(text: 'Gas History'),
           ],
         ),
@@ -724,70 +723,6 @@ class _AutoDepositState extends State<AutoDeposit>
                     ],
                   ),
                 ),
-
-                // Amount Input
-                // Container(
-                //   margin: const EdgeInsets.symmetric(horizontal: 16),
-                //   padding: const EdgeInsets.all(16),
-                //   decoration: BoxDecoration(
-                //     color: const Color(0xFF1E2026), // Binance card background
-                //     borderRadius: BorderRadius.circular(8),
-                //     border: Border.all(color: const Color(0xFF2A2D35), width: 1),
-                //   ),
-                //   child: Column(
-                //     crossAxisAlignment: CrossAxisAlignment.start,
-                //     children: [
-                //       const Text(
-                //         'Amount',
-                //         style: TextStyle(
-                //           color: Color(0xFF848E9C), // Binance gray text
-                //           fontSize: 14,
-                //         ),
-                //       ),
-                //       // const SizedBox(height: 12),
-                //       // Container(
-                //       //   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                //       //   decoration: BoxDecoration(
-                //       //     color: const Color(0xFF2B3139), // Binance input background
-                //       //     borderRadius: BorderRadius.circular(4),
-                //       //   ),
-                //       //   child: TextField(
-                //       //     style: const TextStyle(color: Colors.white, fontSize: 16),
-                //       //     controller: amount,
-                //       //     keyboardType: TextInputType.number,
-                //       //     decoration: const InputDecoration(
-                //       //       hintStyle: TextStyle(color: Color(0xFF848E9C), fontSize: 14),
-                //       //       hintText: "Enter Amount USD",
-                //       //       border: InputBorder.none,
-                //       //       enabledBorder: InputBorder.none,
-                //       //       focusedBorder: InputBorder.none,
-                //       //       suffixText: 'USD',
-                //       //       suffixStyle: TextStyle(color: Color(0xFF848E9C), fontSize: 14),
-                //       //     ),
-                //       //   ),
-                //       // ),
-
-                //       const SizedBox(height: 12),
-                //       Row(
-                //         children: const [
-                //           Icon(
-                //             Icons.info_outline,
-                //             color: Color(0xFF848E9C),
-                //             size: 16,
-                //           ),
-                //           SizedBox(width: 8),
-                //           Text(
-                //             'Minimum deposit: 10 USD',
-                //             style: TextStyle(
-                //               color: Color(0xFF848E9C),
-                //               fontSize: 12,
-                //             ),
-                //           ),
-                //         ],
-                //       ),
-                //     ],
-                //   ),
-                // ),
 
                 const SizedBox(height: 16),
 
@@ -1045,139 +980,6 @@ class _AutoDepositState extends State<AutoDeposit>
               ],
             ),
           ),
-
-          // History Tab
-          // isHistoryLoading
-          //     ? const Center(
-          //         child: CircularProgressIndicator(
-          //           color: Color(0xFFF0B90B),
-          //         ),
-          //       )
-          //     : depositHistory.isEmpty
-          //         ? Center(
-          //             child: Column(
-          //               mainAxisAlignment: MainAxisAlignment.center,
-          //               children: const [
-          //                 Icon(
-          //                   Icons.history,
-          //                   size: 64,
-          //                   color: Color(0xFF848E9C),
-          //                 ),
-          //                 SizedBox(height: 16),
-          //                 Text(
-          //                   'No deposit history found',
-          //                   style: TextStyle(
-          //                     color: Color(0xFF848E9C),
-          //                     fontSize: 16,
-          //                   ),
-          //                 ),
-          //               ],
-          //             ),
-          //           )
-          //         : ListView.builder(
-          //             padding: const EdgeInsets.all(16),
-          //             itemCount: depositHistory.length,
-          //             itemBuilder: (context, index) {
-          //               final deposit = depositHistory[index];
-          //               return Container(
-          //                 margin: const EdgeInsets.only(bottom: 12),
-          //                 padding: const EdgeInsets.all(16),
-          //                 decoration: BoxDecoration(
-          //                   color: const Color(0xFF1E2026),
-          //                   borderRadius: BorderRadius.circular(8),
-          //                   border: Border.all(
-          //                       color: const Color(0xFF2A2D35), width: 1),
-          //                 ),
-          //                 child: Column(
-          //                   crossAxisAlignment: CrossAxisAlignment.start,
-          //                   children: [
-          //                     Row(
-          //                       mainAxisAlignment:
-          //                           MainAxisAlignment.spaceBetween,
-          //                       children: [
-          //                         Text(
-          //                           '${deposit['amount']} USD',
-          //                           style: const TextStyle(
-          //                             color: Colors.white,
-          //                             fontSize: 16,
-          //                             fontWeight: FontWeight.w500,
-          //                           ),
-          //                         ),
-          //                         Container(
-          //                           padding: const EdgeInsets.symmetric(
-          //                               horizontal: 8, vertical: 4),
-          //                           decoration: BoxDecoration(
-          //                             color: deposit['status'] == 'completed'
-          //                                 ? const Color(0xFF0ECB81)
-          //                                     .withOpacity(0.1)
-          //                                 : deposit['status'] == 'pending'
-          //                                     ? const Color(0xFFF0B90B)
-          //                                         .withOpacity(0.1)
-          //                                     : const Color(0xFFFF4C4C)
-          //                                         .withOpacity(0.1),
-          //                             borderRadius: BorderRadius.circular(4),
-          //                           ),
-          //                           child: Text(
-          //                             deposit['status'].toUpperCase(),
-          //                             style: TextStyle(
-          //                               color: deposit['status'] == 'completed'
-          //                                   ? const Color(0xFF0ECB81)
-          //                                   : deposit['status'] == 'pending'
-          //                                       ? const Color(0xFFF0B90B)
-          //                                       : const Color(0xFFFF4C4C),
-          //                               fontSize: 12,
-          //                               fontWeight: FontWeight.w500,
-          //                             ),
-          //                           ),
-          //                         ),
-          //                       ],
-          //                     ),
-          //                     const SizedBox(height: 8),
-          //                     Text(
-          //                       'Date: ${deposit['date']}',
-          //                       style: const TextStyle(
-          //                         color: Color(0xFF848E9C),
-          //                         fontSize: 14,
-          //                       ),
-          //                     ),
-          //                     const SizedBox(height: 4),
-          //                     Row(
-          //                       children: [
-          //                         Expanded(
-          //                           child: Text(
-          //                             'TxID: ${deposit['hash']}',
-          //                             style: const TextStyle(
-          //                               color: Color(0xFF848E9C),
-          //                               fontSize: 14,
-          //                             ),
-          //                             overflow: TextOverflow.ellipsis,
-          //                           ),
-          //                         ),
-          //                         const SizedBox(width: 8),
-          //                         InkWell(
-          //                           onTap: () {
-          //                             final BuildContext currentContext =
-          //                                 context;
-          //                             Clipboard.setData(
-          //                                 ClipboardData(text: deposit['hash']));
-          //                             Future.microtask(() =>
-          //                                 showtoast("Copied", currentContext));
-          //                           },
-          //                           child: const Icon(
-          //                             Icons.copy,
-          //                             color: Color(0xFFF0B90B),
-          //                             size: 16,
-          //                           ),
-          //                         ),
-          //                       ],
-          //                     ),
-          //                   ],
-          //                 ),
-          //               );
-          //             },
-          //           ),
-
-          // Gas Wallet History Tab
 
           /// gas history
           _buildGasHistoryTab(),
