@@ -295,13 +295,6 @@ class _LiveTradingPageState extends State<LiveTradingPage>
       ),
       body: Stack(
         children: [
-          // Animated bubbles background
-          ..._bubbles.map((bubble) => AnimatedBubble(
-                bubble: bubble,
-                animation: _bubbleController,
-              )),
-
-          // Main content
           _isLoading && _cryptoData.isEmpty
               ? const Center(
                   child: LottieLoadingWidget.fullScreen(

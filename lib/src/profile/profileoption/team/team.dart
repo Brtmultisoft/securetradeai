@@ -13,6 +13,7 @@ import 'package:securetradeai/src/widget/common_app_bar.dart';
 import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 
 import '../../../../Data/Api.dart';
+import '../../../../method/methods.dart';
 
 class Team extends StatefulWidget {
   const Team({Key? key, this.image}) : super(key: key);
@@ -23,9 +24,57 @@ class Team extends StatefulWidget {
 
 class TeamState extends State<Team> {
   // Team state variables
+  var finalData;
   var teamDirect = [];
   bool isAPIcalled = false;
   bool checkdata = false;
+  var minedata = [];
+
+  _getData() async {
+    try {
+      print("🔍 Profile: Starting data fetch for user ID: $commonuserId");
+
+      if (commonuserId == null || commonuserId.isEmpty) {
+        print("❌ Profile: User ID is null or empty!");
+        showtoast("User ID not found. Please login again.", context);
+        return;
+      }
+
+      setState(() {
+        isAPIcalled = true;
+      });
+
+      final data = await CommonMethod().getMineData();
+      print("📥 Profile: API response status: ${data.status}");
+      print("📥 Profile: API response message: ${data.message}");
+
+      if (data.status == "success") {
+        print("✅ Profile: Data received successfully");
+        setState(() {
+          minedata = data.data;
+          for (var e in minedata) {
+            finalData = e;
+          }
+          isAPIcalled = false;
+        });
+      } else {
+        print("❌ Profile: API returned error: ${data.message}");
+        setState(() {
+          isAPIcalled = false;
+        });
+        showtoast(data.message, context);
+      }
+    } catch (e) {
+      print("❌ Profile: Exception occurred: ${e.toString()}");
+      if (mounted) {
+        setState(() {
+          isAPIcalled = false;
+        });
+        showtoast("Error loading profile data: ${e.toString()}", context);
+      }
+    }
+  }
+
   Future _getTeamDirect() async {
     try {
       setState(() {
@@ -66,6 +115,7 @@ class TeamState extends State<Team> {
                 "gender": element['gender'],
                 "rank": element['rank'],
                 "user_id": element['user_id'],
+                "uid": element['uid'], // Add UID field
                 "days_bal": element['days_bal'],
                 "level": element['level']
               };
@@ -101,6 +151,7 @@ class TeamState extends State<Team> {
   void initState() {
     super.initState();
     _getTeamDirect();
+    _getData();
   }
 
   @override
@@ -309,6 +360,7 @@ class TeamState extends State<Team> {
                     return Container(
                       margin: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 4),
+                      padding: EdgeInsets.symmetric(vertical: 2),
                       decoration: BoxDecoration(
                         color: const Color(0xFF1E2329),
                         borderRadius: BorderRadius.circular(8),
@@ -345,29 +397,90 @@ class TeamState extends State<Team> {
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                if (teamDirect[i]['email'] != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 2),
-                                    child: Text(
-                                      teamDirect[i]['email'].toString(),
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.7),
-                                        fontSize: 12,
-                                        fontFamily: fontFamily,
-                                      ),
-                                    ),
-                                  ),
+
+                                // Add View Details button
                                 Padding(
-                                  padding: const EdgeInsets.only(top: 2),
-                                  child: Text(
-                                    "Joined ${_getDaysAgo(teamDirect[i]['days'])}",
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.7),
-                                      fontSize: 12,
-                                      fontFamily: fontFamily,
-                                    ),
+                                  padding: const EdgeInsets.only(top: 4.0),
+                                  child: Row(
+                                    children: [
+                                      InkWell(
+                                        onTap: () {
+                                          // Navigate to team detail page
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EnhancedTeamDetail(
+                                                    data: [teamDirect[i]],
+                                                    level: teamDirect[i]['level'] != null
+                                                        ? teamDirect[i]['level']
+                                                        .toString()
+                                                        .replaceAll('Level ', '')
+                                                        : '1',
+                                                  ),
+                                            ),
+                                          );
+                                        },
+                                        child: Container(
+                                          margin : const EdgeInsets.only(bottom: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF0B90B)
+                                                .withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(4),
+                                            border: Border.all(
+                                                color: const Color(0xFFF0B90B)
+                                                    .withOpacity(0.3)),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: const [
+                                              Icon(
+                                                Icons.info_outline,
+                                                color: Color(0xFFF0B90B),
+                                                size: 14,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                "View Details",
+                                                style: TextStyle(
+                                                  color: Color(0xFFF0B90B),
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily: fontFamily,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
+                                // if (teamDirect[i]['email'] != null)
+                                //   Padding(
+                                //     padding: const EdgeInsets.only(top: 2),
+                                //     child: Text(
+                                //       teamDirect[i]['email'].toString(),
+                                //       style: TextStyle(
+                                //         color: Colors.white.withOpacity(0.7),
+                                //         fontSize: 12,
+                                //         fontFamily: fontFamily,
+                                //       ),
+                                //     ),
+                                //   ),
+                                // Padding(
+                                //   padding: const EdgeInsets.only(top: 2),
+                                //   child: Text(
+                                //     "Joined ${_getDaysAgo(teamDirect[i]['days'])}",
+                                //     style: TextStyle(
+                                //       color: Colors.white.withOpacity(0.7),
+                                //       fontSize: 12,
+                                //       fontFamily: fontFamily,
+                                //     ),
+                                //   ),
+                                // ),
                               ],
                             ),
                             trailing: Container(
@@ -407,67 +520,67 @@ class TeamState extends State<Team> {
                               ),
                             ),
                           ),
-                          // Add View Details button
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 16, right: 16, bottom: 12),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    // Navigate to team detail page
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            EnhancedTeamDetail(
-                                          data: [teamDirect[i]],
-                                          level: teamDirect[i]['level'] != null
-                                              ? teamDirect[i]['level']
-                                                  .toString()
-                                                  .replaceAll('Level ', '')
-                                              : '1',
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFF0B90B)
-                                          .withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(
-                                          color: const Color(0xFFF0B90B)
-                                              .withOpacity(0.3)),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: const [
-                                        Icon(
-                                          Icons.info_outline,
-                                          color: Color(0xFFF0B90B),
-                                          size: 14,
-                                        ),
-                                        SizedBox(width: 4),
-                                        Text(
-                                          "View Details",
-                                          style: TextStyle(
-                                            color: Color(0xFFF0B90B),
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: fontFamily,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          // // Add View Details button
+                          // Padding(
+                          //   padding: const EdgeInsets.only(
+                          //       left: 16, right: 16, bottom: 12),
+                          //   child: Row(
+                          //     mainAxisAlignment: MainAxisAlignment.end,
+                          //     children: [
+                          //       InkWell(
+                          //         onTap: () {
+                          //           // Navigate to team detail page
+                          //           Navigator.push(
+                          //             context,
+                          //             MaterialPageRoute(
+                          //               builder: (context) =>
+                          //                   EnhancedTeamDetail(
+                          //                 data: [teamDirect[i]],
+                          //                 level: teamDirect[i]['level'] != null
+                          //                     ? teamDirect[i]['level']
+                          //                         .toString()
+                          //                         .replaceAll('Level ', '')
+                          //                     : '1',
+                          //               ),
+                          //             ),
+                          //           );
+                          //         },
+                          //         child: Container(
+                          //           padding: const EdgeInsets.symmetric(
+                          //               horizontal: 10, vertical: 6),
+                          //           decoration: BoxDecoration(
+                          //             color: const Color(0xFFF0B90B)
+                          //                 .withOpacity(0.1),
+                          //             borderRadius: BorderRadius.circular(4),
+                          //             border: Border.all(
+                          //                 color: const Color(0xFFF0B90B)
+                          //                     .withOpacity(0.3)),
+                          //           ),
+                          //           child: Row(
+                          //             mainAxisSize: MainAxisSize.min,
+                          //             children: const [
+                          //               Icon(
+                          //                 Icons.info_outline,
+                          //                 color: Color(0xFFF0B90B),
+                          //                 size: 14,
+                          //               ),
+                          //               SizedBox(width: 4),
+                          //               Text(
+                          //                 "View Details",
+                          //                 style: TextStyle(
+                          //                   color: Color(0xFFF0B90B),
+                          //                   fontSize: 12,
+                          //                   fontWeight: FontWeight.bold,
+                          //                   fontFamily: fontFamily,
+                          //                 ),
+                          //               ),
+                          //             ],
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
                         ],
                       ),
                     );
@@ -517,7 +630,8 @@ class TeamState extends State<Team> {
                 ),
                 const SizedBox(height: 15),
                 Text(
-                  "Share your invite code with friends and earn up to 40% commission on their trading fees",
+                  "Turn your network into earnings — invite friends and get rewarded as they trade."
+                  ,
                   style: TextStyle(
                     fontFamily: fontFamily,
                     fontSize: 14,
@@ -532,7 +646,7 @@ class TeamState extends State<Team> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => Sharescreen(
-                          reffral: commonuserId, // Use user ID as referral code
+                          reffral: finalData?.referralCode ?? "", // Use user ID as referral code
                         ),
                       ),
                     );

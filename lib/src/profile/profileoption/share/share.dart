@@ -86,8 +86,7 @@ class SharescreenState extends State<Sharescreen> {
                   const SizedBox(height: 10),
                   // Subheading
                   Text(
-                    "Share your invite code with friends and earn up to 40% commission on their trading fees"
-                        .tr,
+                    "Turn your network into earnings — invite friends and get rewarded as they trade.",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: fontFamily,
