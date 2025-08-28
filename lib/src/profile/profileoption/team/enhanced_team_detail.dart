@@ -245,12 +245,16 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                       ),
                       title: Row(
                         children: [
-                          Text(
-                            widget.data[i]['name'],
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: fontFamily,
+                          Expanded(
+                            child: Text(
+                              widget.data[i]['name'],
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: fontFamily,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -260,7 +264,7 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                                   horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 color:
-                                    _getRankColor(memberRank).withOpacity(0.2),
+                                _getRankColor(memberRank).withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -290,18 +294,18 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                               ),
                             ),
                           ),
-                          // Show commission for all levels
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              "Commission: ${_getCommissionRate(widget.level)}%",
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
-                                fontSize: 12,
-                                fontFamily: fontFamily,
-                              ),
-                            ),
-                          ),
+                          // // Show commission for all levels
+                          // Padding(
+                          //   padding: const EdgeInsets.only(top: 4),
+                          //   child: Text(
+                          //     "Commission: ${_getCommissionRate(widget.level)}%",
+                          //     style: TextStyle(
+                          //       color: Colors.white.withOpacity(0.7),
+                          //       fontSize: 12,
+                          //       fontFamily: fontFamily,
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
                       trailing: Container(
@@ -345,14 +349,14 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                     // Action buttons
                     Padding(
                       padding: const EdgeInsets.only(
-                          left: 16, right: 16, bottom: 12),
+                          left: 80,  bottom: 12),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+
                         children: [
                           _buildMiniActionButton("Details", Icons.info_outline,
                               const Color(0xFF4A90E2), () {
-                            _showMemberDetails(widget.data[i]);
-                          }),
+                                _showMemberDetails(widget.data[i]);
+                              }),
                           // const SizedBox(width: 8),
                           // if (widget.data[i]['mobile'] != null)
                           //   _buildMiniActionButton("Call", Icons.call, const Color(0xFF2EBD85), () {}),
@@ -377,7 +381,7 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
               color: const Color(0xFF1E2329),
               borderRadius: BorderRadius.circular(12),
               border:
-                  Border.all(color: const Color(0xFF4A90E2).withOpacity(0.3)),
+              Border.all(color: const Color(0xFF4A90E2).withOpacity(0.3)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -412,7 +416,7 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                 ),
                 const SizedBox(height: 15),
                 Text(
-                  "Level ${widget.level} members earn you ${_getCommissionRate(widget.level)}% commission on their trading fees. Keep growing your network to maximize your earnings!",
+                  "Level ${widget.level} members help you unlock earnings every time they trade. The bigger your network, the greater your rewards \nkeep climbing!",
                   style: TextStyle(
                     fontFamily: fontFamily,
                     fontSize: 14,
@@ -431,7 +435,7 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
 
   void _showMemberDetails(Map<String, dynamic> member) {
     // Debug print to see what data we're getting
-    print("Member data: $member");
+
 
     showModalBottomSheet(
       context: context,
@@ -454,23 +458,25 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
 
         // Extract all member details with proper null checks
         String memberName =
-            member['name'] != null ? member['name'].toString() : "Unknown";
+        member['name'] != null ? member['name'].toString() : "Unknown";
         String memberRank =
-            member['rank'] != null ? member['rank'].toString() : "0";
-        String memberEmail =
-            member['email'] != null ? member['email'].toString() : "";
+        member['rank'] != null ? member['rank'].toString() : "0";
+        // String memberEmail =
+        //     member['email'] != null ? member['email'].toString() : "";
         String memberMobile =
-            member['mobile'] != null ? member['mobile'].toString() : "";
+        member['mobile'] != null ? member['mobile'].toString() : "";
         // String memberGender = member['gender'] != null
         //     ? member['gender'].toString()
         //     : "Not specified";
         //     : "Not specified";Search
         String memberId =
-            member['user_id'] != null ? member['user_id'].toString() : "";
+        member['user_id'] != null ? member['user_id'].toString() : "";
+        String memberUId =
+        member['uid'] != null ? member['uid'].toString() : "N/A";
 
         return Container(
           padding: const EdgeInsets.all(20),
-          height: MediaQuery.of(context).size.height * 0.7,
+          height: MediaQuery.of(context).size.height * 0.65,
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -491,16 +497,16 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                       radius: 50.0,
                       backgroundColor: const Color(0xFF0B0E11),
                       backgroundImage: member['image'] != null &&
-                              member['image'] != "default.jpg"
+                          member['image'] != "default.jpg"
                           ? NetworkImage("${imagepath}${member['image']}")
                           : null,
                       child: member['image'] == null ||
-                              member['image'] == "default.jpg"
+                          member['image'] == "default.jpg"
                           ? const Icon(
-                              Icons.person,
-                              color: Colors.white,
-                              size: 50,
-                            )
+                        Icons.person,
+                        color: Colors.white,
+                        size: 50,
+                      )
                           : null,
                     ),
                     Container(
@@ -531,22 +537,22 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                     fontFamily: fontFamily,
                   ),
                 ),
-                if (memberEmail.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      memberEmail,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 14,
-                        fontFamily: fontFamily,
-                      ),
-                    ),
-                  ),
+                // if (memberEmail.isNotEmpty)
+                //   Padding(
+                //     padding: const EdgeInsets.only(top: 4),
+                //     child: Text(
+                //       memberEmail,
+                //       style: TextStyle(
+                //         color: Colors.white.withOpacity(0.7),
+                //         fontSize: 14,
+                //         fontFamily: fontFamily,
+                //       ),
+                //     ),
+                //   ),
                 const SizedBox(height: 12),
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: isActive
                         ? const Color(0xFF2EBD85).withOpacity(0.1)
@@ -590,15 +596,15 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                       ),
                       const SizedBox(height: 16),
                       // Show only UID, Rank, and Commission for all levels
-                      _buildDetailRow("User ID", memberId, Icons.badge),
+                      _buildDetailRow("User UID", memberUId, Icons.badge),
                       const Divider(color: Color(0xFF2A3A5A), height: 24),
                       _buildDetailRow("Rank", _getRankName(memberRank),
                           Icons.military_tech),
-                      const Divider(color: Color(0xFF2A3A5A), height: 24),
-                      _buildDetailRow(
-                          "Commission Rate",
-                          "${_getCommissionRate(widget.level)}%",
-                          Icons.attach_money),
+                      // const Divider(color: Color(0xFF2A3A5A), height: 24),
+                      // _buildDetailRow(
+                      //     "Commission Rate",
+                      //     "${_getCommissionRate(widget.level)}%",
+                      //     Icons.attach_money),
                     ],
                   ),
                 ),
