@@ -1733,14 +1733,16 @@ class _HomepageState extends State<Homepage> {
                     ),
                   ),
 
-                  ///  Api Binding
+                  /// Live Trading
                   FadeSlideTransition(
-                    delay: const Duration(milliseconds: 400),
+                    delay: const Duration(milliseconds: 300),
                     child: _buildGridOptionItem(
-                      icon: "assets/img/api.png",
-                      label: "API Binding",
-                      onTap: () => AnimatedNavigator.pushFromBottom(
-                          context, const ApiBinding()),
+                      icon: "assets/img/chart.png",
+                      label: "Live Trading",
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LiveTradingPage())),
                     ),
                   ),
                 ],
@@ -2042,25 +2044,31 @@ class _HomepageState extends State<Homepage> {
                 childAspectRatio: 1.3,
                 children: [
                   /// Gas Wallet
-                  _buildGridOptionItem(
-                    icon: "assets/img/make_money.png",
-                    label: "Gas Wallet",
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AutoDeposit(),
+                  FadeSlideTransition(
+                    delay: const Duration(milliseconds: 300),
+                    child: _buildGridOptionItem(
+                      icon: "assets/img/make_money.png",
+                      label: "Gas Wallet",
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AutoDeposit(),
+                        ),
                       ),
                     ),
                   ),
 
                   /// Withdrawal Wallet
-                  _buildGridOptionItem(
-                    icon: "assets/img/money-withdrawal.png",
-                    label: "Withdrawal",
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const Withdrawal(),
+                  FadeSlideTransition(
+                    delay: const Duration(milliseconds: 300),
+                    child: _buildGridOptionItem(
+                      icon: "assets/img/money-withdrawal.png",
+                      label: "Withdrawal",
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Withdrawal(),
+                        ),
                       ),
                     ),
                   ),
@@ -2189,44 +2197,54 @@ class _HomepageState extends State<Homepage> {
                 childAspectRatio: 1.3,
                 children: [
                   /// User Guide
-                  _buildGridOptionItem(
-                    icon: "assets/img/userguide.png",
-                    label: "User Guide",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const UserGuide())),
+                  FadeSlideTransition(
+                    delay: const Duration(milliseconds: 300),
+                    child: _buildGridOptionItem(
+                      icon: "assets/img/userguide.png",
+                      label: "User Guide",
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const UserGuide())),
+                    ),
                   ),
 
                   /// Videos
-                  _buildGridOptionItem(
-                    icon: "assets/img/video.png",
-                    label: "Videos",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const VideoScreen())),
+                  FadeSlideTransition(
+                    delay: const Duration(milliseconds: 300),
+                    child: _buildGridOptionItem(
+                      icon: "assets/img/video.png",
+                      label: "Videos",
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const VideoScreen())),
+                    ),
                   ),
 
-                  /// Live Trading
-                  _buildGridOptionItem(
-                    icon: "assets/img/chart.png",
-                    label: "Live Trading",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const LiveTradingPage())),
+                  ///  Api Binding
+                  FadeSlideTransition(
+                    delay: const Duration(milliseconds: 400),
+                    child: _buildGridOptionItem(
+                      icon: "assets/img/api.png",
+                      label: "API Binding",
+                      onTap: () => AnimatedNavigator.pushFromBottom(
+                          context, const ApiBinding()),
+                    ),
                   ),
 
                   /// Invite Friends
-                  _buildGridOptionItem(
-                    icon: "assets/img/invitefriend.png",
-                    label: "Invite Friends",
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                Sharescreen(reffral: widget.reffral))),
+                  FadeSlideTransition(
+                    delay: const Duration(milliseconds: 300),
+                    child: _buildGridOptionItem(
+                      icon: "assets/img/invitefriend.png",
+                      label: "Invite Friends",
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  Sharescreen(reffral: widget.reffral))),
+                    ),
                   ),
                 ],
               ),

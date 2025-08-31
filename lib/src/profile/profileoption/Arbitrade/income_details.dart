@@ -790,6 +790,25 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                         ),
                       ),
                     ),
+                  if (widget.incomeType == 'roi')
+                    const SizedBox(
+                      width: 110,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 4.0,
+                          vertical: 12,
+                        ),
+                        child: Text(
+                          'Description',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
+                    ),
                   if (_shouldShowFifthColumn())
                     const Expanded(
                       flex: 2,
@@ -878,6 +897,24 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
                         ),
                       ),
                     ),
+                    if (widget.incomeType == 'roi')
+                      SizedBox(
+                        width: 110,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4.0,
+                            vertical: 12,
+                          ),
+                          child: Text(
+                            income['package_type']?.toString() ?? 'N/A',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ),
+                      ),
                     if (_shouldShowFourthColumn())
                       SizedBox(
                         width: _shouldShowFifthColumn() ? 90 : 110,

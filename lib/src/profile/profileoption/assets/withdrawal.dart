@@ -9,6 +9,9 @@ import 'package:securetradeai/method/methods.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
 
+import 'package:securetradeai/src/Service/otp_service.dart';
+import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
+
 class Withdrawal extends StatefulWidget {
   const Withdrawal({Key? key, this.balance}) : super(key: key);
   final balance;
@@ -17,8 +20,41 @@ class Withdrawal extends StatefulWidget {
 }
 
 class _WithdrawalState extends State<Withdrawal> {
+  // Use common OtpService for sending and verifying OTP
+  Future<void> _sendOtp() async {
+    setState(() {
+      isOtpSending = true;
+    });
+    OtpService.clearRequestId();
+    final response = await OtpService.sendOtpToEmail(
+      email: commonEmail, // Use user's email for OTP
+      type: "withdrawal",
+      context: context,
+    );
+    setState(() {
+      isOtpSent = response.isSuccess;
+      isOtpSending = false;
+    });
+  }
+
+  Future<void> _verifyOtp() async {
+    setState(() {
+      isOtpVerifying = true;
+    });
+    final response = await OtpService.verifyOtpCode(
+      email: commonEmail,
+      otp: otpController.text,
+      context: context,
+    );
+    setState(() {
+      isOtpVerified = response.isSuccess;
+      isOtpVerifying = false;
+    });
+  }
+
   var address = TextEditingController();
   var amount = TextEditingController();
+  var otpController = TextEditingController();
   var transpass = TextEditingController();
   var pttnTokenvalue = TextEditingController();
 
@@ -30,6 +66,13 @@ class _WithdrawalState extends State<Withdrawal> {
   // Amount validation
   String? amountError;
   bool isAmountValid = true;
+
+  // OTP flags
+  bool isOtpSent = false;
+  bool isOtpVerified = false;
+  bool isOtpSending = false;
+  bool isOtpVerifying = false;
+  String? otpRequestId;
 
   @override
   void initState() {
@@ -301,56 +344,150 @@ class _WithdrawalState extends State<Withdrawal> {
                 const SizedBox(
                   height: 20,
                 ),
-                Row(
+
+                if (!isOtpVerified) ...[
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        child: Text(
-                          "${"OTP".tr} : ",
-                          style: const TextStyle(
+                        child: const Text(
+                          "OTP : ",
+                          style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 18),
                         ),
                       ),
-                      const SizedBox(width: 50),
+                      const Spacer(),
                       Expanded(
-                        child: Container(
-                            child: Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                color: const Color(0xfff3f3f4),
+                        child: InkWell(
+                          onTap: isOtpSending ? null : _sendOtp,
+                          child: Container(
+                            height: 40,
+                            width: MediaQuery.of(context).size.width,
+                            // padding: const EdgeInsets.symmetric(vertical: 15),
+                            alignment: Alignment.center,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  TradingTheme.secondaryAccent,
+                                  TradingTheme.secondaryAccent,
+                                ],
+                                stops: [
+                                  0.0,
+                                  0.5,
+                                ],
                               ),
                               borderRadius:
-                                  const BorderRadius.all(Radius.circular(10))),
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: TextField(
-                                obscureText: true,
-                                style: const TextStyle(color: Colors.white),
-                                controller: transpass,
-                                decoration: InputDecoration(
-                                  hintStyle: const TextStyle(
-                                      color: Colors.white70, fontSize: 13),
-                                  hintText: "Enter OTP".tr,
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
+                                  BorderRadius.all(Radius.circular(5)),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                    color: Colors.black12,
+                                    offset: Offset(2, 4),
+                                    blurRadius: 5,
+                                    spreadRadius: 2)
+                              ],
+                            ),
+                            child: isOtpSending
+                                ? const LottieLoadingWidget()
+                                : Text(
+                                    isOtpSent ? "Resend OTP" : "Send OTP",
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (isOtpSent)
+                    Container(
+                      child: Container(
+                        height: 50,
+                        margin: const EdgeInsets.symmetric(vertical: 20),
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                              color: const Color(0xfff3f3f4),
+                            ),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(10))),
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: TextField(
+                              style: const TextStyle(color: Colors.white),
+                              controller: otpController,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                hintStyle: TextStyle(
+                                    color: Colors.white70, fontSize: 13),
+                                hintText: "Please Enter OTP",
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
                               ),
+                              onChanged: (value) {},
                             ),
                           ),
-                        )),
-                      )
-                    ]),
+                        ),
+                      ),
+                    ),
+                  if (isOtpSent)
+                    InkWell(
+                      onTap: isOtpVerifying ? null : _verifyOtp,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          alignment: Alignment.center,
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                TradingTheme.secondaryAccent,
+                                TradingTheme.secondaryAccent,
+                              ],
+                              stops: [
+                                0.0,
+                                0.5,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            boxShadow: <BoxShadow>[
+                              BoxShadow(
+                                  color: Colors.black12,
+                                  offset: Offset(2, 4),
+                                  blurRadius: 5,
+                                  spreadRadius: 2)
+                            ],
+                          ),
+                          child: isOtpVerifying
+                              ? const LottieLoadingWidget()
+                              : const Text(
+                                  "Verify OTP",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    )
+                ],
 
                 const SizedBox(
                   height: 40,
                 ),
                 InkWell(
-                  onTap: isAmountValid && amountError == null
+                  onTap: isAmountValid && amountError == null && isOtpVerified
                       ? () {
                           _checkWithdrawalAbleOrNot();
                         }
@@ -364,11 +501,13 @@ class _WithdrawalState extends State<Withdrawal> {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Color(0xFFF0B90B), // Golden yellow
-                          Color(0xFFFFD700), // Bright gold
-                          Color(0xFFF0B90B), // Golden yellow
+                          TradingTheme.secondaryAccent,
+                          TradingTheme.secondaryAccent,
                         ],
-                        stops: [0.0, 0.5, 1.0],
+                        stops: [
+                          0.0,
+                          0.5,
+                        ],
                       ),
                       borderRadius: BorderRadius.all(Radius.circular(5)),
                       boxShadow: <BoxShadow>[
@@ -383,7 +522,7 @@ class _WithdrawalState extends State<Withdrawal> {
                       "withdrawal".tr,
                       style: const TextStyle(
                         fontSize: 20,
-                        color: Colors.black,
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -445,7 +584,7 @@ class _WithdrawalState extends State<Withdrawal> {
         "user_id": commonuserId,
         "amount": amount.text,
         "qty": "0.00",
-        "address": walletAddress, // Use wallet address from profile
+        "address": walletAddress,
         "password": transpass.text
       });
       print(bodydata);
