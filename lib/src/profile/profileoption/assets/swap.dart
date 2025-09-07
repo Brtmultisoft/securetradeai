@@ -21,7 +21,7 @@ class _SwapState extends State<Swap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF0D1321),
       appBar: CommonAppBar.basic(
         title: "Swap",
       ),

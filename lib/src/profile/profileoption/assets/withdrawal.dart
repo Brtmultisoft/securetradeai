@@ -138,7 +138,7 @@ class _WithdrawalState extends State<Withdrawal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color(0xFF0A0E17),
+        backgroundColor: const Color(0xFF0D1321),
         appBar: CommonAppBar.basic(
           title: 'withdrawal'.tr,
         ),
@@ -180,31 +180,6 @@ class _WithdrawalState extends State<Withdrawal> {
                 const SizedBox(
                   height: 20,
                 ),
-                // Row(
-                //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //     children: [
-                //       Container(
-                //         child: Text(
-                //           "currency".tr + " : ",
-                //           style: TextStyle(
-                //               color: Colors.white,
-                //               fontWeight: FontWeight.bold,
-                //               fontSize: 18),
-                //         ),
-                //       ),
-                //       Container(
-                //         child: const Text(
-                //           " USD(TRC-20)",
-                //           style: const TextStyle(
-                //               color: Colors.white,
-                //               fontWeight: FontWeight.bold,
-                //               fontSize: 16),
-                //         ),
-                //       )
-                //     ]),
-                // const SizedBox(
-                //   height: 20,
-                // ),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -372,13 +347,11 @@ class _WithdrawalState extends State<Withdrawal> {
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                                 colors: [
-                                  TradingTheme.secondaryAccent,
-                                  TradingTheme.secondaryAccent,
+                                  Color(0xFFF0B90B), // Golden yellow
+                                  Color(0xFFFFD700), // Bright gold
+                                  Color(0xFFF0B90B), // Golden yellow
                                 ],
-                                stops: [
-                                  0.0,
-                                  0.5,
-                                ],
+                                stops: [0.0, 0.5, 1.0],
                               ),
                               borderRadius:
                                   BorderRadius.all(Radius.circular(5)),
@@ -396,7 +369,7 @@ class _WithdrawalState extends State<Withdrawal> {
                                     isOtpSent ? "Resend OTP" : "Send OTP",
                                     style: const TextStyle(
                                       fontSize: 16,
-                                      color: Colors.white,
+                                      color: Colors.black,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -451,13 +424,11 @@ class _WithdrawalState extends State<Withdrawal> {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                TradingTheme.secondaryAccent,
-                                TradingTheme.secondaryAccent,
+                                Color(0xFFF0B90B), // Golden yellow
+                                Color(0xFFFFD700), // Bright gold
+                                Color(0xFFF0B90B), // Golden yellow
                               ],
-                              stops: [
-                                0.0,
-                                0.5,
-                              ],
+                              stops: [0.0, 0.5, 1.0],
                             ),
                             borderRadius: BorderRadius.all(Radius.circular(5)),
                             boxShadow: <BoxShadow>[
@@ -474,7 +445,7 @@ class _WithdrawalState extends State<Withdrawal> {
                                   "Verify OTP",
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.white,
+                                    color: Colors.black,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -501,13 +472,11 @@ class _WithdrawalState extends State<Withdrawal> {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          TradingTheme.secondaryAccent,
-                          TradingTheme.secondaryAccent,
+                          Color(0xFFF0B90B),
+                          Color(0xFFFFD700),
+                          Color(0xFFF0B90B),
                         ],
-                        stops: [
-                          0.0,
-                          0.5,
-                        ],
+                        stops: [0.0, 0.5, 1.0],
                       ),
                       borderRadius: BorderRadius.all(Radius.circular(5)),
                       boxShadow: <BoxShadow>[
@@ -522,7 +491,7 @@ class _WithdrawalState extends State<Withdrawal> {
                       "withdrawal".tr,
                       style: const TextStyle(
                         fontSize: 20,
-                        color: Colors.white,
+                        color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
