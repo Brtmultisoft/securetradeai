@@ -9,12 +9,12 @@ class WebProxyService {
   
   static Future<http.Response> get(String url, {Duration? timeout}) async {
     if (!kIsWeb) {
-      return await http.get(Uri.parse(url)).timeout(timeout ?? const Duration(seconds: 15));
+      return await http.get(Uri.parse(url)).timeout(timeout ?? const Duration(seconds: 30));
     }
-    
+
     try {
       // Try direct request first
-      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 5));
+      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
       return response;
     } catch (e) {
       if (kDebugMode) {
@@ -24,7 +24,7 @@ class WebProxyService {
       // Try with CORS proxy
       try {
         final proxyUrl = '$altProxy${Uri.encodeComponent(url)}';
-        return await http.get(Uri.parse(proxyUrl)).timeout(timeout ?? const Duration(seconds: 15));
+        return await http.get(Uri.parse(proxyUrl)).timeout(timeout ?? const Duration(seconds: 30));
       } catch (proxyError) {
         if (kDebugMode) {
           print('❌ Proxy request also failed: $proxyError');
@@ -40,7 +40,7 @@ class WebProxyService {
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
         body: body,
-      ).timeout(timeout ?? const Duration(seconds: 15));
+      ).timeout(timeout ?? const Duration(seconds: 30));
     }
 
     try {
@@ -49,7 +49,7 @@ class WebProxyService {
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
         body: body,
-      ).timeout(timeout ?? const Duration(seconds: 15));
+      ).timeout(timeout ?? const Duration(seconds: 30));
     } catch (e) {
       if (kDebugMode) {
         print('❌ Web POST failed: $e');

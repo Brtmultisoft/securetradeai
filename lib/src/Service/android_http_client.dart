@@ -54,7 +54,7 @@ class AndroidHttpClient {
         url,
         headers: finalHeaders,
         body: body,
-      ).timeout(timeout ?? const Duration(seconds: 15));
+      ).timeout(timeout ?? const Duration(seconds: 30));
       
       if (kDebugMode) {
         print('📱 Android Response:');
@@ -100,7 +100,7 @@ class AndroidHttpClient {
       final response = await client.get(
         url,
         headers: finalHeaders,
-      ).timeout(timeout ?? const Duration(seconds: 15));
+      ).timeout(timeout ?? const Duration(seconds: 30));
       
       if (kDebugMode) {
         print('📱 Android Response:');

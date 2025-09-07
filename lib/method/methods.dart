@@ -62,11 +62,31 @@ class CommonMethod {
   }
 
   Future<AssetTransactiondetail> getAssetTransactionDetail(int page) async {
-    final res = await http.post(Uri.parse(transactionDetail),
-        body: jsonEncode(
-            {"user_id": commonuserId, "page": page.toString(), "size": "100"}));
-    print(res.body);
-    return transactiondetailFromJson(res.body);
+    try {
+      print('🔄 CommonMethod: Making asset transaction API call...');
+      final res = await HttpService.post(
+        transactionDetail,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({
+          "user_id": commonuserId,
+          "page": page.toString(),
+          "size": "100"
+        }),
+        timeout: const Duration(seconds: 30),
+      );
+
+      print('✅ CommonMethod: Asset transaction API response received');
+      print('📊 Response status: ${res.statusCode}');
+      print('📊 Response body length: ${res.body.length}');
+
+      return transactiondetailFromJson(res.body);
+    } catch (e) {
+      print('❌ CommonMethod: Asset transaction API error: $e');
+      rethrow;
+    }
   }
 
   Future<DepositTransactiondetail> getDepositTransactionDetail(int page) async {
