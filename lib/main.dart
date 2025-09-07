@@ -54,12 +54,17 @@ class MyApp extends StatelessWidget {
       ],
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'SecureTradeAi',
+        title: 'SecureTradeAI - Crypto Trading Platform',
         translations: LocaleString(),
         locale: Get.deviceLocale,
         fallbackLocale: const Locale('en', 'US'),
         theme: ThemeData(
           appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF171d28)),
+          scaffoldBackgroundColor: const Color(0xFF0A0E17),
+          primarySwatch: Colors.blue,
+          primaryColor: const Color(0xFFF0B90B),
+          fontFamily: 'Ubuntu',
+          visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: const SplashScreen(),
       ),

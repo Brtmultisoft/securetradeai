@@ -433,8 +433,7 @@ class _SpotTradingServiceState extends State<SpotTradingService> {
                                       // Coins List
                                       Expanded(
                                         child: ListView.builder(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8),
+                                          padding: const EdgeInsets.symmetric(horizontal: 8),
                                           itemCount: repo
                                               .final_Quantitative_data.length,
                                           itemBuilder: (context, index) {
@@ -498,8 +497,7 @@ class _SpotTradingServiceState extends State<SpotTradingService> {
                                                         ? false
                                                         : true,
                                                 child: Container(
-                                                  margin: const EdgeInsets
-                                                      .symmetric(vertical: 8),
+                                                  margin: const EdgeInsets.symmetric(vertical: 8),
                                                   decoration: BoxDecoration(
                                                     color:
                                                         const Color(0xFF1A2234),

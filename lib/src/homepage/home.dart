@@ -20,6 +20,7 @@ import 'package:securetradeai/src/more/revenue.dart';
 import 'package:securetradeai/src/more/userguide.dart';
 import 'package:securetradeai/src/more/videos.dart';
 import 'package:securetradeai/src/more/live_trading.dart';
+import 'package:securetradeai/src/pages/mobile_only_features.dart';
 import 'package:securetradeai/src/profile/profileoption/APIBinding/apibinding.dart';
 import 'package:securetradeai/src/profile/profileoption/BotTradingBonus.dart';
 import 'package:securetradeai/src/profile/profileoption/Arbitrade/arbitrade.dart';
@@ -31,6 +32,7 @@ import 'package:securetradeai/src/widget/enhanced_loading.dart';
 import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 import 'package:securetradeai/src/widget/page_transitions.dart';
 import 'package:securetradeai/src/widget/trading_animations.dart';
+import 'package:securetradeai/src/widget/responsive_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -41,12 +43,6 @@ import '../profile/profileoption/assets/auto_deposit.dart';
 import '../profile/profileoption/share/share.dart';
 import '../tabscreen/tabscreen.dart';
 import '../versionpopup/popupdesign.dart';
-
-// OPTIMIZATION: Import optimized services and widgets (ready for future use)
-// import '../Service/optimized_background_manager.dart';
-// import '../Service/optimized_data_processor.dart';
-// import '../Service/optimized_bot_service.dart';
-// import '../widget/optimized_image.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({
@@ -143,11 +139,12 @@ class _HomepageState extends State<Homepage> {
   }
 
   _everscountHitMethod() {
+    if (!mounted) return;
     final bannerdata = Provider.of<HomePageProvider>(context, listen: false);
     if (exchanger == "null" || exchanger == "Binance") {
       var a = bannerdata.homePageAllRecords(indexvalue);
       a.then((value) {
-        if (value == true) {
+        if (mounted && value == true) {
           showtoast("No Internet", context);
         }
       });
@@ -210,32 +207,20 @@ class _HomepageState extends State<Homepage> {
   // Version check method
   Future<void> _checkAppVersion() async {
     try {
-      print('🔍 Starting version check process...');
-      print('🌐 API Endpoint: $getversion');
 
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
-      print('📱 Current app version: ${packageInfo.version}');
-      print('📱 App name: ${packageInfo.appName}');
-      print('📱 Package name: ${packageInfo.packageName}');
-      print('📱 Build number: ${packageInfo.buildNumber}');
 
-      print('🚀 Making API request to version check endpoint...');
-
-      // Add a timeout to prevent getting stuck
+      // Add a longer timeout for web deployments
       final res = await http
           .get(Uri.parse(getversion))
-          .timeout(Duration(seconds: 10), onTimeout: () {
-        print('⚠️ Version check timed out after 10 seconds');
+          .timeout(Duration(seconds: 30), onTimeout: () {
+        print('⚠️ Version check timed out after 30 seconds');
+        print('! Continuing with app execution');
+        print('! Version check timed out after 30 seconds');
         return http.Response('{"status":"timeout"}', 408);
       });
 
-      print('📡 HTTP Status Code: ${res.statusCode}');
-      print('📡 Response Headers: ${res.headers}');
-      print('🌐 Raw API Response: ${res.body}');
-
       if (res.statusCode != 200) {
-        print('❌ Version check failed with HTTP status: ${res.statusCode}');
-        print('⚠️ Continuing with app execution');
         return;
       }
 
@@ -249,19 +234,8 @@ class _HomepageState extends State<Homepage> {
         // Extract major version number for comparison (e.g., "2.0.0" -> "2")
         String currentMajorVersion = currentVersion.split('.')[0];
 
-        print('🔍 VERSION COMPARISON:');
-        print('   📦 Server version: "$serverVersion"');
-        print('   📱 Current version: "$currentVersion"');
-        print('   📱 Current major version: "$currentMajorVersion"');
-        print('   🔄 Versions match: ${serverVersion == currentMajorVersion}');
-
         // Fixed version check logic - compare server version with major version
         if (serverVersion != currentMajorVersion) {
-          print('🚨 UPDATE REQUIRED!');
-          print('   ⬆️ Server has version: $serverVersion');
-          print('   📱 App has version: $currentVersion');
-          print('   🔔 Showing update dialog...');
-
           if (mounted) {
             showDialog(
                 context: context,
@@ -274,29 +248,18 @@ class _HomepageState extends State<Homepage> {
                         "A new version is available. Please update to continue using the app.",
                     text: "Download Latest Version",
                     onclick: () {
-                      print(
-                          '🌐 User clicked update button, redirecting to website...');
-                      // Redirect to website for download instead of app store
                       _launchURL('https://securetradeai.com');
                     },
                   );
                 });
           }
         } else {
-          print('✅ VERSION CHECK PASSED!');
-          print(
-              '   📱 App is up to date with version: $currentVersion (major: $currentMajorVersion)');
-          print('   ➡️ Continuing with normal app flow...');
+
         }
       } else {
-        print('❌ API returned error status: ${jsondata['status']}');
-        print('📋 Full response: $jsondata');
-        print('⚠️ Continuing with app execution despite version check failure');
+
       }
     } catch (e) {
-      print('❌ Error in version check: $e');
-      print('🔍 Exception details: ${e.toString()}');
-      print('⚠️ Continuing with app execution despite version check error');
     }
   }
 
@@ -499,7 +462,7 @@ class _HomepageState extends State<Homepage> {
                   Color(0xFF0F1419),
                   Color(0xFF0A0E17),
                 ],
-                stops: [0.0, 0.5, 1.0],
+                stops: const [0.0, 0.5, 1.0],
               ),
             ),
             child: DefaultTabController(
@@ -512,129 +475,130 @@ class _HomepageState extends State<Homepage> {
                       delegate: SliverChildListDelegate([
                         const SizedBox(height: 15.0),
                         _homeHeader(context),
-                        // Enhanced banner carousel with better styling
-                        FadeSlideTransition(
-                          delay: const Duration(milliseconds: 200),
-                          child: Consumer<HomePageProvider>(
-                              builder: (context, banner, child) {
-                            return CarouselSlider.builder(
-                              itemCount: banner.bannerList.length,
-                              itemBuilder: (context, index, realIndex) {
-                                return banner.bannerList.isEmpty
-                                    ? EnhancedShimmer(
-                                        baseColor: const Color(0xFF1A2234),
-                                        highlightColor: const Color(0xFF2A3A5A),
-                                        direction: ShimmerDirection.leftToRight,
-                                        child: Container(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width -
-                                              30,
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.5,
+                        // Enhanced banner carousel - only show on mobile
+                        if (!ResponsiveUtils.isWeb(context))
+                          FadeSlideTransition(
+                            delay: const Duration(milliseconds: 200),
+                            child: Consumer<HomePageProvider>(
+                                builder: (context, banner, child) {
+                              return CarouselSlider.builder(
+                                itemCount: banner.bannerList.length,
+                                itemBuilder: (context, index, realIndex) {
+                                  return banner.bannerList.isEmpty
+                                      ? EnhancedShimmer(
+                                          baseColor: const Color(0xFF1A2234),
+                                          highlightColor: const Color(0xFF2A3A5A),
+                                          direction: ShimmerDirection.leftToRight,
+                                          child: Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width -
+                                                30,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.5,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFF1A2234),
+                                              borderRadius:
+                                                  BorderRadius.circular(20.0),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: const Color(0xFFF0B90B)
+                                                      .withOpacity(0.1),
+                                                  spreadRadius: 0,
+                                                  blurRadius: 20,
+                                                  offset: const Offset(0, 8),
+                                                ),
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withOpacity(0.4),
+                                                  spreadRadius: 0,
+                                                  blurRadius: 15,
+                                                  offset: const Offset(0, 5),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      : Container(
+                                          width:
+                                              MediaQuery.of(context).size.width -
+                                                  30,
+                                          height:
+                                              MediaQuery.of(context).size.height *
+                                                  0.5,
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFF1A2234),
                                             borderRadius:
                                                 BorderRadius.circular(20.0),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: const Color(0xFFF0B90B)
-                                                    .withOpacity(0.1),
-                                                spreadRadius: 0,
-                                                blurRadius: 20,
-                                                offset: const Offset(0, 8),
-                                              ),
-                                              BoxShadow(
-                                                color: Colors.black
-                                                    .withOpacity(0.4),
-                                                spreadRadius: 0,
-                                                blurRadius: 15,
-                                                offset: const Offset(0, 5),
-                                              ),
-                                            ],
                                           ),
-                                        ),
-                                      )
-                                    : Container(
-                                        width:
-                                            MediaQuery.of(context).size.width -
-                                                30,
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.5,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(20.0),
-                                        ),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(20.0),
-                                          child: Stack(
-                                            children: [
-                                              // Background image
-                                              Positioned.fill(
-                                                child: Image.network(
-                                                  path +
-                                                      banner.bannerList[index]
-                                                          .bannerImage,
-                                                  fit: BoxFit.fill,
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Container(
-                                                      color: const Color(
-                                                          0xFF1A2234),
-                                                      child: const Center(
-                                                        child: Icon(
-                                                          Icons
-                                                              .image_not_supported,
-                                                          color:
-                                                              Color(0xFF848E9C),
-                                                          size: 50,
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(20.0),
+                                            child: Stack(
+                                              children: [
+                                                // Background image
+                                                Positioned.fill(
+                                                  child: Image.network(
+                                                    path +
+                                                        banner.bannerList[index]
+                                                            .bannerImage,
+                                                    fit: BoxFit.fill,
+                                                    errorBuilder: (context, error,
+                                                        stackTrace) {
+                                                      return Container(
+                                                        color: const Color(
+                                                            0xFF1A2234),
+                                                        child: const Center(
+                                                          child: Icon(
+                                                            Icons
+                                                                .image_not_supported,
+                                                            color:
+                                                                Color(0xFF848E9C),
+                                                            size: 50,
+                                                          ),
                                                         ),
-                                                      ),
-                                                    );
-                                                  },
+                                                      );
+                                                    },
+                                                  ),
                                                 ),
-                                              ),
-                                              // Gradient overlay for better text readability
-                                              Positioned.fill(
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    gradient: LinearGradient(
-                                                      begin:
-                                                          Alignment.topCenter,
-                                                      end: Alignment
-                                                          .bottomCenter,
-                                                      colors: [
-                                                        Colors.transparent,
-                                                        Colors.black
-                                                            .withOpacity(0.3),
-                                                      ],
+                                                // Gradient overlay for better text readability
+                                                Positioned.fill(
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        begin:
+                                                            Alignment.topCenter,
+                                                        end: Alignment
+                                                            .bottomCenter,
+                                                        colors: [
+                                                          Colors.transparent,
+                                                          Colors.black
+                                                              .withOpacity(0.3),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      );
-                              },
-                              options: CarouselOptions(
-                                initialPage: 0,
-                                aspectRatio: 16 / 8,
-                                viewportFraction: 1.0,
-                                autoPlay: true,
-                                autoPlayAnimationDuration:
-                                    const Duration(milliseconds: 1000),
-                                autoPlayCurve: Curves.easeInOutCubic,
-                                enlargeCenterPage: false,
-                                scrollDirection: Axis.horizontal,
-                              ),
-                            );
-                          }),
-                        ),
+                                        );
+                                },
+                                options: CarouselOptions(
+                                  initialPage: 0,
+                                  aspectRatio: 16 / 8,
+                                  viewportFraction: 1.0,
+                                  autoPlay: true,
+                                  autoPlayAnimationDuration:
+                                      const Duration(milliseconds: 1000),
+                                  autoPlayCurve: Curves.easeInOutCubic,
+                                  enlargeCenterPage: false,
+                                  scrollDirection: Axis.horizontal,
+                                ),
+                              );
+                            }),
+                          ),
                         const SizedBox(height: 10),
                         options(),
                       ]),
@@ -1359,7 +1323,7 @@ class _HomepageState extends State<Homepage> {
     const Color cardBorder = Color(0xFF2A3A5A);
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      margin: ResponsiveUtils.getResponsiveMargin(context),
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1691,16 +1655,16 @@ class _HomepageState extends State<Homepage> {
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              padding: ResponsiveUtils.getResponsivePadding(context),
               child: GridView.count(
-                crossAxisCount: 2,
+                crossAxisCount: ResponsiveUtils.getGridCrossAxisCount(context),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 1.3,
+                mainAxisSpacing: ResponsiveUtils.isWeb(context) ? 16 : 10,
+                crossAxisSpacing: ResponsiveUtils.isWeb(context) ? 16 : 10,
+                childAspectRatio: ResponsiveUtils.isWeb(context) ? 1.4 : 1.3,
                 children: [
-                  /// Arbitrade
+                  /// Arbitrade - Always visible
                   FadeSlideTransition(
                     delay: const Duration(milliseconds: 100),
                     child: _buildGridOptionItem(
@@ -1717,32 +1681,39 @@ class _HomepageState extends State<Homepage> {
                     child: _buildGridOptionItem(
                       icon: "assets/img/spot_trading.png",
                       label: "Spot Trading",
-                      onTap: () => AnimatedNavigator.pushFadeScale(
-                          context, const SpotTradingService()),
+                      onTap: () => ResponsiveUtils.isWeb(context)
+                          ? AnimatedNavigator.pushFadeScale(
+                              context, const MobileOnlyFeaturesPage(specificFeature: "Spot Trading"))
+                          : AnimatedNavigator.pushFadeScale(
+                              context, const SpotTradingService()),
                     ),
                   ),
 
-                  /// future trading
+                  /// Future trading
                   FadeSlideTransition(
                     delay: const Duration(milliseconds: 300),
                     child: _buildGridOptionItem(
                       icon: "assets/img/future_trading.png",
                       label: "Future Trading",
-                      onTap: () => AnimatedNavigator.pushFadeScale(
-                          context, const FutureTradingSection()),
+                      onTap: () => ResponsiveUtils.isWeb(context)
+                          ? AnimatedNavigator.pushFadeScale(
+                              context, const MobileOnlyFeaturesPage(specificFeature: "Future Trading"))
+                          : AnimatedNavigator.pushFadeScale(
+                              context, const FutureTradingSection()),
                     ),
                   ),
 
                   /// Live Trading
                   FadeSlideTransition(
-                    delay: const Duration(milliseconds: 300),
+                    delay: const Duration(milliseconds: 400),
                     child: _buildGridOptionItem(
                       icon: "assets/img/chart.png",
                       label: "Live Trading",
-                      onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const LiveTradingPage())),
+                      onTap: () =>
+                           Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const LiveTradingPage())),
                     ),
                   ),
                 ],
@@ -1837,7 +1808,6 @@ class _HomepageState extends State<Homepage> {
                   Color(0xFF181C22),
                   Color(0xFF161A1E),
                 ],
-                stops: [0.0, 0.5, 1.0],
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
@@ -1860,14 +1830,14 @@ class _HomepageState extends State<Homepage> {
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              padding: ResponsiveUtils.getResponsivePadding(context),
               child: GridView.count(
-                crossAxisCount: 2,
+                crossAxisCount: ResponsiveUtils.getGridCrossAxisCount(context),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 1.3,
+                mainAxisSpacing: ResponsiveUtils.isWeb(context) ? 16 : 10,
+                crossAxisSpacing: ResponsiveUtils.isWeb(context) ? 16 : 10,
+                childAspectRatio: ResponsiveUtils.isWeb(context) ? 1.4 : 1.3,
                 children: [
                   /// Trading Revenue
                   FadeSlideTransition(
@@ -2011,7 +1981,6 @@ class _HomepageState extends State<Homepage> {
                   Color(0xFF181C22),
                   Color(0xFF161A1E),
                 ],
-                stops: [0.0, 0.5, 1.0],
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
@@ -2034,14 +2003,14 @@ class _HomepageState extends State<Homepage> {
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              padding: ResponsiveUtils.getResponsivePadding(context),
               child: GridView.count(
-                crossAxisCount: 2,
+                crossAxisCount: ResponsiveUtils.getGridCrossAxisCount(context),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 1.3,
+                mainAxisSpacing: ResponsiveUtils.isWeb(context) ? 16 : 10,
+                crossAxisSpacing: ResponsiveUtils.isWeb(context) ? 16 : 10,
+                childAspectRatio: ResponsiveUtils.isWeb(context) ? 1.4 : 1.3,
                 children: [
                   /// Gas Wallet
                   FadeSlideTransition(
@@ -2164,7 +2133,6 @@ class _HomepageState extends State<Homepage> {
                   Color(0xFF181C22),
                   Color(0xFF161A1E),
                 ],
-                stops: [0.0, 0.5, 1.0],
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
@@ -2187,14 +2155,14 @@ class _HomepageState extends State<Homepage> {
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              padding: ResponsiveUtils.getResponsivePadding(context),
               child: GridView.count(
-                crossAxisCount: 2,
+                crossAxisCount: ResponsiveUtils.getGridCrossAxisCount(context),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 1.3,
+                mainAxisSpacing: ResponsiveUtils.isWeb(context) ? 16 : 10,
+                crossAxisSpacing: ResponsiveUtils.isWeb(context) ? 16 : 10,
+                childAspectRatio: ResponsiveUtils.isWeb(context) ? 1.4 : 1.3,
                 children: [
                   /// User Guide
                   FadeSlideTransition(
@@ -2407,10 +2375,10 @@ class _HomepageState extends State<Homepage> {
                     Text(
                       label,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
                         letterSpacing: 0.2,
                         height: 1.2,
                       ),

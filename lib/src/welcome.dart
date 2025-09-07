@@ -69,10 +69,12 @@ class _WelcomePageState extends State<WelcomePage> {
 
       print('🚀 Making API request to version check endpoint...');
 
-      // Add a timeout to prevent getting stuck
+      // Add a longer timeout for web deployments
       final res = await http.get(Uri.parse(getversion))
-          .timeout(Duration(seconds: 10), onTimeout: () {
-        print('⚠️ Version check timed out after 10 seconds, proceeding to login');
+          .timeout(Duration(seconds: 30), onTimeout: () {
+        print('⚠️ Version check timed out after 30 seconds, proceeding to login');
+        print('! Continuing with app execution');
+        print('! Version check timed out after 30 seconds');
         return http.Response('{"status":"timeout"}', 408);
       });
 
@@ -80,7 +82,13 @@ class _WelcomePageState extends State<WelcomePage> {
       print('📡 Response Headers: ${res.headers}');
       print('🌐 Raw API Response: ${res.body}');
 
-      if (res.statusCode != 200) {
+      if (res.statusCode == 408) {
+        print('❌ Version check failed with HTTP status: ${res.statusCode}');
+        print('! Continuing with app execution');
+        print('! Version check timed out after 30 seconds');
+        _proceedToLogin();
+        return;
+      } else if (res.statusCode != 200) {
         print('❌ Version check failed with HTTP status: ${res.statusCode}');
         print('⚠️ Proceeding to login due to API failure');
         _proceedToLogin();

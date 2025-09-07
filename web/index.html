@@ -18,21 +18,139 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="SecureTradeAI - Advanced Cryptocurrency Trading Platform with AI-powered bots">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Content-Security-Policy" content="img-src 'self' data: https: http: blob:; default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https: http: blob:; connect-src 'self' https: http: wss: ws:;">
+
+  <!-- Performance optimizations -->
+  <meta name="theme-color" content="#F0B90B">
+  <meta name="msapplication-TileColor" content="#F0B90B">
+  <meta name="msapplication-TileImage" content="icons/Icon-192.png">
+
+  <!-- Preload critical resources -->
+  <link rel="preload" href="main.dart.js" as="script">
+  <link rel="preload" href="flutter.js" as="script">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="securetradeai">
+  <meta name="apple-mobile-web-app-title" content="SecureTradeAI">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
-  <title>securetradeai</title>
+  <title>SecureTradeAI - Crypto Trading Platform</title>
   <link rel="manifest" href="manifest.json">
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0A0E17;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow-x: hidden;
+    }
+    
+    /* Loading screen */
+    .loading-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0A0E17 0%, #0F1419 50%, #0A0E17 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    
+    .loading-content {
+      text-align: center;
+      color: white;
+    }
+    
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid #2A3A5A;
+      border-top: 3px solid #F0B90B;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Performance optimizations */
+    * {
+      box-sizing: border-box;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      body {
+        font-size: 12px;
+      }
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        font-size: 14px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      body {
+        font-size: 16px;
+      }
+    }
+
+    @media (min-width: 1440px) {
+      body {
+        font-size: 18px;
+      }
+    }
+    
+    /* Hide scrollbars but keep functionality */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #1A2234;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #4A90E2;
+      border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #357ABD;
+    }
+  </style>
 </head>
 <body>
+  <!-- Loading screen -->
+  <div class="loading-container" id="loading">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <h2 style="color: #F0B90B; margin: 0;">SecureTradeAI</h2>
+      <p style="color: #848E9C; margin: 10px 0 0 0;">Loading your trading platform...</p>
+    </div>
+  </div>
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
        https://developers.google.com/web/fundamentals/primers/service-workers -->
+  <script src="cors_proxy.js"></script>
   <script>
     var serviceWorkerVersion = null;
     var scriptLoaded = false;
@@ -44,6 +162,19 @@
       var scriptTag = document.createElement('script');
       scriptTag.src = 'main.dart.js';
       scriptTag.type = 'application/javascript';
+      scriptTag.onload = function() {
+        // Hide loading screen once Flutter app loads
+        setTimeout(function() {
+          var loading = document.getElementById('loading');
+          if (loading) {
+            loading.style.opacity = '0';
+            loading.style.transition = 'opacity 0.5s ease-out';
+            setTimeout(function() {
+              loading.style.display = 'none';
+            }, 500);
+          }
+        }, 1000);
+      };
       document.body.append(scriptTag);
     }
 

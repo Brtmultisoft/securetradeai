@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:securetradeai/Data/Api.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/method/methods.dart';
+import 'package:securetradeai/src/Service/http_service.dart';
 
 class HomePageProvider extends ChangeNotifier {
   List bannerList = [];
@@ -47,9 +48,13 @@ class HomePageProvider extends ChangeNotifier {
 
 // hare is start finallist of data code
   getassets() async {
-    final res = await http.get(Uri.parse(cryptoassets));
-    var response = jsonDecode(res.body);
-    assets = response['data'];
+    try {
+      final res = await HttpService.get(cryptoassets);
+      var response = jsonDecode(res.body);
+      assets = response['data'];
+    } catch (e) {
+      print('Error loading assets: $e');
+    }
     notifyListeners();
   }
 
@@ -58,8 +63,7 @@ class HomePageProvider extends ChangeNotifier {
     transactionRecord.clear();
     check_TransactionData = false;
     try {
-      final res = await http.post(Uri.parse(txnallRecords),
-          body: json.encode({"user_id": commonuserId}));
+      final res = await HttpService.postJson(txnallRecords, {"user_id": commonuserId});
       if (res.statusCode == 200) {
         var data = jsonDecode(res.body);
         if (data['status'] == "success") {
@@ -71,7 +75,7 @@ class HomePageProvider extends ChangeNotifier {
         print("Server Error");
       }
     } catch (e) {
-      print(e);
+      print('Error loading transaction records: $e');
     }
     notifyListeners();
   }
@@ -79,8 +83,7 @@ class HomePageProvider extends ChangeNotifier {
   gettxnAllrecordHuobi() async {
     transactionRecord.clear();
     try {
-      final res = await http.post(Uri.parse(txnallRecordshuobi),
-          body: json.encode({"user_id": commonuserId}));
+      final res = await HttpService.postJson(txnallRecordshuobi, {"user_id": commonuserId});
       if (res.statusCode == 200) {
         var data = jsonDecode(res.body);
         if (data['status'] == "success") {
@@ -92,28 +95,28 @@ class HomePageProvider extends ChangeNotifier {
         print("Server Error");
       }
     } catch (e) {
-      print(e);
+      print('Error loading Huobi transaction records: $e');
     }
     notifyListeners();
   }
 
   Future<bool> homePageAllRecords(int index) async {
     try {
-      final url = Uri.parse("https://api.binance.com/api/v3/ticker/24hr");
-      final response = await http.get(url);
+      final response = await HttpService.get("https://api.binance.com/api/v3/ticker/24hr");
       if (response.statusCode == 200) {
         homePageTxnRecords = jsonDecode(response.body);
         if (index == 0) {
           homepageListdata(homePageTxnRecords, transactionRecord);
         }
       } else {
-        print("exeption");
+        print("API Error: ${response.statusCode}");
       }
       return false;
     } on SocketException catch (exception) {
+      print('Network error: $exception');
       return true;
     } catch (error) {
-      print(error);
+      print('Error loading Binance data: $error');
       return false;
     }
   }
@@ -206,21 +209,24 @@ class HomePageProvider extends ChangeNotifier {
 
   // when user select huobi exchanger
   huobiassets(int index) async {
-    final res =
-        await http.get(Uri.parse("https://api.huobi.pro/market/tickers"));
-    if (res.statusCode == 200) {
-      var data = jsonDecode(res.body);
-      huobidata = data['data'];
-      if (index == 0) {
-        homepageListdataHuobi(huobidata, transactionRecordhuobi);
-      } else if (index == 1) {
-        huobicommonMethod();
-      } else if (index == 2) {
+    try {
+      final res = await HttpService.get("https://api.huobi.pro/market/tickers");
+      if (res.statusCode == 200) {
+        var data = jsonDecode(res.body);
+        huobidata = data['data'];
+        if (index == 0) {
+          homepageListdataHuobi(huobidata, transactionRecordhuobi);
+        } else if (index == 1) {
+          huobicommonMethod();
+        } else if (index == 2) {
+        } else {
+          print("huobiassets Error");
+        }
       } else {
-        print("huobiassets Error");
+        print("Huobi server error: ${res.statusCode}");
       }
-    } else {
-      print("huobi server error");
+    } catch (e) {
+      print('Error loading Huobi data: $e');
     }
   }
 

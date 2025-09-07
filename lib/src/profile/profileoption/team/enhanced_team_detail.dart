@@ -194,6 +194,9 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
               String memberEmail = widget.data[i]['email'] != null
                   ? widget.data[i]['email'].toString()
                   : "";
+              String memberPhoneNumber = widget.data[i]['mobile'] != null
+                  ? widget.data[i]['mobile'].toString()
+                  : "";
 
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -598,8 +601,14 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                       // Show only UID, Rank, and Commission for all levels
                       _buildDetailRow("User UID", memberUId, Icons.badge),
                       const Divider(color: Color(0xFF2A3A5A), height: 24),
+
+                      if (widget.level == "1") ...[                      
+                        _buildDetailRow("Mobile Number", memberMobile, Icons.phone),
+                        const Divider(color: Color(0xFF2A3A5A), height: 24),
+                      ],
                       _buildDetailRow("Rank", _getRankName(memberRank),
                           Icons.military_tech),
+
                       // const Divider(color: Color(0xFF2A3A5A), height: 24),
                       // _buildDetailRow(
                       //     "Commission Rate",

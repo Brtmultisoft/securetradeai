@@ -16,6 +16,7 @@ import 'package:securetradeai/model/levelIncomeModel.dart';
 import 'package:securetradeai/model/revenueModel.dart';
 import 'package:securetradeai/model/userInvestmentsModel.dart';
 import 'package:securetradeai/model/userRankModel.dart';
+import 'package:securetradeai/src/Service/http_service.dart';
 
 import '../model/AssettransactionModel.dart';
 import '../model/DeposittransactionModel.dart';
@@ -24,17 +25,17 @@ import '../model/QuatitatuveModelclass.dart';
 
 class CommonMethod {
   Future<Banner> getHomePgeBanner() async {
-    final response = await http.get(
-      Uri.parse(bannerImage),
-      headers: {'Content-Type': 'application/json', 'Charset': 'utf-8'},
+    final response = await HttpService.get(
+      bannerImage,
+      headers: {'Charset': 'utf-8'},
     );
     return bannerFromJson(response.body);
   }
 
   Future<Newsmodel> getNews() async {
-    final response = await http.get(
-      Uri.parse(newsApi),
-      headers: {'Content-Type': 'application/json', 'Charset': 'utf-8'},
+    final response = await HttpService.get(
+      newsApi,
+      headers: {'Charset': 'utf-8'},
     );
     log(response.body.toString());
     return newsFromJson(response.body);
@@ -144,8 +145,7 @@ class CommonMethod {
   }
 
   static Future<List<Quantitum>> getquantitative(String query) async {
-    final url = Uri.parse("https://api.binance.com/api/v3/ticker/24hr");
-    final response = await http.get(url);
+    final response = await HttpService.get("https://api.binance.com/api/v3/ticker/24hr");
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);
       return data.map((json) => Quantitum.fromJson(json)).where((data) {
@@ -161,19 +161,23 @@ class CommonMethod {
 
   Future<double> getCurrency(double amount) async {
     double price = 0.0;
-    final res = await http.get(Uri.parse(multicurrency));
-    if (res.statusCode == 200) {
-      var data = jsonDecode(res.body);
-      var finaldata = data['data'] as List;
-      for (var element in finaldata) {
-        var finalcurrency = currentCurrency == "null" ? "USD" : currentCurrency;
-        if (element['symbol'] == finalcurrency) {
-          price = double.parse(element['price']);
-          print(price);
+    try {
+      final res = await HttpService.get(multicurrency);
+      if (res.statusCode == 200) {
+        var data = jsonDecode(res.body);
+        var finaldata = data['data'] as List;
+        for (var element in finaldata) {
+          var finalcurrency = currentCurrency == "null" ? "USD" : currentCurrency;
+          if (element['symbol'] == finalcurrency) {
+            price = double.parse(element['price']);
+            print(price);
+          }
         }
+      } else {
+        print("Currency data not found");
       }
-    } else {
-      print("data not found");
+    } catch (e) {
+      print("Error loading currency: $e");
     }
     return price;
   }

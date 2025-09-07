@@ -253,7 +253,7 @@ class SharescreenState extends State<Sharescreen> {
                         color: const Color(0xFF4A90E2),
                         onTap: () {
                           Share.share(
-                            'Hey! Join Secure Trade Ai and start earning with crypto trading. Use my invite code: ${widget.reffral}',
+                            '🚀 *SecureTradeAI - Crypto Trading Platform*\n\n💰 Join me on SecureTradeAI and start earning with automated crypto trading!\n\n✅ *Features:*\n• Automated Trading Bots\n• Real-time Market Analysis\n• Multi-Exchange Support\n• Secure & Reliable Platform\n\n🎁 *Use my invite code:* ${widget.reffral}\n\n🌐 *Download & Register:*\nhttps://securetradeai.com/\n\n💎 Start your crypto journey today!',
                           );
                         },
                       ),
@@ -263,8 +263,8 @@ class SharescreenState extends State<Sharescreen> {
                         color: const Color(0xFF2EBD85),
                         onTap: () {
                           Share.share(
-                            'Hey! Join Secure Trade Ai and start earning with crypto trading. Use my invite code: ${widget.reffral}',
-                            subject: 'Join Secure Trade Ai - Invitation',
+                            '🚀 SecureTradeAI - Crypto Trading Platform\n\n💰 Join me on SecureTradeAI and start earning with automated crypto trading!\n\n✅ Features:\n• Automated Trading Bots\n• Real-time Market Analysis\n• Multi-Exchange Support\n• Secure & Reliable Platform\n\n🎁 Use my invite code: ${widget.reffral}\n\n🌐 Download & Register:\nhttps://securetradeai.com/\n\n💎 Start your crypto journey today!',
+                            subject: 'Join SecureTradeAI - Crypto Trading Invitation',
                           );
                         },
                       ),
@@ -274,7 +274,7 @@ class SharescreenState extends State<Sharescreen> {
                         color: const Color(0xFFF0B90B),
                         onTap: () {
                           Share.share(
-                            'Hey! Join Secure Trade Ai and start earning with crypto trading. Use my invite code: ${widget.reffral}',
+                            '🚀 *SecureTradeAI - Crypto Trading Platform*\n\n💰 Join me on SecureTradeAI and start earning with automated crypto trading!\n\n✅ *Features:*\n• Automated Trading Bots\n• Real-time Market Analysis\n• Multi-Exchange Support\n• Secure & Reliable Platform\n\n🎁 *Use my invite code:* ${widget.reffral}\n\n🌐 *Download & Register:*\nhttps://securetradeai.com/\n\n💎 Start your crypto journey today!',
                           );
                         },
                       ),

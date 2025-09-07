@@ -1,13 +1,14 @@
 {
-    "name": "securetradeai",
-    "short_name": "securetradeai",
+    "name": "SecureTradeAI - Crypto Trading Platform",
+    "short_name": "SecureTradeAI",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "background_color": "#0A0E17",
+    "theme_color": "#F0B90B",
+    "description": "Advanced cryptocurrency trading platform with AI-powered bots, real-time market data, and portfolio management.",
+    "orientation": "any",
     "prefer_related_applications": false,
+    "categories": ["finance", "business", "productivity"],
     "icons": [
         {
             "src": "icons/Icon-192.png",

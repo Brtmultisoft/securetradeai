@@ -34,9 +34,13 @@ class _PaymentSectionState extends State<PaymentSection> {
   Timer? timer;
   _getDetail() async {
     try {
+      print('🔄 PaymentSection: Getting asset transaction details...');
       final data = await CommonMethod().getAssetTransactionDetail(count);
+      print('📊 PaymentSection: Asset API Response: ${data.status}');
+
       if (data.status == "success") {
         if (data.data.details.isNotEmpty) {
+          print('✅ PaymentSection: Found ${data.data.details.length} asset transactions');
           setState(() {
             if (count == 1) {
               // Clear the list if it's the first page
@@ -47,8 +51,10 @@ class _PaymentSectionState extends State<PaymentSection> {
             totalBalance = double.tryParse(data.data.totalBalance) ?? 0.0;
             checkdata = false; // Reset checkdata when we have data
           });
+          print('✅ PaymentSection: Asset transactions updated in UI, total: ${detailList.length}');
         } else {
           if (count == 1) {
+            print('⚠️ PaymentSection: No asset transaction data found');
             showtoast("Data not found", context);
             setState(() {
               checkdata = true;
@@ -59,6 +65,7 @@ class _PaymentSectionState extends State<PaymentSection> {
       } else {
         // API returned error status
         if (count == 1) {
+          print('❌ PaymentSection: Asset API error: ${data.message}');
           showtoast(data.message, context);
           setState(() {
             checkdata = true;
@@ -69,6 +76,7 @@ class _PaymentSectionState extends State<PaymentSection> {
     } catch (e) {
       // Exception occurred
       if (count == 1) {
+        print('❌ PaymentSection: Exception in _getDetail: $e');
         setState(() {
           checkdata = true;
           detailList.clear(); // Clear list on exception
@@ -775,7 +783,12 @@ class _PaymentSectionState extends State<PaymentSection> {
     const Color mediumBlue = Color(0xFF1A2235);
     const Color lightBlue = Color(0xFF4A6FA5);
 
-    if (detailList.isEmpty) {
+    print('🎨 PaymentSection: listdata() called');
+    print('📊 PaymentSection: detailList.length = ${detailList.length}');
+    print('📊 PaymentSection: checkdata = $checkdata');
+
+    if (detailList.isEmpty && !checkdata) {
+      print('⏳ PaymentSection: Showing loading indicator');
       return const Center(
         child: CircularProgressIndicator(color: Color(0xFF4A6FA5)),
       );
@@ -838,7 +851,9 @@ class _PaymentSectionState extends State<PaymentSection> {
                   child: ListView.builder(
                     controller: scrollController,
                     physics: const BouncingScrollPhysics(),
+                    itemCount: detailList.length,
                     itemBuilder: (c, i) {
+                      print('🎨 PaymentSection: Building item $i of ${detailList.length}');
                       final transaction = detailList[i];
                       final isCredit = transaction.dr == "0";
                       final amount = isCredit ? transaction.cr : transaction.dr;
@@ -941,7 +956,6 @@ class _PaymentSectionState extends State<PaymentSection> {
                         ),
                       );
                     },
-                    itemCount: detailList.length,
                   ),
                 ),
 

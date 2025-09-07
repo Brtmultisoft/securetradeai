@@ -144,6 +144,8 @@ class _SwapState extends State<Swap> {
         showLoading(context);
         final resp = await http.post(Uri.parse(swap),
             body: jsonEncode({"user_id": commonuserId, "amount": amount.text}));
+        print(resp.statusCode);
+        print(resp.body);
         if (resp.statusCode != 200) {
           showtoast("Server Error", context);
           Navigator.pop(context);

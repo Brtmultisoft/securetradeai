@@ -1020,12 +1020,16 @@ class _AutoTradingState extends State<AutoTrading> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 1,
-                      childAspectRatio: 2.2,
-                      mainAxisSpacing: 16,
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        bool isWeb = constraints.maxWidth > 768;
+                        return GridView.count(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          crossAxisCount: isWeb ? 2 : 1,
+                          childAspectRatio: isWeb ? 2.5 : 2.2,
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: isWeb ? 16 : 0,
                       children: adminSelectedPairs.map((riskLevel) {
                         Color cardColor;
                         Color accentColor;
@@ -1166,7 +1170,9 @@ class _AutoTradingState extends State<AutoTrading> {
                             ),
                           ),
                         );
-                      }).toList(),
+                        }).toList(),
+                        );
+                      },
                     ),
                   ],
                 ),
