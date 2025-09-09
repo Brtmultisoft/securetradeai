@@ -96,11 +96,22 @@ class _DepositTransactionState extends State<DepositTransaction> {
           }
         });
       } else {
-        _showToast(response.message);
+        // Handle specific error messages
+        if (response.message.contains("not found") || response.message.contains("No data")) {
+          setState(() {
+            checkdata = true;
+            depositList.clear();
+          });
+        } else {
+          _showToast(response.message);
+        }
         hasMoreData = false;
       }
     } catch (e) {
-      _showToast("Error fetching data");
+      setState(() {
+        checkdata = true;
+        depositList.clear();
+      });
       hasMoreData = false;
     } finally {
       setState(() {
@@ -294,10 +305,34 @@ class _DepositTransactionState extends State<DepositTransaction> {
     }
 
     if (checkdata && depositList.isEmpty) {
-      return const Center(
-        child: Text(
-          "No deposits found",
-          style: TextStyle(color: Colors.white, fontSize: 16),
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.account_balance_wallet_outlined,
+              color: Colors.white54,
+              size: 64,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              "No Deposit History Found",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              "Your deposit transactions will appear here",
+              style: TextStyle(
+                color: Colors.white54,
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       );
     }

@@ -90,11 +90,21 @@ class CommonMethod {
   }
 
   Future<DepositTransactiondetail> getDepositTransactionDetail(int page) async {
-    final res = await http.post(Uri.parse(swap_wallet_history),
-        body: jsonEncode(
-            {"user_id": commonuserId, "page": page.toString(), "size": "100"}));
-    print(res.body);
-    return deposittransactiondetailFromJson(res.body);
+    try {
+      print('🔄 CommonMethod: Making deposit transaction API call...');
+      final res = await http.post(Uri.parse(swap_wallet_history),
+          body: jsonEncode(
+              {"user_id": commonuserId, "page": page.toString(), "size": "100"}));
+
+      print('✅ CommonMethod: Deposit transaction API response received');
+      print('📊 Response status: ${res.statusCode}');
+      print('📊 Response body: ${res.body}');
+
+      return deposittransactiondetailFromJson(res.body);
+    } catch (e) {
+      print('❌ CommonMethod: Deposit transaction API error: $e');
+      rethrow;
+    }
   }
 
   Future<GasHistory> getGashistory() async {

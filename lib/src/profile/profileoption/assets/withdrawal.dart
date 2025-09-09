@@ -92,16 +92,25 @@ class _WithdrawalState extends State<Withdrawal> {
               walletAddress; // Set the wallet address in the controller
           isLoadingProfile = false;
         });
+
+        // Check wallet address immediately after loading
+        if (walletAddress.isEmpty) {
+          _showWalletAddressDialog();
+        }
       } else {
         setState(() {
           isLoadingProfile = false;
         });
+        // Show dialog if no data found
+        _showWalletAddressDialog();
       }
     } catch (e) {
       print("Error loading profile data: $e");
       setState(() {
         isLoadingProfile = false;
       });
+      // Show dialog on error too
+      _showWalletAddressDialog();
     }
   }
 
@@ -503,14 +512,124 @@ class _WithdrawalState extends State<Withdrawal> {
         ));
   }
 
+  void _showWalletAddressDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF1E2A3A),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.account_balance_wallet,
+                color: const Color(0xFFF0B90B),
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'Wallet Address Required',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Your wallet address is not set. Please update your profile to add a wallet address before making withdrawals.',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 14,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0B90B).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: const Color(0xFFF0B90B).withOpacity(0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: const Color(0xFFF0B90B),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'Go to Profile → Update wallet address',
+                        style: TextStyle(
+                          color: Color(0xFFF0B90B),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.white54,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+                Navigator.of(context).pop(); // Go back to previous screen
+                // User can then go to Profile tab and update wallet address
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFF0B90B),
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              ),
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   _checkWithdrawalAbleOrNot() async {
     try {
       showLoading(context);
-      if (walletAddress.isEmpty) {
-        showtoast(
-            "Wallet Address not found. Please update your profile.", context);
-        Navigator.pop(context);
-      } else if (amount.text == "") {
+      if (amount.text == "") {
         showtoast("Amount Field is Empty", context);
         Navigator.pop(context);
       } else if (!isAmountValid || amountError != null) {

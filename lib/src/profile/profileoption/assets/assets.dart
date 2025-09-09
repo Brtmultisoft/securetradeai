@@ -42,7 +42,6 @@ class _AssetsState extends State<Assets> {
           });
         } else {
           if (count == 1) {
-            showtoast("Data not found", context);
             setState(() {
               checkdata = true;
               detailList.clear();
@@ -51,7 +50,11 @@ class _AssetsState extends State<Assets> {
         }
       } else {
         if (count == 1) {
-          showtoast(data.message, context);
+          // Only show toast for actual errors, not "not found" messages
+          if (!data.message.toLowerCase().contains("not found") &&
+              !data.message.toLowerCase().contains("no data")) {
+            showtoast(data.message, context);
+          }
           setState(() {
             checkdata = true;
             detailList.clear();
