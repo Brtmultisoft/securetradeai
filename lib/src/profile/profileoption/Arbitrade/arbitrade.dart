@@ -50,6 +50,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   double totalTPSIncome = 0.0;
   double totalDirectTPSIncome = 0.0;
   double totalBusinessIncome = 0.0;
+  double investmentAmount = 0.0;
   // List<Map<String, dynamic>> myInvestments = [];
   // List<Map<String, dynamic>> incomeHistory = [];
 

@@ -534,7 +534,7 @@ class _WithdrawalState extends State<Withdrawal> {
                 'Wallet Address Required',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),

@@ -25,6 +25,7 @@ class _AssetsState extends State<Assets> {
   int count = 1;
   bool checkdata = false;
   Timer? timer;
+  double earningBalance = 0.0;
   _getDetail() async {
     try {
       final data = await CommonMethod().getAssetTransactionDetail(count);
@@ -72,17 +73,32 @@ class _AssetsState extends State<Assets> {
     }
   }
 
+  // Comment: Added method to get earning balance from profile
+  _getEarningBalance() async {
+    try {
+      final mineData = await CommonMethod().getMineData();
+      if (mineData.status == "success" && mineData.data.isNotEmpty) {
+        setState(() {
+          earningBalance = double.tryParse(mineData.data[0].earningBalance ?? "0.0") ?? 0.0;
+        });
+      }
+    } catch (e) {
+      print("Error getting earning balance: $e");
+    }
+  }
   _getCurrency() async {
     var totalcurrency = await CommonMethod().getCurrency(0.0);
     if (mounted) {
       setState(() {
-        totalAssetsincr = totalBalance * totalcurrency;
+        // totalAssetsincr = totalBalance * totalcurrency;
+        totalAssetsincr = earningBalance * totalcurrency;
       });
     }
   }
 
   _fatchdata() async {
     await _getDetail();
+    await _getEarningBalance();
     await _getCurrency();
     await http.get(Uri.parse("${mainUrl}deposit_autapprove.php"));
     await http.get(Uri.parse("${mainUrl}withdraw_autoapprove.php"));
@@ -155,7 +171,7 @@ class _AssetsState extends State<Assets> {
                   children: [
                     // Balance label
                     const Text(
-                      "Total Balance",
+                      "Earning Balance",
                       style: TextStyle(
                         color: Color(0xFF8A9CC0),
                         fontSize: 14,
@@ -168,7 +184,8 @@ class _AssetsState extends State<Assets> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          totalBalance.toStringAsFixed(2),
+                          // totalBalance.toStringAsFixed(2),
+                          earningBalance.toStringAsFixed(2),
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -221,7 +238,8 @@ class _AssetsState extends State<Assets> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => Withdrawal(
-                            balance: totalBalance.toStringAsFixed(4),
+                            // balance: totalBalance.toStringAsFixed(4),
+                            balance: earningBalance.toStringAsFixed(4),
                           ),
                         ),
                       );
@@ -235,7 +253,8 @@ class _AssetsState extends State<Assets> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => Swap(
-                            balance: totalBalance.toStringAsFixed(4),
+                            // balance: totalBalance.toStringAsFixed(4),
+                            balance: earningBalance.toStringAsFixed(4),
                           ),
                         ),
                       );
@@ -256,6 +275,7 @@ class _AssetsState extends State<Assets> {
                   setState(() {
                     count = 1;
                     detailList.clear();
+                    earningBalance = 0.0;
                   });
                   await _fatchdata();
                   return Future.value();

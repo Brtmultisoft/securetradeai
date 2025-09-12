@@ -22,18 +22,18 @@ class Mine {
   });
 
   factory Mine.fromJson(Map<String, dynamic> json) => Mine(
-        status: json["status"],
-        message: json["message"],
-        responsecode: json["responsecode"],
-        data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
-      );
+    status: json["status"],
+    message: json["message"],
+    responsecode: json["responsecode"],
+    data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+  );
 
   Map<String, dynamic> toJson() => {
-        "status": status,
-        "message": message,
-        "responsecode": responsecode,
-        "data": List<dynamic>.from(data.map((x) => x.toJson())),
-      };
+    "status": status,
+    "message": message,
+    "responsecode": responsecode,
+    "data": List<dynamic>.from(data.map((x) => x.toJson())),
+  };
 }
 
 class Datum {
@@ -47,6 +47,7 @@ class Datum {
   String balance;
   String gasBalance;
   String incomeBalance;
+  String earningBalance;
   String rank;
   String country;
   dynamic code;
@@ -61,26 +62,27 @@ class Datum {
 
   Datum(
       {required this.userId,
-      required this.name,
-      required this.verify,
-      required this.email,
-      required this.walletAddress,
-      required this.image,
-      required this.doa,
-      required this.balance,
-      required this.gasBalance,
-      required this.incomeBalance,
-      required this.rank,
-      required this.country,
-      this.code,
-      required this.referralCode,
-      required this.daysBal,
-      required this.totalTeam,
-      required this.totalActiveTeam,
-      required this.mobile,
-      required this.totalRoiIncome,
-      required this.totalDirectRoiIncome,
-      required this.totalBusinessIncome});
+        required this.name,
+        required this.verify,
+        required this.email,
+        required this.walletAddress,
+        required this.image,
+        required this.doa,
+        required this.balance,
+        required this.gasBalance,
+        required this.incomeBalance,
+        required this.earningBalance,
+        required this.rank,
+        required this.country,
+        this.code,
+        required this.referralCode,
+        required this.daysBal,
+        required this.totalTeam,
+        required this.totalActiveTeam,
+        required this.mobile,
+        required this.totalRoiIncome,
+        required this.totalDirectRoiIncome,
+        required this.totalBusinessIncome});
 
   factory Datum.fromJson(Map<String, dynamic> json) => Datum(
       userId: json["user_id"] ?? "",
@@ -94,6 +96,7 @@ class Datum {
       gasBalance: json["gas_charges"] ??
           "0", // Fixed: API sends gas_charges, not gas_balance
       incomeBalance: json["income_balance"] ?? "0",
+      earningBalance : json['total_earnings']??"0",
       rank: json["rank"] ?? "0",
       country: json["country"] ?? "",
       code: json["code"],
@@ -108,26 +111,27 @@ class Datum {
       totalBusinessIncome: json["total_business_income"] ?? "0");
 
   Map<String, dynamic> toJson() => {
-        "user_id": userId,
-        "name": name,
-        "verify": verify,
-        "email": email,
-        "wallet_address": walletAddress,
-        "image": image,
-        "doa": doa.toIso8601String(),
-        "balance": balance,
-        "gas_charges": gasBalance, // Fixed: API expects gas_charges
-        "income_balance": incomeBalance,
-        "rank": rank,
-        "country": country,
-        "code": code,
-        "referral_code": referralCode,
-        "days_bal": daysBal,
-        "total_team": totalTeam,
-        "active_team": totalActiveTeam, // Fixed: API expects active_team
-        "mobile": mobile,
-        "total_roi_income": totalRoiIncome,
-        "total_direct_roi_income": totalDirectRoiIncome,
-        "total_business_income": totalBusinessIncome
-      };
+    "user_id": userId,
+    "name": name,
+    "verify": verify,
+    "email": email,
+    "wallet_address": walletAddress,
+    "image": image,
+    "doa": doa.toIso8601String(),
+    "balance": balance,
+    "gas_charges": gasBalance, // Fixed: API expects gas_charges
+    "income_balance": incomeBalance,
+    "total_earnings": earningBalance,
+    "rank": rank,
+    "country": country,
+    "code": code,
+    "referral_code": referralCode,
+    "days_bal": daysBal,
+    "total_team": totalTeam,
+    "active_team": totalActiveTeam, // Fixed: API expects active_team
+    "mobile": mobile,
+    "total_roi_income": totalRoiIncome,
+    "total_direct_roi_income": totalDirectRoiIncome,
+    "total_business_income": totalBusinessIncome
+  };
 }

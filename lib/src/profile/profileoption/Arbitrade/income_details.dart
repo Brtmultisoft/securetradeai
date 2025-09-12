@@ -96,9 +96,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
           break;
 
         case 'salary_income':
-          print('📤 Income API Request: getSalaryIncome()');
           final salaryRes = await CommonMethod().getSalaryIncome();
-          print('📥 Response: ${salaryRes.status}');
 
           if (salaryRes.status == "success") {
             total = salaryRes.data.totalSalaryIncome;
@@ -118,8 +116,6 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
           break;
 
         case 'roi':
-          print('📤 Income API Request: getDailyRoiHistory()');
-          // Get the first active investment ID for TPS history
           final investmentsRes = await CommonMethod().getUserInvestmentsNew();
           if (investmentsRes.status == "success" &&
               investmentsRes.data.arbitrageInvestments.isNotEmpty) {
@@ -129,7 +125,6 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
               investmentId: firstInvestment.id,
               limit: 50, // Get more history
             );
-            print('📥 Response: ${roiRes.status}');
 
             if (roiRes.status == "success") {
               total = roiRes.data.totalRoiEarned;
@@ -154,18 +149,6 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
           break;
 
         default:
-          // Fallback for any other income types
-          print('⚠️ Unknown income type: ${widget.incomeType}');
-          //         'id': income['id']?.toString() ?? '',
-          //         'amount': amount,
-          //         'investment_amount': income['investment_amount'],
-          //         'From_Users': income['From_Users']?.toString(),
-          //         'created_at': income['created_at']?.toString() ?? '',
-          //         'type': income['type']?.toString() ?? widget.incomeType,
-          //       });
-          //     }
-          //   }
-          // }
           break;
       }
 
@@ -175,12 +158,9 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
       });
 
       if (incomes.isEmpty) {
-        print('ℹ️ No income data found');
       } else {
-        print('✅ Found ${incomes.length} income records');
       }
     } catch (e) {
-      print('❌ Exception loading income data: $e');
       _showErrorToast('Failed to load data. Please try again.');
       setState(() {
         incomeData = [];
@@ -323,28 +303,6 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
           ),
         ],
       ),
-      // appBar: AppBar(
-      //   backgroundColor: const Color(0xFF161A1E), // Binance header color
-      //   elevation: 0,
-      //   title: Text(
-      //     widget.title,
-      //     style: const TextStyle(
-      //       color: Colors.white,
-      //       fontWeight: FontWeight.w500,
-      //       fontSize: 18,
-      //     ),
-      //   ),
-      //   leading: IconButton(
-      //     icon: const Icon(Icons.arrow_back, color: Colors.white),
-      //     onPressed: () => Navigator.pop(context),
-      //   ),
-      //   actions: [
-      //     IconButton(
-      //       icon: const Icon(Icons.refresh, color: Colors.white),
-      //       onPressed: _loadIncomeData,
-      //     ),
-      //   ],
-      // ),
       body: isLoading
           ? Center(
               child: LottieLoadingWidget.large(

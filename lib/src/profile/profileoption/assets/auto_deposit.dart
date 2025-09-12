@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:securetradeai/data/strings.dart';
+import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 import '../../../../method/methods.dart';
 import '../../../../model/DeposittransactionModel.dart';
@@ -569,21 +570,8 @@ class _AutoDepositState extends State<AutoDeposit>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0C0E12),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF161A1E), // Binance header color
-        elevation: 0,
-        title: Text(
-          "Gas Deposit".tr,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-            fontSize: 18,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+      appBar: CommonAppBar.basic(
+        title: "Gas Deposit".tr,
         actions: [
           TextButton.icon(
             onPressed: () {
@@ -598,15 +586,19 @@ class _AutoDepositState extends State<AutoDeposit>
             label: const Text(
               'Transfer',
               style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+              TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
             ),
           ),
         ],
-        bottom: TabBar(
+        tabBar: TabBar(
           controller: _tabController,
-          indicatorColor: const Color(0xFFF0B90B), // Binance yellow
+          indicatorColor: TradingTheme.secondaryAccent,
           labelColor: Colors.white,
-          unselectedLabelColor: const Color(0xFF848E9C),
+          unselectedLabelColor: Colors.grey,
+          labelStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
           tabs: const [
             Tab(text: 'Deposit'),
             Tab(text: 'Gas History'),
