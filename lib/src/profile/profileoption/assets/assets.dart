@@ -79,7 +79,7 @@ class _AssetsState extends State<Assets> {
       final mineData = await CommonMethod().getMineData();
       if (mineData.status == "success" && mineData.data.isNotEmpty) {
         setState(() {
-          earningBalance = double.tryParse(mineData.data[0].earningBalance ?? "0.0") ?? 0.0;
+          earningBalance = double.tryParse(mineData.data[0].incomeBalance ?? "0.0") ?? 0.0;
         });
       }
     } catch (e) {

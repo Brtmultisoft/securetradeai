@@ -635,10 +635,12 @@ class _WithdrawalState extends State<Withdrawal> {
       } else if (!isAmountValid || amountError != null) {
         showtoast(amountError ?? "Please enter a valid amount", context);
         Navigator.pop(context);
-      } else if (transpass.text == "") {
-        showtoast("Transaction Password Field is Empty", context);
-        Navigator.pop(context);
-      } else {
+      }
+      // else if (transpass.text == "") {
+      //   showtoast("Transaction Password Field is Empty", context);
+      //   Navigator.pop(context);
+      // }
+      else {
         final res = await http.post(Uri.parse(getIp),
             body: json.encode({"user_id": commonuserId}));
         if (res.statusCode == 200) {

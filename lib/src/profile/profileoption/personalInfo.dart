@@ -333,11 +333,16 @@ class _PersonalInfoState extends State<PersonalInfo> {
                           ),
                           Row(
                             children: [
-                              Text(
-                                finalData.walletAddress,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white,
+                              Container(
+                                width : 100,
+                                child: Text(
+                                  finalData.walletAddress,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               IconButton(

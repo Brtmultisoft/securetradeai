@@ -308,14 +308,14 @@ class _DepositTransactionState extends State<DepositTransaction> {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: const [
             Icon(
               Icons.account_balance_wallet_outlined,
               color: Colors.white54,
               size: 64,
             ),
-            const SizedBox(height: 16),
-            const Text(
+            SizedBox(height: 16),
+            Text(
               "No Deposit History Found",
               style: TextStyle(
                 color: Colors.white,
@@ -323,8 +323,8 @@ class _DepositTransactionState extends State<DepositTransaction> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               "Your deposit transactions will appear here",
               style: TextStyle(
                 color: Colors.white54,

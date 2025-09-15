@@ -240,7 +240,7 @@ class _ProfileState extends State<Profile> {
                           title: "Earning Balance",
                           subtitle: isAPIcalle
                               ? "Loading..."
-                              : "${finalData?.earningBalance ?? "0.0"} USD",
+                              : "${finalData?.incomeBalance ?? "0.0"} USD",
                           onTap: () {
                             Navigator.push(
                               context,
