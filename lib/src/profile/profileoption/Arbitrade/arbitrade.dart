@@ -18,6 +18,7 @@ import 'package:securetradeai/src/profile/profileoption/Arbitrade/income_details
 import 'package:securetradeai/src/widget/animated_toast.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
 import 'package:securetradeai/src/widget/trading_animations.dart';
+import 'package:securetradeai/src/profile/profileoption/Arbitrade/team/team_arbitrade.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -85,7 +86,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _loadData();
   }
 
@@ -286,6 +287,17 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
         title: 'Arbitrade Trading',
         actions: [
           IconButton(
+            icon: const Icon(Icons.people, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TeamArbitrade(image: null),
+                ),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: _loadData,
           ),
@@ -381,6 +393,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                         Tab(text: 'My Investments'),
                         Tab(text: 'Income'),
                         Tab(text: 'Reports'),
+                        Tab(text: 'Team'),
                       ],
                     ),
                   ),
@@ -394,6 +407,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                         _buildMyInvestmentsTab(),
                         _buildIncomeTab(),
                         _buildReportsTab(),
+                        _buildTeamTab(),
                       ],
                     ),
                   ),
@@ -2073,6 +2087,166 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
             _buildExportOptions(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTeamTab() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          // Team overview card
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFF0B90B),
+                  Color(0xFFE6A500),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                const Icon(
+                  Icons.people,
+                  color: Colors.white,
+                  size: 48,
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'My Team',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'View your referral network and team performance',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const TeamArbitrade(image: null),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFFF0B90B),
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                  child: const Text(
+                    'View Team Details',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Quick stats
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E2329),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFF2A3A5A)),
+                  ),
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.person_add,
+                        color: Color(0xFFF0B90B),
+                        size: 32,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Direct Referrals',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        userRankData?.data.teamMembers.toString() ?? '0',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E2329),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFF2A3A5A)),
+                  ),
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.groups,
+                        color: Color(0xFF2EBD85),
+                        size: 32,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Team Business',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '\$${userRankData?.data.teamBusiness.toStringAsFixed(0) ?? '0'}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -4772,3 +4946,5 @@ class IncomeChartData {
     required this.color,
   });
 }
+
+
