@@ -16,6 +16,8 @@ import 'package:securetradeai/model/levelIncomeModel.dart';
 import 'package:securetradeai/model/revenueModel.dart';
 import 'package:securetradeai/model/userInvestmentsModel.dart';
 import 'package:securetradeai/model/userRankModel.dart';
+import 'package:securetradeai/model/withdrawal_history_model.dart';
+import 'package:securetradeai/model/deposit_history_model.dart';
 import 'package:securetradeai/src/Service/http_service.dart';
 
 import '../model/AssettransactionModel.dart';
@@ -103,6 +105,66 @@ class CommonMethod {
       return deposittransactiondetailFromJson(res.body);
     } catch (e) {
       print('❌ CommonMethod: Deposit transaction API error: $e');
+      rethrow;
+    }
+  }
+
+  Future<WithdrawalHistoryResponse> getWithdrawalHistory({int page = 1, int size = 10}) async {
+    try {
+      print('🔄 CommonMethod: Making withdrawal history API call...');
+      final res = await http.post(
+        Uri.parse(withdrawalHistory),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "user_id": commonuserId,
+          "page": page,
+          "size": size,
+        }),
+      );
+
+      print('✅ CommonMethod: Withdrawal history API response received');
+      print('📊 Response status: ${res.statusCode}');
+      print('📊 Response body: ${res.body}');
+
+      if (res.statusCode != 200) {
+        throw Exception("Server returned status code: ${res.statusCode}");
+      }
+
+      return withdrawalHistoryResponseFromJson(res.body);
+    } catch (e) {
+      print('❌ CommonMethod: Withdrawal history API error: $e');
+      rethrow;
+    }
+  }
+
+  Future<DepositHistoryResponse> getDepositHistory({int page = 1, int size = 10}) async {
+    try {
+      print('🔄 CommonMethod: Making deposit history API call...');
+      final res = await http.post(
+        Uri.parse(depositHistory),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "user_id": commonuserId,
+          "page": page,
+          "size": size,
+        }),
+      );
+
+      print('✅ CommonMethod: Deposit history API response received');
+      print('📊 Response status: ${res.statusCode}');
+      print('📊 Response body: ${res.body}');
+
+      if (res.statusCode != 200) {
+        throw Exception("Server returned status code: ${res.statusCode}");
+      }
+
+      return depositHistoryResponseFromJson(res.body);
+    } catch (e) {
+      print('❌ CommonMethod: Deposit history API error: $e');
       rethrow;
     }
   }

@@ -197,3 +197,13 @@ const String supportInfoUrl = "${url}support_info";
 const String userNotificationsUrl = "${url}notifications";
 
 const String arbitragePrincipalRelease = "${url}arbitrage_principal_release";
+
+
+// Withdrawal History API endpoint
+const String withdrawalHistory = "${url}my_account_withdraw";
+
+// Deposit History API endpoint
+const String depositHistory = "${url}my_account_deposit";
+
+// https://securetradeai.com/myrest/user/my_account_withdraw
+// https://securetradeai.com/myrest/user/my_account_deposit

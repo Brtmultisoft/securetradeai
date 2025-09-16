@@ -80,7 +80,7 @@ class _TabscreenState extends State<Tabscreen> {
                           ],
                         ),
                       ),
-                      const Divider(color: Color(0xFF2A3A5A)),
+                       Divider(color: const Color(0xFFF0B90B).withOpacity(0.5),),
                       // Navigation items
                       Expanded(
                         child: ListView(
@@ -109,7 +109,7 @@ class _TabscreenState extends State<Tabscreen> {
                             children: [
                               const Icon(
                                 Icons.account_balance_wallet,
-                                color: Color(0xFF4A90E2),
+                                color: Color(0xFFF0B90B),
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
@@ -139,12 +139,12 @@ class _TabscreenState extends State<Tabscreen> {
                                         height: 16,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          color: Color(0xFF4A90E2),
+                                          color: Color(0xFFF0B90B),
                                         ),
                                       )
                                     : const Icon(
                                         Icons.refresh,
-                                        color: Color(0xFF4A90E2),
+                                        color: Color(0xFFF0B90B),
                                         size: 16,
                                       ),
                               ),
@@ -193,11 +193,11 @@ class _TabscreenState extends State<Tabscreen> {
                   return Container(
                     height: 40,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF121824),
+                    decoration:  BoxDecoration(
+                      color: const Color(0xFF121824),
                       border: Border(
                         top: BorderSide(
-                          color: Color(0xFF2A3A5A),
+                          color: const Color(0xFFF0B90B).withOpacity(0.5),
                           width: 1,
                         ),
                       ),
@@ -209,7 +209,7 @@ class _TabscreenState extends State<Tabscreen> {
                           children: [
                             const Icon(
                               Icons.account_balance_wallet,
-                              color: Color(0xFF4A90E2),
+                              color: Color(0xFFF0B90B),
                               size: 16,
                             ),
                             const SizedBox(width: 8),
@@ -242,12 +242,12 @@ class _TabscreenState extends State<Tabscreen> {
                                   height: 16,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: Color(0xFF4A90E2),
+                                    color: Color(0xFFF0B90B),
                                   ),
                                 )
                               : const Icon(
                                   Icons.refresh,
-                                  color: Color(0xFF4A90E2),
+                                  color: Color(0xFFF0B90B),
                                   size: 16,
                                 ),
                         ),
@@ -258,11 +258,11 @@ class _TabscreenState extends State<Tabscreen> {
                 Container(
                   width: MediaQuery.of(context).size.width,
                   height: 56,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF121824),
+                  decoration:  BoxDecoration(
+                    color: const Color(0xFF121824),
                     border: Border(
                       top: BorderSide(
-                        color: Color(0xFF2A3A5A),
+                        color: const Color(0xFFF0B90B).withOpacity(0.5),
                         width: 1,
                       ),
                     ),
@@ -297,7 +297,7 @@ class _TabscreenState extends State<Tabscreen> {
   Widget _buildNavItem(int index, IconData icon, String label) {
     final isSelected = currentPage == index;
     return RippleAnimation(
-      rippleColor: const Color(0xFF4A90E2),
+      rippleColor: const Color(0xFFF0B90B),
       onTap: () => changePage(index),
       child: AnimatedContainer(
         duration: TradingAnimations.normalAnimation,
@@ -308,7 +308,7 @@ class _TabscreenState extends State<Tabscreen> {
           borderRadius: BorderRadius.circular(6),
           boxShadow: isSelected ? [
             BoxShadow(
-              color: const Color(0xFF4A90E2).withOpacity(0.2),
+              color: const Color(0xFFF0B90B).withOpacity(0.2),
               spreadRadius: 0,
               blurRadius: 8,
               offset: const Offset(0, 2),
@@ -325,7 +325,7 @@ class _TabscreenState extends State<Tabscreen> {
                 ..scale(isSelected ? 1.1 : 1.0),
               child: Icon(
                 icon,
-                color: isSelected ? const Color(0xFF4A90E2) : Colors.white70,
+                color: isSelected ? const Color(0xFFF0B90B) : Colors.white70,
                 size: 20,
               ),
             ),
@@ -334,7 +334,7 @@ class _TabscreenState extends State<Tabscreen> {
               duration: TradingAnimations.normalAnimation,
               curve: TradingAnimations.defaultCurve,
               style: TextStyle(
-                color: isSelected ? const Color(0xFF4A90E2) : Colors.white70,
+                color: isSelected ? const Color(0xFFF0B90B) : Colors.white70,
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),

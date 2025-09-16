@@ -134,12 +134,12 @@ class _ProfileState extends State<Profile> {
                     height: 64,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color : TradingTheme.secondaryAccent.withOpacity(0.2),
+                      color : TradingTheme.primaryAccent.withOpacity(0.2),
                     ),
                     child: const Center(
                       child: Icon(
                         Icons.person,
-                        color: TradingTheme.secondaryAccent,
+                        color: TradingTheme.primaryAccent,
                         size: 32,
                       ),
                     ),
@@ -464,14 +464,14 @@ class _ProfileState extends State<Profile> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: TradingTheme.secondaryAccent
+                color: TradingTheme.primaryAccent
                     .withOpacity(0.2)
                     .withOpacity(0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 icon,
-                color: TradingTheme.secondaryAccent,
+                color: TradingTheme.primaryAccent,
                 size: 20,
               ),
             ),
@@ -503,7 +503,7 @@ class _ProfileState extends State<Profile> {
             ),
             const Icon(
               Icons.arrow_forward_ios,
-              color: Colors.white70,
+              color: TradingTheme.primaryAccent,
               size: 16,
             ),
           ],
