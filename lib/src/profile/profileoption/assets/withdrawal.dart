@@ -11,6 +11,7 @@ import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 import 'package:securetradeai/src/Service/otp_service.dart';
 import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
+import 'package:securetradeai/model/withdrawal_history_model.dart';
 
 class Withdrawal extends StatefulWidget {
   const Withdrawal({Key? key, this.balance}) : super(key: key);
@@ -74,10 +75,59 @@ class _WithdrawalState extends State<Withdrawal> {
   bool isOtpVerifying = false;
   String? otpRequestId;
 
+  // Withdrawal history state
+  List<WithdrawalTransaction> withdrawalHistory = [];
+  bool isLoadingHistory = false;
+  bool showHistory = false;
+  int currentPage = 1;
+  final int pageSize = 10;
+  String totalBalance = "0.00";
+
   @override
   void initState() {
     super.initState();
     _loadProfileData();
+  }
+
+  Future<void> _loadWithdrawalHistory({bool isRefresh = false}) async {
+    if (isRefresh) {
+      currentPage = 1;
+      withdrawalHistory.clear();
+    }
+
+    setState(() {
+      isLoadingHistory = true;
+    });
+
+    try {
+      final response = await CommonMethod().getWithdrawalHistory(
+        page: currentPage,
+        size: pageSize,
+      );
+
+      if (response.isSuccess && response.data != null) {
+        setState(() {
+          if (isRefresh) {
+            withdrawalHistory = response.data!.details;
+          } else {
+            withdrawalHistory.addAll(response.data!.details);
+          }
+          totalBalance = response.data!.totalBalance;
+          isLoadingHistory = false;
+        });
+      } else {
+        setState(() {
+          isLoadingHistory = false;
+        });
+        showtoast(response.message, context);
+      }
+    } catch (e) {
+      setState(() {
+        isLoadingHistory = false;
+      });
+      showtoast("Failed to load withdrawal history", context);
+      print("Error loading withdrawal history: $e");
+    }
   }
 
   Future<void> _loadProfileData() async {
@@ -505,7 +555,15 @@ class _WithdrawalState extends State<Withdrawal> {
                       ),
                     ),
                   ),
-                )
+                ),
+
+                // Withdrawal History Section
+                const SizedBox(height: 30),
+                _buildHistoryToggleButton(),
+                if (showHistory) ...[
+                  const SizedBox(height: 20),
+                  _buildWithdrawalHistorySection(),
+                ],
               ],
             ),
           ),
@@ -701,6 +759,545 @@ class _WithdrawalState extends State<Withdrawal> {
     } catch (e) {
       Navigator.pop(context);
       print(e);
+    }
+  }
+
+  Widget _buildHistoryToggleButton() {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          showHistory = !showHistory;
+        });
+        if (showHistory && withdrawalHistory.isEmpty) {
+          _loadWithdrawalHistory(isRefresh: true);
+        }
+      },
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xFFF0B90B)),
+          borderRadius: const BorderRadius.all(Radius.circular(5)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              showHistory ? Icons.history_toggle_off : Icons.history,
+              color: const Color(0xFFF0B90B),
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              showHistory ? "Hide History" : "View Withdrawal History",
+              style: const TextStyle(
+                fontSize: 16,
+                color: Color(0xFFF0B90B),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWithdrawalHistorySection() {
+    return Container(padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 20),
+
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E2A3A),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFF2A3A4A)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Color(0xFF2A3A4A),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
+                bottomLeft: Radius.circular(10),
+                bottomRight: Radius.circular(10),
+              ),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.history,
+                      color: Color(0xFFF0B90B),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      "Withdrawal History",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    InkWell(
+                      onTap: () => _loadWithdrawalHistory(isRefresh: true),
+                      child: const Icon(
+                        Icons.refresh,
+                        color: Color(0xFFF0B90B),
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ),
+                if (totalBalance != "0.00") ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0B90B).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: const Color(0xFFF0B90B).withOpacity(0.3),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.account_balance_wallet,
+                          color: Color(0xFFF0B90B),
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          "Total Balance: ",
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          "$totalBalance USDT",
+                          style: const TextStyle(
+                            color: Color(0xFFF0B90B),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          SizedBox(height: 10,),
+          /// Content
+          if (isLoadingHistory)
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Center(
+                child: LottieLoadingWidget.medium(),
+              ),
+            )
+          else if (withdrawalHistory.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(32),
+              child: Center(
+                child: Column(
+                  children: const [
+                    Icon(
+                      Icons.history,
+                      color: Colors.white54,
+                      size: 48,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      "No withdrawal history found",
+                      style: TextStyle(
+                        color: Colors.white54,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else ...[
+            // _buildHistorySummary(),
+            _buildHistoryList(),
+
+          ],
+
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHistoryList() {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: withdrawalHistory.length,
+      separatorBuilder: (context, index) => const Divider(
+        color: Color(0xFF2A3A4A),
+        height: 1,
+      ),
+      itemBuilder: (context, index) {
+        final transaction = withdrawalHistory[index];
+        return _buildTransactionCard(transaction);
+      },
+    );
+  }
+
+  Widget _buildTransactionCard(WithdrawalTransaction transaction) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A3A4A).withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF3A4A5A).withOpacity(0.5)),
+      ),
+      child: ExpansionTile(
+        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        childrenPadding: const EdgeInsets.all(16),
+        backgroundColor: Colors.transparent,
+        collapsedBackgroundColor: Colors.transparent,
+        iconColor: const Color(0xFFF0B90B),
+        collapsedIconColor: Colors.white70,
+        title: Row(
+          children: [
+            // Amount
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${transaction.amount.toStringAsFixed(2)} USDT",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    transaction.type,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Status
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: transaction.statusColor.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: transaction.statusColor),
+              ),
+              child: Text(
+                transaction.status,
+                style: TextStyle(
+                  color: transaction.statusColor,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            transaction.formattedDate,
+            style: const TextStyle(
+              color: Colors.white54,
+              fontSize: 11,
+            ),
+          ),
+        ),
+        children: [
+          _buildDetailedTransactionInfo(transaction),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailedTransactionInfo(WithdrawalTransaction transaction) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A2A3A).withOpacity(0.5),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          // Transaction Details Header
+          Row(
+            children: [
+              Icon(
+                Icons.receipt_long,
+                color: const Color(0xFFF0B90B),
+                size: 18,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                "Transaction Details",
+                style: TextStyle(
+                  color: Color(0xFFF0B90B),
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // All Transaction Fields
+          _buildDetailRow("Transaction ID", transaction.id),
+          _buildDetailRow("User ID", transaction.userId),
+          _buildDetailRow("Type", transaction.type),
+          _buildDetailRow("Description", transaction.descr),
+
+          const SizedBox(height: 8),
+          const Divider(color: Color(0xFF3A4A5A), height: 1),
+          const SizedBox(height: 8),
+
+          // Amount Details
+          Row(
+            children: [
+              Icon(
+                Icons.account_balance_wallet,
+                color: const Color(0xFFF0B90B),
+                size: 16,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                "Amount Details",
+                style: TextStyle(
+                  color: Color(0xFFF0B90B),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          _buildDetailRow("Debit Amount", "${transaction.amount.toStringAsFixed(2)} USDT",
+                         valueColor: Colors.redAccent),
+          _buildDetailRow("Credit Amount", "${double.tryParse(transaction.cr)?.toStringAsFixed(2) ?? '0.00'} USDT",
+                         valueColor: Colors.greenAccent),
+          _buildDetailRow("Quantity", "${double.tryParse(transaction.qty)?.toStringAsFixed(2) ?? '0.00'} USDT"),
+          _buildDetailRow("Charges", "${transaction.chargesAmount.toStringAsFixed(2)} USDT",
+                         valueColor: transaction.chargesAmount > 0 ? Colors.orange : Colors.white70),
+
+          const SizedBox(height: 8),
+          const Divider(color: Color(0xFF3A4A5A), height: 1),
+          const SizedBox(height: 8),
+
+          // Address Details
+          Row(
+            children: [
+              Icon(
+                Icons.location_on,
+                color: const Color(0xFFF0B90B),
+                size: 16,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                "Wallet Address",
+                style: TextStyle(
+                  color: Color(0xFFF0B90B),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0D1321),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFF2A3A4A)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    transaction.address.isEmpty ? "No address provided" : transaction.address,
+                    style: TextStyle(
+                      color: transaction.address.isEmpty ? Colors.white54 : Colors.white,
+                      fontSize: 12,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                ),
+                if (transaction.address.isNotEmpty) ...[
+                  const SizedBox(width: 8),
+                  InkWell(
+                    onTap: () {
+                      // Copy to clipboard functionality
+                      showtoast("Address copied to clipboard", context);
+                    },
+                    child: Icon(
+                      Icons.copy,
+                      color: const Color(0xFFF0B90B),
+                      size: 16,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 8),
+          const Divider(color: Color(0xFF3A4A5A), height: 1),
+          const SizedBox(height: 8),
+
+          // Hash Key (if available)
+          if (transaction.hashkey != null && transaction.hashkey!.isNotEmpty) ...[
+            Row(
+              children: [
+                Icon(
+                  Icons.tag,
+                  color: const Color(0xFFF0B90B),
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  "Transaction Hash",
+                  style: TextStyle(
+                    color: Color(0xFFF0B90B),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0D1321),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFF2A3A4A)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      transaction.hashkey!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  InkWell(
+                    onTap: () {
+                      showtoast("Hash copied to clipboard", context);
+                    },
+                    child: Icon(
+                      Icons.copy,
+                      color: const Color(0xFFF0B90B),
+                      size: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Divider(color: Color(0xFF3A4A5A), height: 1),
+            const SizedBox(height: 8),
+          ],
+
+          // Timestamps
+          Row(
+            children: [
+              Icon(
+                Icons.schedule,
+                color: const Color(0xFFF0B90B),
+                size: 16,
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                "Timestamps",
+                style: TextStyle(
+                  color: Color(0xFFF0B90B),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          _buildDetailRow("Created Date", transaction.formattedDate),
+          _buildDetailRow("Modified Date", _formatDate(transaction.modifiedDate)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value, {Color? valueColor}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              "$label:",
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                color: valueColor ?? Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(String dateString) {
+    try {
+      final date = DateTime.parse(dateString);
+      return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
+    } catch (e) {
+      return dateString;
     }
   }
 }

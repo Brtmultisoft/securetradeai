@@ -487,8 +487,10 @@ class _HomepageState extends State<Homepage> {
                                   return banner.bannerList.isEmpty
                                       ? EnhancedShimmer(
                                           baseColor: const Color(0xFF1A2234),
-                                          highlightColor: const Color(0xFF2A3A5A),
-                                          direction: ShimmerDirection.leftToRight,
+                                          highlightColor:
+                                              const Color(0xFF2A3A5A),
+                                          direction:
+                                              ShimmerDirection.leftToRight,
                                           child: Container(
                                             width: MediaQuery.of(context)
                                                     .size
@@ -522,12 +524,14 @@ class _HomepageState extends State<Homepage> {
                                           ),
                                         )
                                       : Container(
-                                          width:
-                                              MediaQuery.of(context).size.width -
-                                                  30,
-                                          height:
-                                              MediaQuery.of(context).size.height *
-                                                  0.5,
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width -
+                                              30,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.5,
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(20.0),
@@ -544,8 +548,8 @@ class _HomepageState extends State<Homepage> {
                                                         banner.bannerList[index]
                                                             .bannerImage,
                                                     fit: BoxFit.fill,
-                                                    errorBuilder: (context, error,
-                                                        stackTrace) {
+                                                    errorBuilder: (context,
+                                                        error, stackTrace) {
                                                       return Container(
                                                         color: const Color(
                                                             0xFF1A2234),
@@ -553,8 +557,8 @@ class _HomepageState extends State<Homepage> {
                                                           child: Icon(
                                                             Icons
                                                                 .image_not_supported,
-                                                            color:
-                                                                Color(0xFF848E9C),
+                                                            color: Color(
+                                                                0xFF848E9C),
                                                             size: 50,
                                                           ),
                                                         ),
@@ -612,14 +616,14 @@ class _HomepageState extends State<Homepage> {
                           labelColor: Colors.white,
                           unselectedLabelColor: Colors.grey,
                           indicatorSize: TabBarIndicatorSize.label,
-                          indicatorColor: const Color(0xFF4A90E2),
+                          indicatorColor: const Color(0xFFF0B90B),
                           indicator: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: const Color(0xFF4A90E2),
+                              color: const Color(0xFFF0B90B),
                               boxShadow: [
                                 BoxShadow(
                                   color:
-                                      const Color(0xFF4A90E2).withOpacity(0.3),
+                                      const Color(0xFFF0B90B).withOpacity(0.3),
                                   spreadRadius: 1,
                                   blurRadius: 5,
                                   offset: const Offset(0, 2),
@@ -1607,7 +1611,7 @@ class _HomepageState extends State<Homepage> {
                     color: binanceYellow.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(
+                  child: const Text(
                     "4 Tools",
                     style: TextStyle(
                       color: binanceYellow,
@@ -1683,7 +1687,9 @@ class _HomepageState extends State<Homepage> {
                       label: "Spot Trading",
                       onTap: () => ResponsiveUtils.isWeb(context)
                           ? AnimatedNavigator.pushFadeScale(
-                              context, const MobileOnlyFeaturesPage(specificFeature: "Spot Trading"))
+                              context,
+                              const MobileOnlyFeaturesPage(
+                                  specificFeature: "Spot Trading"))
                           : AnimatedNavigator.pushFadeScale(
                               context, const SpotTradingService()),
                     ),
@@ -1697,7 +1703,9 @@ class _HomepageState extends State<Homepage> {
                       label: "Future Trading",
                       onTap: () => ResponsiveUtils.isWeb(context)
                           ? AnimatedNavigator.pushFadeScale(
-                              context, const MobileOnlyFeaturesPage(specificFeature: "Future Trading"))
+                              context,
+                              const MobileOnlyFeaturesPage(
+                                  specificFeature: "Future Trading"))
                           : AnimatedNavigator.pushFadeScale(
                               context, const FutureTradingSection()),
                     ),
@@ -1709,11 +1717,10 @@ class _HomepageState extends State<Homepage> {
                     child: _buildGridOptionItem(
                       icon: "assets/img/chart.png",
                       label: "Live Trading",
-                      onTap: () =>
-                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const LiveTradingPage())),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LiveTradingPage())),
                     ),
                   ),
                 ],
@@ -2378,7 +2385,8 @@ class _HomepageState extends State<Homepage> {
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
-                        fontSize: ResponsiveUtils.getResponsiveFontSize(context, 14),
+                        fontSize:
+                            ResponsiveUtils.getResponsiveFontSize(context, 14),
                         letterSpacing: 0.2,
                         height: 1.2,
                       ),
