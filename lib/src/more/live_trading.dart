@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
 import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
+import 'package:securetradeai/src/Service/live_trading_service.dart';
 
 class LiveTradingPage extends StatefulWidget {
   const LiveTradingPage({Key? key}) : super(key: key);
@@ -18,216 +18,129 @@ class _LiveTradingPageState extends State<LiveTradingPage>
   List<dynamic> _cryptoData = [];
   bool _isLoading = true;
   Timer? _refreshTimer;
-  Timer? _marqueeTimer;
-  Timer? _exchangeMarqueeTimer;
-  late AnimationController _bubbleController;
-  late ScrollController _marqueeController;
-  late ScrollController _exchangeMarqueeController;
-  List<BubbleData> _bubbles = [];
-  Timer? _bubbleTimer;
   String _selectedExchange = 'Binance';
-  String _selectedCategory = 'TRADING EXCHANGES';
-  int _selectedTabIndex = 0;
   List<Map<String, dynamic>> _orderBookData = [];
-  Timer? _orderBookTimer;
+  late LiveTradingService _liveService;
+  StreamSubscription? _tickerSubscription;
+  StreamSubscription? _orderBookSubscription;
+  bool _isLiveDataConnected = false;
+  String _connectionStatus = 'Connecting...';
 
   @override
   void initState() {
     super.initState();
-    _initializeAnimations();
-    _marqueeController = ScrollController();
-    _exchangeMarqueeController = ScrollController();
-    _fetchCryptoData();
-    _startAutoRefresh();
-    _startBubbleAnimation();
-    _generateOrderBookData();
-    _startOrderBookAnimation();
+    _liveService = LiveTradingService();
+    _initializeLiveData();
   }
 
-  void _initializeAnimations() {
-    _bubbleController = AnimationController(
-      duration: const Duration(seconds: 8),
-      vsync: this,
-    )..repeat();
-  }
-
-  void _startBubbleAnimation() {
-    _bubbleTimer = Timer.periodic(const Duration(milliseconds: 800), (timer) {
-      if (mounted) {
-        _addBubble();
-      }
-    });
-  }
-
-  void _addBubble() {
-    final random = Random();
-    final bubble = BubbleData(
-      x: random.nextDouble() * MediaQuery.of(context).size.width,
-      y: MediaQuery.of(context).size.height,
-      size: 20 + random.nextDouble() * 40,
-      opacity: 0.3 + random.nextDouble() * 0.4,
-      speed: 1 + random.nextDouble() * 2,
-    );
-
+  Future<void> _initializeLiveData() async {
     setState(() {
-      _bubbles.add(bubble);
-      // Remove old bubbles to prevent memory issues
-      if (_bubbles.length > 15) {
-        _bubbles.removeAt(0);
-      }
+      _isLoading = true;
+      _connectionStatus = 'Connecting to live data...';
     });
-  }
 
-  Future<void> _fetchCryptoData() async {
     try {
-      // Only show loading on first load, not on refresh
-      if (_cryptoData.isEmpty) {
-        setState(() {
-          _isLoading = true;
-        });
-      }
+      // Start live data connection
+      await _liveService.startLiveData(exchange: _selectedExchange);
 
-      final response = await http.get(
-        Uri.parse('https://api.binance.com/api/v3/ticker/24hr'),
-        headers: {'Accept': 'application/json'},
-      ).timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-
-        // Filter for USDT pairs and sort by volume
-        final filteredData = data
-            .where((item) =>
-                item['symbol'].toString().endsWith('USDT') &&
-                double.parse(item['quoteVolume']) >
-                    1000000) // Min volume filter
-            .toList();
-
-        filteredData.sort((a, b) => double.parse(b['quoteVolume'])
-            .compareTo(double.parse(a['quoteVolume'])));
-
-        if (mounted) {
+      // Subscribe to ticker updates - ONLY LIVE DATA
+      _tickerSubscription = _liveService.tickerStream.listen((data) {
+        if (mounted && data.isNotEmpty) {
           setState(() {
-            _cryptoData = filteredData.take(50).toList(); // Top 50 by volume
+            _cryptoData = data.values.toList();
             _isLoading = false;
+            _isLiveDataConnected = true;
+            _connectionStatus = 'Live Data Connected';
           });
         }
+      });
+
+      _orderBookSubscription = _liveService.orderBookStream.listen((data) {
+        if (mounted) {
+          setState(() {
+            _updateOrderBookFromLiveData(data);
+          });
+        }
+      });
+
+      // Wait for initial data, then connect to order book
+      await Future.delayed(const Duration(seconds: 3));
+
+      if (_cryptoData.isNotEmpty) {
+        await _liveService.connectToOrderBook(_cryptoData[0]['symbol'], exchange: _selectedExchange);
       }
     } catch (e) {
-      print('Error fetching crypto data: $e');
+
       if (mounted) {
         setState(() {
           _isLoading = false;
+          _isLiveDataConnected = false;
+          _connectionStatus = 'Connection Failed';
         });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Live data connection failed. Please check internet.'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 5),
+          ),
+        );
       }
     }
   }
 
-  void _startAutoRefresh() {
-    _refreshTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
-      if (mounted) {
-        _fetchCryptoData(); // This will now update in background without showing loading
-      }
-    });
-  }
 
-  void _startMarqueeAnimation() {
-    _marqueeTimer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
-      if (mounted && _marqueeController.hasClients && _cryptoData.isNotEmpty) {
-        try {
-          final maxScroll = _marqueeController.position.maxScrollExtent;
-          final currentScroll = _marqueeController.offset;
 
-          if (maxScroll > 0) {
-            if (currentScroll >= maxScroll) {
-              // Reset to beginning smoothly
-              _marqueeController.jumpTo(0);
-            } else {
-              // Smooth continuous scrolling
-              final nextPosition = currentScroll + 2.0;
-              _marqueeController.jumpTo(nextPosition);
-            }
-          }
-        } catch (e) {
-          // Handle any scroll controller errors
-        }
-      }
-    });
-  }
 
-  void _startExchangeMarqueeAnimation() {
-    _exchangeMarqueeTimer =
-        Timer.periodic(const Duration(milliseconds: 80), (timer) {
-      if (mounted && _exchangeMarqueeController.hasClients) {
-        try {
-          final maxScroll = _exchangeMarqueeController.position.maxScrollExtent;
-          final currentScroll = _exchangeMarqueeController.offset;
 
-          if (maxScroll > 0) {
-            if (currentScroll >= maxScroll) {
-              // Reset to beginning smoothly
-              _exchangeMarqueeController.jumpTo(0);
-            } else {
-              // Slower scrolling for exchange tabs - reduced speed
-              final nextPosition = currentScroll + 1.5;
-              _exchangeMarqueeController.jumpTo(nextPosition);
-            }
-          }
-        } catch (e) {
-          // Handle any scroll controller errors
-        }
-      }
-    });
-  }
 
-  void _generateOrderBookData() {
+
+
+
+
+
+  void _updateOrderBookFromLiveData(Map<String, dynamic> data) {
     _orderBookData.clear();
-    final random = Random();
 
-    // Get current price for selected exchange (use first crypto data as base)
-    double basePrice = _cryptoData.isNotEmpty
-        ? double.parse(_cryptoData[0]['lastPrice'])
-        : 50000.0;
+    final bids = data['bids'] as List<dynamic>? ?? [];
+    final asks = data['asks'] as List<dynamic>? ?? [];
+    final symbol = data['symbol']?.toString() ?? 'BTCUSDT';
 
-    // Generate buy orders (below current price)
-    for (int i = 0; i < 15; i++) {
-      final priceOffset = random.nextDouble() * 1000 + (i * 50);
-      final price = basePrice - priceOffset;
-      final amount = random.nextDouble() * 10 + 0.1;
+    for (var bid in bids.take(15)) {
+      final price = double.tryParse(bid[0].toString()) ?? 0.0;
+      final amount = double.tryParse(bid[1].toString()) ?? 0.0;
 
       _orderBookData.add({
         'type': 'buy',
         'price': price,
         'amount': amount,
         'total': price * amount,
-        'exchange': _selectedExchange,
+        'pair': symbol,
+        'exchange': data['exchange'] ?? _selectedExchange,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
       });
     }
 
-    // Generate sell orders (above current price)
-    for (int i = 0; i < 15; i++) {
-      final priceOffset = random.nextDouble() * 1000 + (i * 50);
-      final price = basePrice + priceOffset;
-      final amount = random.nextDouble() * 10 + 0.1;
+    for (var ask in asks.take(15)) {
+      final price = double.tryParse(ask[0].toString()) ?? 0.0;
+      final amount = double.tryParse(ask[1].toString()) ?? 0.0;
 
       _orderBookData.add({
         'type': 'sell',
         'price': price,
         'amount': amount,
         'total': price * amount,
-        'exchange': _selectedExchange,
+        'pair': symbol,
+        'exchange': data['exchange'] ?? _selectedExchange,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
       });
     }
 
-    // Sort to show sell orders first (ascending price), then buy orders (descending price)
-    // This creates a realistic order book view
     _orderBookData.sort((a, b) {
       if (a['type'] == 'sell' && b['type'] == 'sell') {
-        return a['price']
-            .compareTo(b['price']); // Sell orders: lowest price first
+        return a['price'].compareTo(b['price']); // Sell orders: lowest price first
       } else if (a['type'] == 'buy' && b['type'] == 'buy') {
-        return b['price']
-            .compareTo(a['price']); // Buy orders: highest price first
+        return b['price'].compareTo(a['price']); // Buy orders: highest price first
       } else if (a['type'] == 'sell' && b['type'] == 'buy') {
         return -1; // Sell orders come first
       } else {
@@ -236,57 +149,56 @@ class _LiveTradingPageState extends State<LiveTradingPage>
     });
   }
 
-  void _startOrderBookAnimation() {
-    _orderBookTimer =
-        Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      if (mounted) {
-        setState(() {
-          // Update random values to simulate live trading
-          final random = Random();
-          for (var order in _orderBookData) {
-            // Slightly modify price and amount
-            final priceVariation = (random.nextDouble() - 0.5) * 10;
-            final amountVariation = (random.nextDouble() - 0.5) * 0.5;
+  void _onPairSelected(String pair) async {
+    print('🎯 PAIR SELECTED: $pair');
+    print('🎯 Previous Selected Exchange: $_selectedExchange');
 
-            order['price'] = (order['price'] + priceVariation).abs();
-            order['amount'] = (order['amount'] + amountVariation).abs();
-            order['total'] = order['price'] * order['amount'];
-          }
-        });
-      }
+    setState(() {
+      _selectedExchange = pair; // Set the selected pair as the active exchange
     });
+
+    print('🎯 New Selected Exchange: $_selectedExchange');
+
+    try {
+      // Connect to order book for selected pair
+      await _liveService.connectToOrderBook(pair, exchange: 'Binance');
+
+      // Clear existing order book data and refresh
+      _orderBookData.clear();
+
+      print('🎯 Cleared order book data and starting fresh for: $pair');
+    } catch (e) {
+      print('Error switching to pair $pair: $e');
+    }
   }
 
-  void _onExchangeSelected(String exchangeName) {
+  void _onExchangeSelected(String exchangeName) async {
     setState(() {
       _selectedExchange = exchangeName;
     });
-    // Regenerate order book data for the new exchange
-    _generateOrderBookData();
+
+    // Restart live data for the new exchange
+    try {
+      await _liveService.startLiveData(exchange: exchangeName);
+      if (_cryptoData.isNotEmpty) {
+        await _liveService.connectToOrderBook(_cryptoData[0]['symbol'], exchange: exchangeName);
+      }
+    } catch (e) {
+      print('Error switching exchange: $e');
+    }
   }
 
   @override
   void dispose() {
     _refreshTimer?.cancel();
-    _bubbleTimer?.cancel();
-    _marqueeTimer?.cancel();
-    _exchangeMarqueeTimer?.cancel();
-    _orderBookTimer?.cancel();
-    _bubbleController.dispose();
-    _marqueeController.dispose();
-    _exchangeMarqueeController.dispose();
+    _tickerSubscription?.cancel();
+    _orderBookSubscription?.cancel();
+    _liveService.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Start animations after the first frame is built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _marqueeTimer == null && _exchangeMarqueeTimer == null) {
-        _startMarqueeAnimation();
-        _startExchangeMarqueeAnimation();
-      }
-    });
 
     return Scaffold(
       backgroundColor: const Color(0xFF0B0E11),
@@ -304,9 +216,6 @@ class _LiveTradingPageState extends State<LiveTradingPage>
               : SingleChildScrollView(
                   child: Column(
                     children: [
-                      // Price ticker
-                      _buildPriceTicker(),
-                      const SizedBox(height: 8),
                       // Top status bar
                       _buildTopStatusBar(),
                       const SizedBox(height: 8),
@@ -314,7 +223,9 @@ class _LiveTradingPageState extends State<LiveTradingPage>
                       _buildTradingExchangeHeader(),
                       const SizedBox(height: 8),
                       // Exchange tabs
-                      _buildExchangeTabs(),
+                      // _buildExchangeTabs(),
+                      // Market depth indicator
+                      _buildMarketDepthIndicator(),
                       // Trading table with headers
                       _buildTradingInterface(),
                     ],
@@ -342,45 +253,24 @@ class _LiveTradingPageState extends State<LiveTradingPage>
     return Container(
       height: 40,
       color: const Color(0xFF0B0E11),
-      child: SingleChildScrollView(
-        controller: _marqueeController,
+      child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        physics:
-            const NeverScrollableScrollPhysics(), // Disable manual scrolling
-        child: Row(
-          children: [
-            // First set of items
-            ..._cryptoData.take(20).map<Widget>((item) {
-              final symbol = item['symbol'].toString().replaceAll('USDT', '');
-              final price = double.parse(item['lastPrice']);
-              final change = double.parse(item['priceChangePercent']);
-              final isPositive = change >= 0;
+        itemCount: _getFilteredCryptoData().length,
+        itemBuilder: (context, index) {
+          final item = _getFilteredCryptoData()[index];
+          final symbol = (item['symbol']?.toString() ?? 'N/A').replaceAll('USDT', '');
+          final price = double.tryParse(item['lastPrice']?.toString() ?? '0') ?? 0.0;
+          final change = double.tryParse(item['priceChangePercent']?.toString() ?? '0') ?? 0.0;
+          final isPositive = change >= 0;
 
-              return _buildMarqueeTickerItem(
-                symbol,
-                '\$${price.toStringAsFixed(3)}',
-                '${isPositive ? '+' : ''}${change.toStringAsFixed(2)}%',
-                isPositive,
-                item,
-              );
-            }).toList(),
-            // Duplicate set for seamless loop
-            ..._cryptoData.take(20).map<Widget>((item) {
-              final symbol = item['symbol'].toString().replaceAll('USDT', '');
-              final price = double.parse(item['lastPrice']);
-              final change = double.parse(item['priceChangePercent']);
-              final isPositive = change >= 0;
-
-              return _buildMarqueeTickerItem(
-                symbol,
-                '\$${price.toStringAsFixed(3)}',
-                '${isPositive ? '+' : ''}${change.toStringAsFixed(2)}%',
-                isPositive,
-                item,
-              );
-            }).toList(),
-          ],
-        ),
+          return _buildMarqueeTickerItem(
+            symbol,
+            '\$${price.toStringAsFixed(3)}',
+            '${isPositive ? '+' : ''}${change.toStringAsFixed(2)}%',
+            isPositive,
+            item,
+          );
+        },
       ),
     );
   }
@@ -607,31 +497,26 @@ class _LiveTradingPageState extends State<LiveTradingPage>
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                AnimatedBuilder(
-                  animation: _bubbleController,
-                  builder: (context, child) {
-                    return Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF00D4AA),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF00D4AA).withOpacity(0.6),
-                            spreadRadius: 2,
-                            blurRadius: 4,
-                          ),
-                        ],
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00D4AA),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF00D4AA).withOpacity(0.6),
+                        spreadRadius: 2,
+                        blurRadius: 4,
                       ),
-                    );
-                  },
+                    ],
+                  ),
                 ),
                 const SizedBox(width: 8),
-                const Text(
-                  'TRADING ACTIVE',
+                Text(
+                  _isLiveDataConnected ? 'LIVE DATA' : _connectionStatus.toUpperCase(),
                   style: TextStyle(
-                    color: Color(0xFF00D4AA),
+                    color: _isLiveDataConnected ? const Color(0xFF00D4AA) : Colors.orange,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                   ),
@@ -657,28 +542,28 @@ class _LiveTradingPageState extends State<LiveTradingPage>
             size: 20,
           ),
           const SizedBox(width: 8),
-          const Text(
-            'TRADING EXCHANGES',
-            style: TextStyle(
+          Text(
+            'TRADING EXCHANGES - $_selectedExchange',
+            style: const TextStyle(
               color: Colors.white,
-              fontSize: 14,
+              fontSize: 12,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.2,
             ),
           ),
           const Spacer(),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: const Color(0xFFF0B90B).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFF0B90B), width: 0.5),
+              color: const Color(0xFF00D4AA).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFF00D4AA), width: 0.5),
             ),
-            child: const Text(
-              'LIVE',
-              style: TextStyle(
-                color: Color(0xFFF0B90B),
-                fontSize: 10,
+            child: Text(
+              '${_getAvailablePairsForExchange(_selectedExchange).length} pairs',
+              style: const TextStyle(
+                color: Color(0xFF00D4AA),
+                fontSize: 9,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -689,113 +574,139 @@ class _LiveTradingPageState extends State<LiveTradingPage>
   }
 
   Widget _buildExchangeTabs() {
-    final exchanges = [
-      'Binance',
-      'KuCoin',
-      'Coinbase',
-      'Crypto.com',
-      'OKX',
-      'Gate.io',
-      'Huobi',
-      'Bybit',
-      'FTX',
-      'Kraken',
-      'Bitfinex',
-      'Gemini'
-    ];
+    // Fixed list of popular trading pairs - always show these 8 pairs
+    final allPairs = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT', 'XRPUSDT', 'DOGEUSDT', 'AVAXUSDT'];
+
+    // Find pairs that have live buy/sell activity
+    final activePairs = <String>{};
+    for (var order in _orderBookData) {
+      final pair = order['pair']?.toString();
+      if (pair != null) {
+        activePairs.add(pair);
+      }
+    }
+
+    print('🎯 BUILDING EXCHANGE TABS - CHIPS FORMAT');
+    print('🎯 Active Pairs with Buy/Sell: $activePairs');
+    print('🎯 Order Book Data Count: ${_orderBookData.length}');
 
     return Container(
-      height: 50,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       color: const Color(0xFF1E1E1E),
-      child: SingleChildScrollView(
-        controller: _exchangeMarqueeController,
-        scrollDirection: Axis.horizontal,
-        physics:
-            const NeverScrollableScrollPhysics(), // Disable manual scrolling
-        child: Row(
-          children: [
-            // First set of exchange tabs
-            ...exchanges.map<Widget>((exchange) {
-              final isSelected = exchange == _selectedExchange;
-              return _buildMarqueeExchangeTab(exchange, isSelected);
-            }).toList(),
-            // Duplicate set for seamless loop
-            ...exchanges.map<Widget>((exchange) {
-              final isSelected = exchange == _selectedExchange;
-              return _buildMarqueeExchangeTab(exchange, isSelected);
-            }).toList(),
-          ],
-        ),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: allPairs.map<Widget>((pair) {
+          final hasLiveActivity = activePairs.contains(pair);
+          // Default first pair (BTCUSDT) is highlighted if no live activity
+          final isActivePair = hasLiveActivity || (activePairs.isEmpty && pair == 'BTCUSDT');
+          print('🎯 Building Chip - Pair: $pair, Active: $isActivePair, Live: $hasLiveActivity');
+          return _buildPairChip(pair, isActivePair, hasLiveActivity);
+        }).toList(),
       ),
     );
   }
 
-  Widget _buildMarqueeExchangeTab(String name, bool isSelected) {
+  Widget _buildActivePairTab(String pair, bool isActive, bool hasLiveActivity) {
     return GestureDetector(
-      onTap: () => _onExchangeSelected(name),
+      onTap: () => _onPairSelected(pair),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: isSelected
+            colors: isActive
                 ? [
-                    const Color(0xFFF0B90B),
-                    const Color(0xFFF0B90B).withOpacity(0.8)
+                    const Color(0xFF00D4AA), // Green for active pair
+                    const Color(0xFF00D4AA).withOpacity(0.8)
                   ]
-                : [const Color(0xFF2A2A2A), const Color(0xFF1E1E1E)],
+                : hasLiveActivity
+                    ? [
+                        const Color(0xFFF0B90B).withOpacity(0.3), // Gold for live activity
+                        const Color(0xFFF0B90B).withOpacity(0.1)
+                      ]
+                    : [const Color(0xFF2A2A2A), const Color(0xFF1E1E1E)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color:
-                isSelected ? const Color(0xFFF0B90B) : const Color(0xFF444444),
-            width: 1.5,
+            color: isActive
+                ? const Color(0xFF00D4AA)
+                : hasLiveActivity
+                    ? const Color(0xFFF0B90B)
+                    : const Color(0xFF444444),
+            width: isActive ? 2.0 : 1.5,
           ),
-          boxShadow: isSelected
+          boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: const Color(0xFFF0B90B).withOpacity(0.3),
-                    blurRadius: 8,
+                    color: const Color(0xFF00D4AA).withOpacity(0.4),
+                    blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
                 ]
-              : [],
+              : hasLiveActivity
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFFF0B90B).withOpacity(0.2),
+                        blurRadius: 6,
+                        offset: const Offset(0, 1),
+                      ),
+                    ]
+                  : [],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (isSelected) ...[
-              const Icon(
-                Icons.star,
-                color: Colors.black,
-                size: 14,
+            // Live activity indicator
+            if (hasLiveActivity) ...[
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: isActive ? Colors.white : const Color(0xFF00D4AA),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: (isActive ? Colors.white : const Color(0xFF00D4AA)).withOpacity(0.6),
+                      blurRadius: 4,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
             ],
+            // Pair name
             Text(
-              name,
+              pair,
               style: TextStyle(
-                color: isSelected ? Colors.black : Colors.white,
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                color: isActive
+                    ? Colors.black
+                    : hasLiveActivity
+                        ? const Color(0xFFF0B90B)
+                        : Colors.white,
+                fontSize: 12,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
                 letterSpacing: 0.5,
               ),
             ),
-            if (isSelected) ...[
+            // Active indicator
+            if (isActive) ...[
               const SizedBox(width: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Text(
-                  'ACTIVE',
+                  'LIVE',
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: 8,
+                    fontSize: 7,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -803,6 +714,47 @@ class _LiveTradingPageState extends State<LiveTradingPage>
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildPairChip(String pair, bool isActivePair, bool hasLiveActivity) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: isActivePair
+            ? const Color(0xFF00D4AA)
+            : const Color(0xFF2A2A2A),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isActivePair
+              ? const Color(0xFF00D4AA)
+              : const Color(0xFF3A3A3A),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isActivePair)
+            Container(
+              width: 6,
+              height: 6,
+              margin: const EdgeInsets.only(right: 6),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+            ),
+          Text(
+            pair.replaceAll('USDT', ''),
+            style: TextStyle(
+              color: isActivePair ? Colors.white : Colors.white70,
+              fontSize: 12,
+              fontWeight: isActivePair ? FontWeight.bold : FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -824,10 +776,10 @@ class _LiveTradingPageState extends State<LiveTradingPage>
           const SizedBox(height: 20),
 
           // Table headers
-          _buildTableHeaders(),
+          // _buildTableHeaders(),
 
           // Trading data (full width now)
-          _buildLiveTradingSection(),
+          // _buildLiveTradingSection(),
 
           // Add some bottom padding
           const SizedBox(height: 20),
@@ -846,7 +798,7 @@ class _LiveTradingPageState extends State<LiveTradingPage>
           Expanded(flex: 2, child: _buildHeaderCell('PRICE')),
           Expanded(flex: 2, child: _buildHeaderCell('24H')),
           Expanded(flex: 2, child: _buildHeaderCell('EXCHANGE')),
-          Expanded(flex: 2, child: _buildHeaderCell('AMOUNT')),
+          Expanded(flex: 2, child: _buildHeaderCell('VOLUME')),
         ],
       ),
     );
@@ -871,8 +823,8 @@ class _LiveTradingPageState extends State<LiveTradingPage>
     return Container(
       color: const Color(0xFF0B0E11),
       child: Column(
-        children: _cryptoData.map((item) {
-          final index = _cryptoData.indexOf(item);
+        children: _getFilteredCryptoData().map((item) {
+          final index = _getFilteredCryptoData().indexOf(item);
           return _buildTradingRow(item, index);
         }).toList(),
       ),
@@ -943,6 +895,12 @@ class _LiveTradingPageState extends State<LiveTradingPage>
                     flex: 1,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8.0),
+                      child: _buildDataCell('PAIR', Colors.white70),
+                    )),
+                Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 4.0),
                       child: _buildDataCell('TYPE', Colors.white70),
                     )),
                 const Expanded(
@@ -964,7 +922,7 @@ class _LiveTradingPageState extends State<LiveTradingPage>
                 const Expanded(
                   flex: 2,
                   child: Text(
-                    'TOTAL',
+                    'EXCHANGE',
                     style: TextStyle(color: Colors.white70, fontSize: 10),
                     textAlign: TextAlign.center,
                   ),
@@ -1051,18 +1009,29 @@ class _LiveTradingPageState extends State<LiveTradingPage>
                     child: Row(
                       children: [
                         const Expanded(
+                          flex: 2,
                           child: Text(
-                            'PRICE',
+                            'PAIR',
                             style:
-                                TextStyle(color: Colors.white70, fontSize: 10),
+                                TextStyle(color: Colors.white70, fontSize: 9),
                             textAlign: TextAlign.center,
                           ),
                         ),
                         const Expanded(
+                          flex: 2,
+                          child: Text(
+                            'PRICE',
+                            style:
+                                TextStyle(color: Colors.white70, fontSize: 9),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const Expanded(
+                          flex: 2,
                           child: Text(
                             'AMOUNT',
                             style:
-                                TextStyle(color: Colors.white70, fontSize: 10),
+                                TextStyle(color: Colors.white70, fontSize: 9),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -1086,18 +1055,29 @@ class _LiveTradingPageState extends State<LiveTradingPage>
                           child: Row(
                             children: [
                               Expanded(
+                                flex: 2,
                                 child: Text(
-                                  '\$${double.parse(order['price'].toString()).toStringAsFixed(3)}',
+                                  order['pair']?.toString() ?? 'BTCUSDT',
                                   style: const TextStyle(
-                                      color: Color(0xFF00D4AA), fontSize: 10),
+                                      color: Colors.white, fontSize: 8),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
                               Expanded(
+                                flex: 2,
                                 child: Text(
-                                  '${double.parse(order['amount'].toString()).toStringAsFixed(3)}',
+                                  '\$${double.parse(order['price'].toString()).toStringAsFixed(3)}',
                                   style: const TextStyle(
-                                      color: Colors.white70, fontSize: 10),
+                                      color: Color(0xFF00D4AA), fontSize: 9),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  double.parse(order['amount'].toString()).toStringAsFixed(3),
+                                  style: const TextStyle(
+                                      color: Colors.white70, fontSize: 9),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
@@ -1158,19 +1138,30 @@ class _LiveTradingPageState extends State<LiveTradingPage>
                     color: const Color(0xFF0F1419),
                     child: Row(
                       children: [
-                        const Expanded(
+                        Expanded(
+                          flex: 2,
                           child: Text(
-                            'PRICE',
+                            'PAIR',
                             style:
-                                TextStyle(color: Colors.white70, fontSize: 10),
+                                TextStyle(color: Colors.white70, fontSize: 9),
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        const Expanded(
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            'PRICE',
+                            style:
+                                TextStyle(color: Colors.white70, fontSize: 9),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
                           child: Text(
                             'AMOUNT',
                             style:
-                                TextStyle(color: Colors.white70, fontSize: 10),
+                                TextStyle(color: Colors.white70, fontSize: 9),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -1194,18 +1185,29 @@ class _LiveTradingPageState extends State<LiveTradingPage>
                           child: Row(
                             children: [
                               Expanded(
+                                flex: 2,
                                 child: Text(
-                                  '\$${double.parse(order['price'].toString()).toStringAsFixed(3)}',
+                                  order['pair']?.toString() ?? 'BTCUSDT',
                                   style: const TextStyle(
-                                      color: Color(0xFFFF6B6B), fontSize: 10),
+                                      color: Colors.white, fontSize: 8),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
                               Expanded(
+                                flex: 2,
                                 child: Text(
-                                  '${double.parse(order['amount'].toString()).toStringAsFixed(3)}',
+                                  '\$${double.parse(order['price'].toString()).toStringAsFixed(3)}',
                                   style: const TextStyle(
-                                      color: Colors.white70, fontSize: 10),
+                                      color: Color(0xFFFF6B6B), fontSize: 9),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  double.parse(order['amount'].toString()).toStringAsFixed(3),
+                                  style: const TextStyle(
+                                      color: Colors.white70, fontSize: 9),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
@@ -1490,24 +1492,239 @@ class _LiveTradingPageState extends State<LiveTradingPage>
     );
   }
 
-  Widget _buildTradingRow(dynamic item, int index) {
-    final symbol = item['symbol'].toString();
-    final price = double.parse(item['lastPrice']);
-    final change = double.parse(item['priceChangePercent']);
+  List<dynamic> _getFilteredCryptoData() {
+    if (_cryptoData.isEmpty) return [];
+
+    // Filter data by selected exchange
+    return _cryptoData.where((item) {
+      final itemExchange = item['exchange']?.toString() ?? '';
+      return itemExchange == _selectedExchange || itemExchange.isEmpty;
+    }).toList();
+  }
+
+  List<String> _getAvailablePairsForExchange(String exchange) {
+    return _liveService.getExchangePairs(exchange);
+  }
+
+  String _formatVolume(double volume) {
+    if (volume >= 1000000) {
+      return '${(volume / 1000000).toStringAsFixed(1)}M';
+    } else if (volume >= 1000) {
+      return '${(volume / 1000).toStringAsFixed(1)}K';
+    } else {
+      return volume.toStringAsFixed(2);
+    }
+  }
+
+  Widget _buildLiveTradingIndicator(dynamic item) {
+    final change = double.tryParse(item['priceChange']?.toString() ?? item['priceChangePercent']?.toString() ?? '0') ?? 0.0;
+    final volume = double.tryParse(item['volume']?.toString() ?? '0') ?? 0.0;
     final isPositive = change >= 0;
 
-    final displaySymbol = symbol.replaceAll('USDT', '');
-    final exchanges = ['Binance', 'KuCoin', 'Coinbase', 'Crypto.com', 'OKX'];
-    final randomExchange = exchanges[index % exchanges.length];
-    final randomAmount = (index * 0.1 + 1).toStringAsFixed(2);
+    // Determine trading activity level based on volume
+    String activityLevel = 'LOW';
+    Color activityColor = Colors.grey;
+
+    if (volume > 1000000) {
+      activityLevel = 'HIGH';
+      activityColor = const Color(0xFF00D4AA);
+    } else if (volume > 100000) {
+      activityLevel = 'MED';
+      activityColor = const Color(0xFFF0B90B);
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Price trend indicator
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isPositive ? const Color(0xFF00D4AA) : const Color(0xFFFF6B6B),
+          ),
+        ),
+        const SizedBox(width: 4),
+        // Activity level indicator
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+          decoration: BoxDecoration(
+            color: activityColor.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(2),
+            border: Border.all(color: activityColor, width: 0.5),
+          ),
+          child: Text(
+            activityLevel,
+            style: TextStyle(
+              color: activityColor,
+              fontSize: 8,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Map<String, dynamic> _calculateMarketDepth() {
+    if (_orderBookData.isEmpty) {
+      return {
+        'buyPressure': 0.0,
+        'sellPressure': 0.0,
+        'spread': 0.0,
+        'totalBuyVolume': 0.0,
+        'totalSellVolume': 0.0,
+      };
+    }
+
+    final buyOrders = _orderBookData.where((order) => order['type'] == 'buy').toList();
+    final sellOrders = _orderBookData.where((order) => order['type'] == 'sell').toList();
+
+    double totalBuyVolume = buyOrders.fold(0.0, (sum, order) => sum + (order['amount'] as double));
+    double totalSellVolume = sellOrders.fold(0.0, (sum, order) => sum + (order['amount'] as double));
+
+    double buyPressure = totalBuyVolume / (totalBuyVolume + totalSellVolume);
+    double sellPressure = totalSellVolume / (totalBuyVolume + totalSellVolume);
+
+    double spread = 0.0;
+    if (buyOrders.isNotEmpty && sellOrders.isNotEmpty) {
+      final highestBid = buyOrders.map((o) => o['price'] as double).reduce((a, b) => a > b ? a : b);
+      final lowestAsk = sellOrders.map((o) => o['price'] as double).reduce((a, b) => a < b ? a : b);
+      spread = lowestAsk - highestBid;
+    }
+
+    return {
+      'buyPressure': buyPressure,
+      'sellPressure': sellPressure,
+      'spread': spread,
+      'totalBuyVolume': totalBuyVolume,
+      'totalSellVolume': totalSellVolume,
+    };
+  }
+
+  Widget _buildMarketDepthIndicator() {
+    final marketDepth = _calculateMarketDepth();
+    final buyPressure = marketDepth['buyPressure'] as double;
+    final sellPressure = marketDepth['sellPressure'] as double;
+    final spread = marketDepth['spread'] as double;
+
+    return Container(
+      padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF333333), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Market Depth',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Buy/Sell pressure bar
+          Container(
+            height: 20,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: const Color(0xFF333333),
+            ),
+            child: Row(
+              children: [
+                if (buyPressure > 0)
+                  Expanded(
+                    flex: (buyPressure * 100).round(),
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF00D4AA),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          bottomLeft: Radius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (sellPressure > 0)
+                  Expanded(
+                    flex: (sellPressure * 100).round(),
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFF6B6B),
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(10),
+                          bottomRight: Radius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Buy: ${(buyPressure * 100).toStringAsFixed(1)}%',
+                style: const TextStyle(
+                  color: Color(0xFF00D4AA),
+                  fontSize: 10,
+                ),
+              ),
+              Text(
+                'Spread: \$${spread.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 10,
+                ),
+              ),
+              Text(
+                'Sell: ${(sellPressure * 100).toStringAsFixed(1)}%',
+                style: const TextStyle(
+                  color: Color(0xFFFF6B6B),
+                  fontSize: 10,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTradingRow(dynamic item, int index) {
+    final symbol = item['symbol']?.toString() ?? 'N/A';
+    final price = double.tryParse(item['price']?.toString() ?? item['lastPrice']?.toString() ?? '0') ?? 0.0;
+    final change = double.tryParse(item['priceChange']?.toString() ?? item['priceChangePercent']?.toString() ?? '0') ?? 0.0;
+    final isPositive = change >= 0;
+    final volume = double.tryParse(item['volume']?.toString() ?? '0') ?? 0.0;
+    final exchange = item['exchange']?.toString() ?? _selectedExchange;
+
+    final displaySymbol = symbol.replaceAll('USDT', '').replaceAll('-USDT', '').replaceAll('_USDT', '').replaceAll('-USD', '');
+    final formattedVolume = _formatVolume(volume);
 
     return Container(
       height: 32,
       color: index % 2 == 0 ? const Color(0xFF0F1419) : const Color(0xFF0B0E11),
       child: Row(
         children: [
-          // PAIR column
-          Expanded(flex: 2, child: _buildDataCell(displaySymbol, Colors.white)),
+          // PAIR column with live indicator
+          Expanded(
+            flex: 2,
+            child: Row(
+              children: [
+                Expanded(child: _buildDataCell(displaySymbol, Colors.white)),
+                _buildLiveTradingIndicator(item),
+              ],
+            ),
+          ),
           // PRICE column
           Expanded(
               flex: 2,
@@ -1523,15 +1740,13 @@ class _LiveTradingPageState extends State<LiveTradingPage>
                       : const Color(0xFFFF6B6B))),
           // EXCHANGE column
           Expanded(
-              flex: 2, child: _buildDataCell(randomExchange, Colors.white70)),
-          // AMOUNT column
+              flex: 2, child: _buildDataCell(exchange, Colors.white70)),
+          // VOLUME column
           Expanded(
               flex: 2,
               child: _buildDataCell(
-                  randomAmount,
-                  isPositive
-                      ? const Color(0xFF00D4AA)
-                      : const Color(0xFFFF6B6B))),
+                  formattedVolume,
+                  Colors.white70)),
         ],
       ),
     );
@@ -1541,13 +1756,30 @@ class _LiveTradingPageState extends State<LiveTradingPage>
     final isBuyOrder = order['type'] == 'buy';
     final price = order['price'] as double;
     final amount = order['amount'] as double;
-    final total = order['total'] as double;
+    final pair = order['pair']?.toString() ?? 'BTCUSDT';
+    final exchange = order['exchange']?.toString() ?? 'Binance';
 
     return Container(
       height: 28,
       color: index % 2 == 0 ? const Color(0xFF0F1419) : const Color(0xFF0B0E11),
       child: Row(
         children: [
+          // Pair column
+          Expanded(
+            flex: 1,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Text(
+                pair.replaceAll('USDT', ''),
+                style: const TextStyle(
+                  color: Color(0xFFF0B90B),
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
           // Type column (BUY/SELL)
           Expanded(
             flex: 1,
@@ -1599,13 +1831,13 @@ class _LiveTradingPageState extends State<LiveTradingPage>
               ),
             ),
           ),
-          // Total column
+          // Exchange column (replaced Total)
           Expanded(
             flex: 2,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Text(
-                '\$${total.toStringAsFixed(3)}',
+                exchange,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 10,

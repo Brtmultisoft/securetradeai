@@ -47,10 +47,33 @@ class DepositHistoryData {
   });
 
   factory DepositHistoryData.fromJson(Map<String, dynamic> json) {
+    List<DepositTransaction> detailsList = [];
+
+    // Handle both string "[]" and actual array cases
+    var detailsData = json['details'];
+    if (detailsData is String) {
+      // If it's a string like "[]", try to parse it
+      if (detailsData == "[]") {
+        detailsList = [];
+      } else {
+        // Try to decode the string as JSON
+        try {
+          var decoded = jsonDecode(detailsData);
+          if (decoded is List) {
+            detailsList = decoded.map((item) => DepositTransaction.fromJson(item)).toList();
+          }
+        } catch (e) {
+          print('Error parsing details string: $e');
+          detailsList = [];
+        }
+      }
+    } else if (detailsData is List) {
+      // Normal case - it's already a list
+      detailsList = detailsData.map((item) => DepositTransaction.fromJson(item)).toList();
+    }
+
     return DepositHistoryData(
-      details: (json['details'] as List<dynamic>?)
-          ?.map((item) => DepositTransaction.fromJson(item))
-          .toList() ?? [],
+      details: detailsList,
       totalBalance: json['total_balance']?.toString() ?? '0.00',
     );
   }

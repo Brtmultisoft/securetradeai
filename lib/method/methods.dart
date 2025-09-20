@@ -158,6 +158,18 @@ class CommonMethod {
       print('📊 Response status: ${res.statusCode}');
       print('📊 Response body: ${res.body}');
 
+      // Parse and log the response structure
+      try {
+        final jsonResponse = jsonDecode(res.body);
+        print('📊 Parsed JSON: $jsonResponse');
+        if (jsonResponse['data'] != null) {
+          print('📊 Data details type: ${jsonResponse['data']['details'].runtimeType}');
+          print('📊 Data details value: ${jsonResponse['data']['details']}');
+        }
+      } catch (e) {
+        print('📊 Error parsing response for logging: $e');
+      }
+
       if (res.statusCode != 200) {
         throw Exception("Server returned status code: ${res.statusCode}");
       }
