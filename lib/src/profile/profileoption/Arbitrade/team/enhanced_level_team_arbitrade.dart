@@ -308,178 +308,178 @@ class EnhancedArbitradePageLevelTeamState extends State<EnhancedArbitradePageLev
           ),
 
           // Earnings section
-          Container(
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E2329),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFF2A3A5A)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: isEarningsLoading
-                ? const Center(
-                    child: LottieLoadingWidget.large(),
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF2EBD85).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(
-                              Icons.attach_money,
-                              color: Color(0xFF2EBD85),
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            "Team Earnings",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: fontFamily,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Total Earned",
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.7),
-                                  fontSize: 14,
-                                  fontFamily: fontFamily,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Text(
-                                    "\$${totalEarned.toStringAsFixed(2)}",
-                                    style: const TextStyle(
-                                      color: Color(0xFF2EBD85),
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: fontFamily,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF2EBD85)
-                                          .withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      monthlyEarned > 0
-                                          ? "+${(monthlyEarned / (totalEarned > 0 ? totalEarned : 1) * 100).toStringAsFixed(1)}%"
-                                          : "0%",
-                                      style: const TextStyle(
-                                        color: Color(0xFF2EBD85),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: fontFamily,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          // _buildEarningsButton(),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      // Earnings progress bar
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Monthly Target",
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.7),
-                                  fontSize: 14,
-                                  fontFamily: fontFamily,
-                                ),
-                              ),
-                              Text(
-                                "\$${monthlyEarned.toStringAsFixed(2)} / \$${monthlyTarget.toStringAsFixed(0)}",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontFamily: fontFamily,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Stack(
-                            children: [
-                              Container(
-                                height: 8,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF0B0E11),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                              Container(
-                                height: 8,
-                                width: MediaQuery.of(context).size.width *
-                                    (monthlyEarned / monthlyTarget)
-                                        .clamp(0.0, 1.0) *
-                                    0.7, // Real progress
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFF2EBD85),
-                                      Color(0xFF4A90E2)
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "${(monthlyEarned / monthlyTarget * 100).toStringAsFixed(1)}% of monthly target reached",
-                            style: TextStyle(
-                              fontFamily: fontFamily,
-                              fontSize: 12,
-                              color: Colors.white.withOpacity(0.6),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-          ),
+          // Container(
+          //   margin: const EdgeInsets.all(16),
+          //   padding: const EdgeInsets.all(20),
+          //   decoration: BoxDecoration(
+          //     color: const Color(0xFF1E2329),
+          //     borderRadius: BorderRadius.circular(12),
+          //     border: Border.all(color: const Color(0xFF2A3A5A)),
+          //     boxShadow: [
+          //       BoxShadow(
+          //         color: Colors.black.withOpacity(0.2),
+          //         blurRadius: 8,
+          //         offset: const Offset(0, 4),
+          //       ),
+          //     ],
+          //   ),
+          //   child: isEarningsLoading
+          //       ? const Center(
+          //           child: LottieLoadingWidget.large(),
+          //         )
+          //       : Column(
+          //           crossAxisAlignment: CrossAxisAlignment.start,
+          //           children: [
+          //             Row(
+          //               children: [
+          //                 Container(
+          //                   padding: const EdgeInsets.all(10),
+          //                   decoration: BoxDecoration(
+          //                     color: const Color(0xFF2EBD85).withOpacity(0.1),
+          //                     borderRadius: BorderRadius.circular(8),
+          //                   ),
+          //                   child: const Icon(
+          //                     Icons.attach_money,
+          //                     color: Color(0xFF2EBD85),
+          //                     size: 24,
+          //                   ),
+          //                 ),
+          //                 const SizedBox(width: 12),
+          //                 const Text(
+          //                   "Team Earnings",
+          //                   style: TextStyle(
+          //                     color: Colors.white,
+          //                     fontSize: 18,
+          //                     fontWeight: FontWeight.bold,
+          //                     fontFamily: fontFamily,
+          //                   ),
+          //                 ),
+          //               ],
+          //             ),
+          //             const SizedBox(height: 20),
+          //             Row(
+          //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //               children: [
+          //                 Column(
+          //                   crossAxisAlignment: CrossAxisAlignment.start,
+          //                   children: [
+          //                     Text(
+          //                       "Total Earned",
+          //                       style: TextStyle(
+          //                         color: Colors.white.withOpacity(0.7),
+          //                         fontSize: 14,
+          //                         fontFamily: fontFamily,
+          //                       ),
+          //                     ),
+          //                     const SizedBox(height: 4),
+          //                     Row(
+          //                       children: [
+          //                         Text(
+          //                           "\$${totalEarned.toStringAsFixed(2)}",
+          //                           style: const TextStyle(
+          //                             color: Color(0xFF2EBD85),
+          //                             fontSize: 24,
+          //                             fontWeight: FontWeight.bold,
+          //                             fontFamily: fontFamily,
+          //                           ),
+          //                         ),
+          //                         const SizedBox(width: 8),
+          //                         Container(
+          //                           padding: const EdgeInsets.symmetric(
+          //                               horizontal: 6, vertical: 2),
+          //                           decoration: BoxDecoration(
+          //                             color: const Color(0xFF2EBD85)
+          //                                 .withOpacity(0.1),
+          //                             borderRadius: BorderRadius.circular(4),
+          //                           ),
+          //                           child: Text(
+          //                             monthlyEarned > 0
+          //                                 ? "+${(monthlyEarned / (totalEarned > 0 ? totalEarned : 1) * 100).toStringAsFixed(1)}%"
+          //                                 : "0%",
+          //                             style: const TextStyle(
+          //                               color: Color(0xFF2EBD85),
+          //                               fontSize: 12,
+          //                               fontWeight: FontWeight.bold,
+          //                               fontFamily: fontFamily,
+          //                             ),
+          //                           ),
+          //                         ),
+          //                       ],
+          //                     ),
+          //                   ],
+          //                 ),
+          //                 // _buildEarningsButton(),
+          //               ],
+          //             ),
+          //             const SizedBox(height: 20),
+          //             // Earnings progress bar
+          //             Column(
+          //               crossAxisAlignment: CrossAxisAlignment.start,
+          //               children: [
+          //                 Row(
+          //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //                   children: [
+          //                     Text(
+          //                       "Monthly Target",
+          //                       style: TextStyle(
+          //                         color: Colors.white.withOpacity(0.7),
+          //                         fontSize: 14,
+          //                         fontFamily: fontFamily,
+          //                       ),
+          //                     ),
+          //                     Text(
+          //                       "\$${monthlyEarned.toStringAsFixed(2)} / \$${monthlyTarget.toStringAsFixed(0)}",
+          //                       style: const TextStyle(
+          //                         color: Colors.white,
+          //                         fontSize: 14,
+          //                         fontFamily: fontFamily,
+          //                       ),
+          //                     ),
+          //                   ],
+          //                 ),
+          //                 const SizedBox(height: 8),
+          //                 Stack(
+          //                   children: [
+          //                     Container(
+          //                       height: 8,
+          //                       width: double.infinity,
+          //                       decoration: BoxDecoration(
+          //                         color: const Color(0xFF0B0E11),
+          //                         borderRadius: BorderRadius.circular(4),
+          //                       ),
+          //                     ),
+          //                     Container(
+          //                       height: 8,
+          //                       width: MediaQuery.of(context).size.width *
+          //                           (monthlyEarned / monthlyTarget)
+          //                               .clamp(0.0, 1.0) *
+          //                           0.7, // Real progress
+          //                       decoration: BoxDecoration(
+          //                         gradient: const LinearGradient(
+          //                           colors: [
+          //                             Color(0xFF2EBD85),
+          //                             Color(0xFF4A90E2)
+          //                           ],
+          //                         ),
+          //                         borderRadius: BorderRadius.circular(4),
+          //                       ),
+          //                     ),
+          //                   ],
+          //                 ),
+          //                 const SizedBox(height: 8),
+          //                 Text(
+          //                   "${(monthlyEarned / monthlyTarget * 100).toStringAsFixed(1)}% of monthly target reached",
+          //                   style: TextStyle(
+          //                     fontFamily: fontFamily,
+          //                     fontSize: 12,
+          //                     color: Colors.white.withOpacity(0.6),
+          //                   ),
+          //                 ),
+          //               ],
+          //             ),
+          //           ],
+          //         ),
+          // ),
 
           // Team hierarchy visualization
           // Container(

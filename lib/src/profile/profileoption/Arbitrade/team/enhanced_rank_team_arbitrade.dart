@@ -6,6 +6,8 @@ import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
 import 'package:securetradeai/Data/Api.dart';
+import 'package:securetradeai/method/methods.dart';
+import 'package:securetradeai/model/userRankModel.dart';
 
 class EnhancedRankTeamArbitrade extends StatefulWidget {
   const EnhancedRankTeamArbitrade({Key? key, this.image}) : super(key: key);
@@ -27,6 +29,50 @@ class EnhancedRankTeamArbitradeState extends State<EnhancedRankTeamArbitrade> {
   int p5 = 0;
   int p6 = 0;
 
+  // User rank data from API
+  UserRankModel? _userRankModel;
+  int _apiUserRankIndex = 0;
+
+  int _indexFromApiRank(String rank) {
+    final normalized = rank.trim().toLowerCase();
+    if (normalized.isEmpty || normalized == 'no rank' || normalized == 'norank') {
+      return 0;
+    }
+    // Case-insensitive exact match
+    final names = rankInfo.map((e) => (e['name'] as String)).toList();
+    final lowerNames = names.map((s) => s.toLowerCase()).toList();
+    int idx = lowerNames.indexOf(normalized);
+
+    // Synonyms/legacy labels
+    if (idx == -1) {
+      final Map<String, String> synonyms = {
+        'grand legend': 'Crypto Legend',
+        'crown ambassador': 'Crown Ambassador',
+        'promotor': 'Promoter',
+      };
+      final mapped = synonyms[normalized];
+      if (mapped != null) {
+        idx = names.indexOf(mapped);
+      }
+    }
+
+    return (idx >= 0 && idx < rankInfo.length) ? idx : 0;
+  }
+
+  Future<void> _loadUserRank() async {
+    try {
+      final data = await CommonMethod().getUserRank();
+      if (mounted && data.status == 'success') {
+        setState(() {
+          _userRankModel = data;
+          _apiUserRankIndex = _indexFromApiRank(data.data.currentRank);
+        });
+      }
+    } catch (e) {
+      // Keep defaults on error
+    }
+  }
+
   final List<Map<String, dynamic>> rankInfo = [
     {
       'name': 'No Rank',
@@ -37,67 +83,108 @@ class EnhancedRankTeamArbitradeState extends State<EnhancedRankTeamArbitrade> {
       'requirements': 'No requirements',
     },
     {
-      'name': 'One Star',
-      'description': 'Getting started with networking',
-      'color': Colors.white,
+      'name': 'Promoter',
+      'description': 'Starting your journey',
+      'color': const Color(0xFF4A90E2),
       'icon': Icons.star_border,
-      'benefits': ['Basic trading features', 'Pool Distribution Upto 30%'],
-      'requirements': '5 Direct members \n50 Active Team Members',
-      'directMembers': 5,
-      'teamMembers': 50,
-      'poolDistribution': '30%',
+      'benefits': ['Basic trading features', 'Standard support'],
+      'requirements': 'Team Business: \$10,000',
+      'teamBusiness': '\$10,000',
+      'salaryIncome': '\$25 Monthly',
+      'remark': 'for 12 Months',
     },
     {
-      'name': 'Two Star',
+      'name': 'Builder',
       'description': 'Building your network',
-      'color': Color(0xFFCD7F32),
-      'icon': Icons.workspace_premium,
-      'benefits': ['5% trading fee discount', 'Priority support'],
-      'requirements': '10 Direct members \n250 Active Team Members',
-      'directMembers': 10,
-      'teamMembers': 250,
-      'poolDistribution': '25%',
+      'color': const Color(0xFF2EBD85),
+      'icon': Icons.build,
+      'benefits': ['Enhanced trading features', 'Priority support'],
+      'requirements': 'Team Business: \$20,000',
+      'teamBusiness': '\$20,000',
+      'salaryIncome': '\$50 Monthly',
+      'remark': 'for 12 Months',
     },
     {
-      'name': 'Three Star',
-      'description': 'Growing steadily',
-      'color': Color(0xFFC0C0C0),
+      'name': 'Leader',
+      'description': 'Leading your team',
+      'color': const Color(0xFFCD7F32),
       'icon': Icons.workspace_premium,
-      'benefits': ['10% trading fee discount', 'VIP support', 'Weekly reports'],
-      'requirements': '15 Direct members \n1000 Active Team Members',
-      'directMembers': 15,
-      'teamMembers': 1000,
-      'poolDistribution': '20%',
+      'benefits': ['5% trading fee discount', 'VIP support'],
+      'requirements': 'Team Business: \$50,000',
+      'teamBusiness': '\$50,000',
+      'salaryIncome': '\$125 Monthly',
+      'remark': 'for 12 Months',
     },
     {
-      'name': 'Four Star',
-      'description': 'Established networker',
-      'color': Color(0xFFFFD700),
-      'icon': Icons.workspace_premium,
+      'name': 'Manager',
+      'description': 'Managing operations',
+      'color': const Color(0xFFC0C0C0),
+      'icon': Icons.manage_accounts,
+      'benefits': ['10% trading fee discount', 'Advanced analytics', 'Weekly reports'],
+      'requirements': 'Team Business: \$100,000',
+      'teamBusiness': '\$100,000',
+      'salaryIncome': '\$300 Monthly',
+      'remark': 'for 12 Months',
+    },
+    {
+      'name': 'Director',
+      'description': 'Directing growth',
+      'color': const Color(0xFFFFD700),
+      'icon': Icons.star,
       'benefits': [
         '15% trading fee discount',
         'Dedicated account manager',
-        'Advanced analytics'
+        'Premium tools'
       ],
-      'requirements': '20 Direct members \n5000 Active Team Members',
-      'directMembers': 20,
-      'teamMembers': 5000,
-      'poolDistribution': '15%',
+      'requirements': 'Team Business: \$200,000',
+      'teamBusiness': '\$200,000',
+      'salaryIncome': '\$600 Monthly',
+      'remark': 'for 12 Months',
     },
     {
-      'name': 'Five Star',
-      'description': 'Professional networker',
-      'color': Color(0xFFE5E4E2),
+      'name': 'Executive',
+      'description': 'Executive level',
+      'color': const Color(0xFFE5E4E2),
       'icon': Icons.diamond,
       'benefits': [
         '20% trading fee discount',
         'Exclusive events access',
-        'Premium tools'
+        'Executive privileges'
       ],
-      'requirements': '25 Direct members \n25000 Active Team Members',
-      'directMembers': 25,
-      'teamMembers': 25000,
-      'poolDistribution': '10%',
+      'requirements': 'Team Business: Executive',
+      'teamBusiness': 'Executive',
+      'salaryIncome': '\$1500 Monthly',
+      'remark': 'for 12 Months',
+    },
+    {
+      'name': 'Crown Ambassador',
+      'description': 'Crown level achievement',
+      'color': const Color(0xFF9C27B0),
+      'icon': Icons.emoji_events,
+      'benefits': [
+        '25% trading fee discount',
+        'Crown privileges',
+        'Ambassador status'
+      ],
+      'requirements': 'Team Business: \$1,000,000',
+      'teamBusiness': '\$1,000,000',
+      'salaryIncome': '\$4000 Monthly',
+      'remark': 'for 12 Months',
+    },
+    {
+      'name': 'Crypto Legend',
+      'description': 'Legendary status',
+      'color': const Color(0xFFFF5722),
+      'icon': Icons.military_tech,
+      'benefits': [
+        '30% trading fee discount',
+        'Legend privileges',
+        'Ultimate status'
+      ],
+      'requirements': 'Team Business: \$2,000,000',
+      'teamBusiness': '\$2,000,000',
+      'salaryIncome': '\$10,000 Monthly',
+      'remark': 'for 12 Months',
     },
   ];
 
@@ -167,6 +254,7 @@ class EnhancedRankTeamArbitradeState extends State<EnhancedRankTeamArbitrade> {
   void initState() {
     super.initState();
     _getTeam();
+    _loadUserRank();
   }
 
   @override
@@ -200,54 +288,15 @@ class EnhancedRankTeamArbitradeState extends State<EnhancedRankTeamArbitrade> {
   }
 
   Widget _getRank() {
-    // Calculate total members
+    // Calculate total members for display only
     int totalMembers = p0 + p1 + p2 + p3 + p4 + p5 + p6;
 
-    // Determine user's current rank (for demo purposes)
-    int userRank = 0;
-    if (p1 >= 5) userRank = 1;
-    if (p2 >= 15) userRank = 2;
-    if (p3 >= 30) userRank = 3;
-    if (p4 >= 50) userRank = 4;
-    if (p5 >= 100) userRank = 5;
-    if (p6 >= 200) userRank = 6;
+    // Determine user's current rank from API
+    int userRank = _apiUserRankIndex;
 
-    // Calculate progress to next rank
-    int nextRankRequirement = 5;
-    if (userRank == 1) nextRankRequirement = 15;
-    if (userRank == 2) nextRankRequirement = 30;
-    if (userRank == 3) nextRankRequirement = 50;
-    if (userRank == 4) nextRankRequirement = 100;
-    if (userRank == 5) nextRankRequirement = 200;
+    // Progress/requirements come from API; not computed locally
 
-    int currentReferrals = 0;
-    switch (userRank) {
-      case 0:
-        currentReferrals = p0;
-        break;
-      case 1:
-        currentReferrals = p1;
-        break;
-      case 2:
-        currentReferrals = p2;
-        break;
-      case 3:
-        currentReferrals = p3;
-        break;
-      case 4:
-        currentReferrals = p4;
-        break;
-      case 5:
-        currentReferrals = p5;
-        break;
-      case 6:
-        currentReferrals = p6;
-        break;
-    }
-
-    double progressPercentage = userRank < 6
-        ? (currentReferrals / nextRankRequirement).clamp(0.0, 1.0)
-        : 1.0;
+    int currentReferrals = totalMembers;
 
     return SingleChildScrollView(
       child: Column(
@@ -318,7 +367,7 @@ class EnhancedRankTeamArbitradeState extends State<EnhancedRankTeamArbitrade> {
                   children: [
                     _buildStatCard("Total\nMembers", "$totalMembers",
                         const Color(0xFF4A90E2)),
-                    _buildStatCard("Current\nRank", "${userRank + 1}/7",
+                    _buildStatCard("Current\nRank", "${userRank + 1}/${rankInfo.length}",
                         rankInfo[userRank]['color']),
                     _buildStatCard("Active\nReferrals", "$currentReferrals",
                         const Color(0xFF2EBD85)),

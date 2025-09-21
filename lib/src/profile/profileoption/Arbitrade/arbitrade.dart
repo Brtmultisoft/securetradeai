@@ -1258,8 +1258,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                         if (amount == null) {
                           return 'Please enter a valid number';
                         }
-                        if (amount < 100) {
-                          return 'Minimum investment is \$100';
+                        if (amount < 50) {
+                          return 'Minimum investment is \$50';
                         }
                         if (amount > 1000) {
                           return 'Maximum investment is \$1000';
@@ -1274,6 +1274,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                     // Quick Amount Buttons
                     Row(
                       children: [
+                        Expanded(child: _buildQuickAmountButton('50')),
+                        const SizedBox(width: 8),
                         Expanded(child: _buildQuickAmountButton('100')),
                         const SizedBox(width: 8),
                         Expanded(child: _buildQuickAmountButton('250')),
@@ -2186,7 +2188,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        'Direct Referrals',
+                        'Total Team Members',
                         style: TextStyle(
                           color: Colors.white70,
                           fontSize: 12,
