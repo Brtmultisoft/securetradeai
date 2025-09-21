@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:securetradeai/src/Service/bybit_service.dart';
@@ -76,14 +75,24 @@ class ExchangeTradingService {
       final recentTrades = _binanceService.recentTrades;
 
       if (recentTrades.isNotEmpty) {
-        _binanceTradeHistory = recentTrades.take(10).map((trade) => {
-          'type': 'Binance',
-          'exchange': (Random().nextBool()) ? 'Buy' : 'Sell',
-          'price': trade['price'] ?? '0.00',
-          'amount': trade['qty'] ?? trade['amount'] ?? '0.00',
-          'time': DateTime.now().toString(),
-          'symbol': 'BTCUSDT',
-        }).toList();
+        // Filter trades that have real buy/sell data
+        _binanceTradeHistory = recentTrades.take(10)
+          .map((trade) {
+            final buySell = _determineBuySellFromRealData(trade);
+            if (buySell == null) return null; // Skip trades without real data
+
+            return {
+              'type': 'Binance',
+              'exchange': buySell,
+              'price': trade['price'] ?? '0.00',
+              'amount': trade['qty'] ?? trade['amount'] ?? '0.00',
+              'time': DateTime.now().toString(),
+              'symbol': 'BTCUSDT',
+            };
+          })
+          .where((trade) => trade != null)
+          .cast<Map<String, dynamic>>()
+          .toList();
       } else {
         _binanceTradeHistory = [];
       }
@@ -378,6 +387,29 @@ class ExchangeTradingService {
 
     } catch (e) {
     }
+  }
+
+  // Determine Buy/Sell from REAL trade data ONLY
+  String? _determineBuySellFromRealData(Map<String, dynamic> trade) {
+    // Check if trade has 'isBuyerMaker' field (Binance format)
+    if (trade.containsKey('isBuyerMaker')) {
+      return trade['isBuyerMaker'] == true ? 'Sell' : 'Buy';
+    }
+
+    // Check if trade has 'side' field (common format)
+    if (trade.containsKey('side')) {
+      final side = trade['side'].toString().toLowerCase();
+      return side == 'buy' ? 'Buy' : 'Sell';
+    }
+
+    // Check if trade has 'm' field (Binance WebSocket format)
+    if (trade.containsKey('m')) {
+      return trade['m'] == true ? 'Sell' : 'Buy';
+    }
+
+    // NO FALLBACK - Return null if no real data available
+    print('⚠️ No real buy/sell data found in trade: ${trade.keys}');
+    return null;
   }
 
   Future<Map<String, dynamic>> _getLiveTradeAmount(String exchange) async {
