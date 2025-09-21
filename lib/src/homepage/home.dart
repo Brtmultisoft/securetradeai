@@ -1712,25 +1712,25 @@ class _HomepageState extends State<Homepage> {
                     ),
                   ),
 
-                  /// Live Trading
-                  FadeSlideTransition(
-                    delay: const Duration(milliseconds: 400),
-                    child: _buildGridOptionItem(
-                      icon: "assets/img/chart.png",
-                      label: "Live Trading",
-                      onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const LiveTradingPage())),
-                    ),
-                  ),
+                  // /// Live Trading
+                  // FadeSlideTransition(
+                  //   delay: const Duration(milliseconds: 400),
+                  //   child: _buildGridOptionItem(
+                  //     icon: "assets/img/chart.png",
+                  //     label: "Live Trading",
+                  //     onTap: () => Navigator.push(
+                  //         context,
+                  //         MaterialPageRoute(
+                  //             builder: (context) => const LiveTradingPage())),
+                  //   ),
+                  // ),
 
                   /// Exchange Trading
                   FadeSlideTransition(
                     delay: const Duration(milliseconds: 500),
                     child: _buildGridOptionItem(
                       icon: "assets/img/stock.png",
-                      label: "Exchange Trading",
+                      label: "Live Trading",
                       onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(

@@ -193,7 +193,7 @@ class _ExchangeTradingPageState extends State<ExchangeTradingPage>
     return Scaffold(
       backgroundColor: const Color(0xFF0A0E17),
       appBar: CommonAppBar.trading(
-        title: 'Exchange Trading',
+        title: 'Live Trading',
         badgeText: 'LIVE',
         badgeIcon: Icons.trending_up,
       ),
