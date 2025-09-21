@@ -138,13 +138,13 @@ class _LiveTradingPageState extends State<LiveTradingPage>
 
     _orderBookData.sort((a, b) {
       if (a['type'] == 'sell' && b['type'] == 'sell') {
-        return a['price'].compareTo(b['price']); // Sell orders: lowest price first
+        return a['price'].compareTo(b['price']);
       } else if (a['type'] == 'buy' && b['type'] == 'buy') {
-        return b['price'].compareTo(a['price']); // Buy orders: highest price first
+        return b['price'].compareTo(a['price']);
       } else if (a['type'] == 'sell' && b['type'] == 'buy') {
-        return -1; // Sell orders come first
+        return -1;
       } else {
-        return 1; // Buy orders come after sell orders
+        return 1;
       }
     });
   }

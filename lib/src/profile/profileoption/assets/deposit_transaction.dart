@@ -1,7 +1,4 @@
-
-
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/model/DeposittransactionModel.dart'
@@ -12,10 +9,11 @@ import 'package:securetradeai/src/widget/common_app_bar.dart';
 import 'package:securetradeai/model/deposit_history_model.dart'
     as deposit_history_model;
 import 'package:securetradeai/src/widget/lottie_loading_widget.dart';
-
 import '../../../../method/methods.dart';
 
 class DepositTransaction extends StatefulWidget {
+  const DepositTransaction({Key? key}) : super(key: key);
+
   @override
   State<DepositTransaction> createState() => _DepositTransactionState();
 }

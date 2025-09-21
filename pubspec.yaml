@@ -14,7 +14,9 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # Read more about Android versioning at https://developer.android.com/studio/publish/versioning
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
-# https://developer.appl                                                                                        8.0.0+8
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+version: 8.0.0+8
+
 environment:
   sdk: ">=2.12.0 <3.0.0"
 
@@ -82,6 +84,7 @@ dependencies:
   excel: ^2.0.4
   path_provider: ^2.0.11
   lottie: ^2.3.2
+  crypto: ^3.0.3
 
 dev_dependencies:
   flutter_test:

@@ -20,6 +20,7 @@ import 'package:securetradeai/src/more/revenue.dart';
 import 'package:securetradeai/src/more/userguide.dart';
 import 'package:securetradeai/src/more/videos.dart';
 import 'package:securetradeai/src/more/live_trading.dart';
+import 'package:securetradeai/src/exchange_trading/exchange_trading_page.dart';
 import 'package:securetradeai/src/pages/mobile_only_features.dart';
 import 'package:securetradeai/src/profile/profileoption/APIBinding/apibinding.dart';
 import 'package:securetradeai/src/profile/profileoption/BotTradingBonus.dart';
@@ -1721,6 +1722,19 @@ class _HomepageState extends State<Homepage> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => const LiveTradingPage())),
+                    ),
+                  ),
+
+                  /// Exchange Trading
+                  FadeSlideTransition(
+                    delay: const Duration(milliseconds: 500),
+                    child: _buildGridOptionItem(
+                      icon: "assets/img/stock.png",
+                      label: "Exchange Trading",
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const ExchangeTradingPage())),
                     ),
                   ),
                 ],

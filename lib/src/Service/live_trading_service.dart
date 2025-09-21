@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class LiveTradingService {
   static final LiveTradingService _instance = LiveTradingService._internal();
@@ -102,6 +103,13 @@ class LiveTradingService {
     try {
       print('🔄 Connecting to Binance WebSocket...');
 
+      // Check if running on web platform
+      if (kIsWeb) {
+        print('🌐 Web platform detected - Using REST API polling instead of WebSocket');
+        _startBinanceRestPolling();
+        return;
+      }
+
       // Connect to Binance ticker stream
       _binanceChannel = IOWebSocketChannel.connect(
         'wss://stream.binance.com:9443/ws/!ticker@arr',
@@ -132,6 +140,40 @@ class LiveTradingService {
       print('✅ Connected to Binance WebSocket');
     } catch (e) {
       print('❌ Error connecting to Binance: $e');
+      // Fallback to REST API polling
+      _startBinanceRestPolling();
+    }
+  }
+
+  // Start Binance REST API polling for web platform
+  void _startBinanceRestPolling() {
+    print('🔄 Starting Binance REST API polling...');
+
+    // Poll every 3 seconds
+    Timer.periodic(const Duration(seconds: 3), (timer) async {
+      try {
+        await _fetchBinanceTickerData();
+      } catch (e) {
+        print('❌ Error polling Binance ticker data: $e');
+      }
+    });
+  }
+
+  // Fetch ticker data via REST API
+  Future<void> _fetchBinanceTickerData() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://api.binance.com/api/v3/ticker/24hr'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data is List) {
+          _processBinanceTickerData(data);
+        }
+      }
+    } catch (e) {
+      print('❌ Error fetching Binance ticker data: $e');
     }
   }
 

@@ -581,14 +581,14 @@ class _WithdrawalState extends State<Withdrawal> {
             borderRadius: BorderRadius.circular(15),
           ),
           title: Row(
-            children: [
+            children: const [
               Icon(
                 Icons.account_balance_wallet,
-                color: const Color(0xFFF0B90B),
+                color: Color(0xFFF0B90B),
                 size: 24,
               ),
-              const SizedBox(width: 8),
-              const Text(
+              SizedBox(width: 8),
+              Text(
                 'Wallet Address Required',
                 style: TextStyle(
                   color: Colors.white,
@@ -621,14 +621,14 @@ class _WithdrawalState extends State<Withdrawal> {
                   ),
                 ),
                 child: Row(
-                  children: [
+                  children: const [
                     Icon(
                       Icons.info_outline,
-                      color: const Color(0xFFF0B90B),
+                      color: Color(0xFFF0B90B),
                       size: 20,
                     ),
-                    const SizedBox(width: 8),
-                    const Expanded(
+                    SizedBox(width: 8),
+                    Expanded(
                       child: Text(
                         'Go to Profile → Update wallet address',
                         style: TextStyle(
@@ -1046,14 +1046,14 @@ class _WithdrawalState extends State<Withdrawal> {
         children: [
           // Transaction Details Header
           Row(
-            children: [
+            children: const [
               Icon(
                 Icons.receipt_long,
-                color: const Color(0xFFF0B90B),
+                color: Color(0xFFF0B90B),
                 size: 18,
               ),
-              const SizedBox(width: 8),
-              const Text(
+              SizedBox(width: 8),
+              Text(
                 "Transaction Details",
                 style: TextStyle(
                   color: Color(0xFFF0B90B),
@@ -1077,14 +1077,14 @@ class _WithdrawalState extends State<Withdrawal> {
 
           // Amount Details
           Row(
-            children: [
+            children: const [
               Icon(
                 Icons.account_balance_wallet,
-                color: const Color(0xFFF0B90B),
+                color: Color(0xFFF0B90B),
                 size: 16,
               ),
-              const SizedBox(width: 8),
-              const Text(
+              SizedBox(width: 8),
+              Text(
                 "Amount Details",
                 style: TextStyle(
                   color: Color(0xFFF0B90B),
@@ -1110,14 +1110,14 @@ class _WithdrawalState extends State<Withdrawal> {
 
           // Address Details
           Row(
-            children: [
+            children: const [
               Icon(
                 Icons.location_on,
-                color: const Color(0xFFF0B90B),
+                color: Color(0xFFF0B90B),
                 size: 16,
               ),
-              const SizedBox(width: 8),
-              const Text(
+              SizedBox(width: 8),
+              Text(
                 "Wallet Address",
                 style: TextStyle(
                   color: Color(0xFFF0B90B),
@@ -1174,14 +1174,14 @@ class _WithdrawalState extends State<Withdrawal> {
           // Hash Key (if available)
           if (transaction.hashkey != null && transaction.hashkey!.isNotEmpty) ...[
             Row(
-              children: [
+              children: const [
                 Icon(
                   Icons.tag,
-                  color: const Color(0xFFF0B90B),
+                  color: Color(0xFFF0B90B),
                   size: 16,
                 ),
-                const SizedBox(width: 8),
-                const Text(
+                SizedBox(width: 8),
+                Text(
                   "Transaction Hash",
                   style: TextStyle(
                     color: Color(0xFFF0B90B),
@@ -1233,14 +1233,14 @@ class _WithdrawalState extends State<Withdrawal> {
 
           // Timestamps
           Row(
-            children: [
+            children: const [
               Icon(
                 Icons.schedule,
-                color: const Color(0xFFF0B90B),
+                color: Color(0xFFF0B90B),
                 size: 16,
               ),
-              const SizedBox(width: 8),
-              const Text(
+              SizedBox(width: 8),
+              Text(
                 "Timestamps",
                 style: TextStyle(
                   color: Color(0xFFF0B90B),
@@ -1251,7 +1251,6 @@ class _WithdrawalState extends State<Withdrawal> {
             ],
           ),
           const SizedBox(height: 8),
-
           _buildDetailRow("Created Date", transaction.formattedDate),
           _buildDetailRow("Modified Date", _formatDate(transaction.modifiedDate)),
         ],
