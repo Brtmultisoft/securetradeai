@@ -246,7 +246,7 @@ class _HomepageState extends State<Homepage> {
                   return CustomDialogBox(
                     title: "Update Required",
                     descriptions:
-                        "A new version is available. Please update to continue using the app.",
+                        "A new version of the app is available.\n Step 1 : Please uninstall the old version first,\nStep 2 : And Download and install the latest version from our website.",
                     text: "Download Latest Version",
                     onclick: () {
                       _launchURL('https://securetradeai.com');

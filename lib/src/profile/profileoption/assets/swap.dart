@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:securetradeai/data/api.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
+import 'package:securetradeai/src/Service/otp_service.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
 
 class Swap extends StatefulWidget {
@@ -17,6 +18,45 @@ class Swap extends StatefulWidget {
 
 class _SwapState extends State<Swap> {
   var amount = TextEditingController();
+// OTP flags
+  bool isOtpSent = false;
+  bool isOtpVerified = false;
+  bool isOtpSending = false;
+  bool isOtpVerifying = false;
+  String? otpRequestId;
+
+  var otpController = TextEditingController();
+
+  Future<void> _sendOtp() async {
+    setState(() {
+      isOtpSending = true;
+    });
+    OtpService.clearRequestId();
+    final response = await OtpService.sendOtpToEmail(
+      email: commonEmail, // Use user's email for OTP
+      type: "withdrawal",
+      context: context,
+    );
+    setState(() {
+      isOtpSent = response.isSuccess;
+      isOtpSending = false;
+    });
+  }
+
+  Future<void> _verifyOtp() async {
+    setState(() {
+      isOtpVerifying = true;
+    });
+    final response = await OtpService.verifyOtpCode(
+      email: commonEmail,
+      otp: otpController.text,
+      context: context,
+    );
+    setState(() {
+      isOtpVerified = response.isSuccess;
+      isOtpVerifying = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,22 +70,22 @@ class _SwapState extends State<Swap> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Container(
-                margin: EdgeInsets.only(left: 20),
+                margin: const EdgeInsets.only(left: 20),
                 child: Row(children: [
                   Container(
                     child: Text(
                       "balance".tr + " : ",
-                      style: TextStyle(
+                      style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 18),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 5,
                   ),
                   Container(
@@ -59,7 +99,7 @@ class _SwapState extends State<Swap> {
                   ),
                 ]),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Container(
@@ -67,9 +107,9 @@ class _SwapState extends State<Swap> {
                 height: 50,
                 decoration: BoxDecoration(
                     border: Border.all(
-                      color: Color(0xfff3f3f4),
+                      color: const Color(0xfff3f3f4),
                     ),
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
+                    borderRadius: const BorderRadius.all(Radius.circular(10))),
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.only(left: 8.0),
@@ -78,8 +118,8 @@ class _SwapState extends State<Swap> {
                       controller: amount,
                       decoration: InputDecoration(
                         hintStyle:
-                            TextStyle(color: Colors.white70, fontSize: 13),
-                        hintText: "enteramount".tr + " USD",
+                            const TextStyle(color: Colors.white70, fontSize: 13),
+                        hintText: "${"enteramount".tr} USD",
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
@@ -88,11 +128,85 @@ class _SwapState extends State<Swap> {
                   ),
                 ),
               )),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
+              // OTP flow (same as Withdrawal)
+              if (!isOtpSent) ...[
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
+                    onPressed: isOtpSending ? null : _sendOtp,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF0B90B),
+                      foregroundColor: Colors.black,
+                    ),
+                    child: isOtpSending
+                        ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                        : const Text('Send OTP'),
+                  ),
+                ),
+              ] else if (isOtpSent && !isOtpVerified) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 44,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: const Color(0xfff3f3f4)),
+                          borderRadius: const BorderRadius.all(Radius.circular(10)),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: TextField(
+                            controller: otpController,
+                            style: const TextStyle(color: Colors.white),
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              hintText: 'Enter OTP',
+                              hintStyle: TextStyle(color: Colors.white70, fontSize: 13),
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: isOtpVerifying ? null : _verifyOtp,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF0B90B),
+                        foregroundColor: Colors.black,
+                      ),
+                      child: isOtpVerifying
+                          ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                          : const Text('Verify'),
+                    ),
+                  ],
+                ),
+              ] else ...[
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: const [
+                    Icon(Icons.verified, color: Colors.green, size: 18),
+                    SizedBox(width: 6),
+                    Text('OTP Verified', style: TextStyle(color: Colors.green)),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 12),
+
               InkWell(
                 onTap: () {
+                  if (!isOtpVerified) {
+                    showtoast("Please verify OTP first", context);
+                    return;
+                  }
                   _transfer();
                 },
                 child: Container(
@@ -119,9 +233,9 @@ class _SwapState extends State<Swap> {
                           spreadRadius: 2)
                     ],
                   ),
-                  child: Text(
+                  child: const Text(
                     "Swap to Gas Wallet",
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,

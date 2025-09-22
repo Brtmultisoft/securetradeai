@@ -10,6 +10,7 @@ import 'package:securetradeai/data/api.dart';
 import 'package:securetradeai/data/strings.dart';
 import 'package:securetradeai/src/Service/assets_service.dart';
 import 'package:securetradeai/src/widget/common_app_bar.dart';
+import 'package:securetradeai/src/Service/otp_service.dart';
 
 import '../../../method/methods.dart';
 
@@ -30,6 +31,42 @@ class _PersonalInfoState extends State<PersonalInfo> {
   var email = TextEditingController();
   var walletAddress = TextEditingController();
   var password = TextEditingController();
+  // OTP state for Wallet Address change
+  final TextEditingController walletOtpController = TextEditingController();
+  bool isWalletOtpSending = false;
+  bool isWalletOtpSent = false;
+  bool isWalletOtpVerifying = false;
+  bool isWalletOtpVerified = false;
+
+  Future<void> _sendWalletChangeOtp() async {
+    setState(() { isWalletOtpSending = true; });
+    try {
+      OtpService.clearRequestId();
+      final res = await OtpService.sendOtpToEmail(
+        email: commonEmail,
+        type: "withdrawal", // same type as Withdrawal flow
+        context: context,
+      );
+      setState(() { isWalletOtpSent = res.isSuccess; });
+    } finally {
+      setState(() { isWalletOtpSending = false; });
+    }
+  }
+
+  Future<void> _verifyWalletChangeOtp() async {
+    setState(() { isWalletOtpVerifying = true; });
+    try {
+      final res = await OtpService.verifyOtpCode(
+        email: commonEmail,
+        otp: walletOtpController.text,
+        context: context,
+      );
+      setState(() { isWalletOtpVerified = res.isSuccess; });
+    } finally {
+      setState(() { isWalletOtpVerifying = false; });
+    }
+  }
+
   bool isAPIcalle = false;
   var minedata = [];
   var finalData;
@@ -376,11 +413,22 @@ class _PersonalInfoState extends State<PersonalInfo> {
   Future<void> _changeWalletAddress(
     BuildContext context,
   ) async {
+    // reset OTP state each time dialog opens
+    setState(() {
+      isWalletOtpSending = false;
+      isWalletOtpSent = false;
+      isWalletOtpVerifying = false;
+      isWalletOtpVerified = false;
+      walletOtpController.clear();
+    });
+
     return showDialog(
         barrierDismissible: false,
         context: context,
         builder: (context) {
-          return AlertDialog(
+          return StatefulBuilder(
+            builder: (context, setSB) {
+              return AlertDialog(
             backgroundColor: const Color(0xFF1A2234),
             contentPadding:
                 const EdgeInsets.only(bottom: 10, left: 20, right: 10),
@@ -388,28 +436,105 @@ class _PersonalInfoState extends State<PersonalInfo> {
               'Update Wallet Address',
               style: TextStyle(color: Colors.white),
             ),
-            content: Container(
-              height: 100,
-              child: Column(
-                children: [
-                  TextField(
-                    decoration: const InputDecoration(
-                      hintText: "Enter your wallet address",
-                      hintStyle: TextStyle(color: Colors.white),
-                    ),
-                    controller: walletAddress,
-                    style: const TextStyle(color: Colors.white),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  decoration: const InputDecoration(
+                    hintText: "Enter your wallet address",
+                    hintStyle: TextStyle(color: Colors.white),
                   ),
-                  TextField(
-                    decoration: const InputDecoration(
-                      hintText: "Enter password",
-                      hintStyle: TextStyle(color: Colors.white),
-                    ),
-                    controller: password,
-                    style: const TextStyle(color: Colors.white),
+                  controller: walletAddress,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                TextField(
+                  decoration: const InputDecoration(
+                    hintText: "Enter password",
+                    hintStyle: TextStyle(color: Colors.white),
                   ),
+                  controller: password,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                const SizedBox(height: 10),
+                if (!isWalletOtpSent) ...[
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton(
+                      onPressed: isWalletOtpSending ? null : () async {
+                        await _sendWalletChangeOtp();
+                        setSB(() {});
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF0B90B),
+                        foregroundColor: Colors.black,
+                      ),
+                      child: isWalletOtpSending
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                            )
+                          : const Text('Send OTP'),
+                    ),
+                  ),
+                ] else if (isWalletOtpSent && !isWalletOtpVerified) ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 44,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: const Color(0xfff3f3f4)),
+                            borderRadius: const BorderRadius.all(Radius.circular(10)),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: TextField(
+                              controller: walletOtpController,
+                              style: const TextStyle(color: Colors.white),
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                hintText: 'Enter OTP',
+                                hintStyle: TextStyle(color: Colors.white70, fontSize: 13),
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: isWalletOtpVerifying ? null : () async {
+                          await _verifyWalletChangeOtp();
+                          setSB(() {});
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFF0B90B),
+                          foregroundColor: Colors.black,
+                        ),
+                        child: isWalletOtpVerifying
+                            ? const SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                              )
+                            : const Text('Verify'),
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: const [
+                      Icon(Icons.verified, color: Colors.green, size: 18),
+                      SizedBox(width: 6),
+                      Text('OTP Verified', style: TextStyle(color: Colors.green)),
+                    ],
+                  )
                 ],
-              ),
+              ],
             ),
             actions: [
               GestureDetector(
@@ -427,6 +552,10 @@ class _PersonalInfoState extends State<PersonalInfo> {
               ),
               GestureDetector(
                   onTap: () {
+                    if (!isWalletOtpVerified) {
+                      showtoast("Please verify OTP first", context);
+                      return;
+                    }
                     _updateWalletAddress();
                   },
                   child: const Text("Update",
@@ -436,6 +565,8 @@ class _PersonalInfoState extends State<PersonalInfo> {
                 width: 20,
               ),
             ],
+          );
+            },
           );
         });
   }

@@ -21,7 +21,6 @@ class Withdrawal extends StatefulWidget {
 }
 
 class _WithdrawalState extends State<Withdrawal> {
-  // Use common OtpService for sending and verifying OTP
   Future<void> _sendOtp() async {
     setState(() {
       isOtpSending = true;
