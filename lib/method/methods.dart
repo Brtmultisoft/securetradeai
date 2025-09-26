@@ -124,17 +124,12 @@ class CommonMethod {
         }),
       );
 
-      print('✅ CommonMethod: Withdrawal history API response received');
-      print('📊 Response status: ${res.statusCode}');
-      print('📊 Response body: ${res.body}');
-
       if (res.statusCode != 200) {
         throw Exception("Server returned status code: ${res.statusCode}");
       }
 
       return withdrawalHistoryResponseFromJson(res.body);
     } catch (e) {
-      print('❌ CommonMethod: Withdrawal history API error: $e');
       rethrow;
     }
   }
@@ -363,44 +358,35 @@ class CommonMethod {
   // }
 
   /// Get Direct Referral Income
-  Future<DirectIncomeModel> getDirectIncome() async {
+  Future<DirectReferralIncomeModel> getDirectReferralIncome() async {
     try {
-      print('🔄 Making API call to: $getDirectIncomeUrl');
-      print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
-
-      final res = await http.post(Uri.parse(getDirectIncomeUrl),
+      final res = await http.post(Uri.parse(getDirectReferralIncomeUrl),
           headers: {
             'Content-Type': 'application/json',
           },
           body: jsonEncode({"user_id": commonuserId}));
 
-      print('📥 Response status: ${res.statusCode}');
-      print('📥 Response body: "${res.body}"');
-      print('📥 Response length: ${res.body.length}');
-
       // Check HTTP status code first
       if (res.statusCode == 500) {
-        print('🚨 Server Error (500): API endpoint may not be implemented yet');
-        return DirectIncomeModel(
+        return DirectReferralIncomeModel(
           status: "success",
           message:
               "Direct income feature is being prepared. Please check back later.",
           responsecode: "200",
-          data: DirectIncomeData(
-            totalDirectIncome: 0.0,
+          data: DirectReferralIncomeData(
+            totalDirectReferralIncome: 0.0,
             incomeHistory: [],
           ),
         );
       }
 
       if (res.statusCode != 200) {
-        print('⚠️ HTTP Error ${res.statusCode}: ${res.body}');
-        return DirectIncomeModel(
+        return DirectReferralIncomeModel(
           status: "success",
           message: "Direct income data temporarily unavailable",
           responsecode: "200",
-          data: DirectIncomeData(
-            totalDirectIncome: 0.0,
+          data: DirectReferralIncomeData(
+            totalDirectReferralIncome: 0.0,
             incomeHistory: [],
           ),
         );
@@ -408,13 +394,12 @@ class CommonMethod {
 
       // Check if response is empty or null
       if (res.body.isEmpty || res.body.trim().isEmpty) {
-        print('⚠️ Empty response from direct income API');
-        return DirectIncomeModel(
+        return DirectReferralIncomeModel(
           status: "success",
           message: "No direct income data found",
           responsecode: "200",
-          data: DirectIncomeData(
-            totalDirectIncome: 0.0,
+          data: DirectReferralIncomeData(
+            totalDirectReferralIncome: 0.0,
             incomeHistory: [],
           ),
         );
@@ -424,28 +409,24 @@ class CommonMethod {
       try {
         return directIncomeFromJson(res.body);
       } catch (parseError) {
-        print('❌ JSON parsing error: $parseError');
-        print('📄 Raw response: "${res.body}"');
-
         // Return empty data instead of error
-        return DirectIncomeModel(
+        return DirectReferralIncomeModel(
           status: "success",
           message: "No direct income data available",
           responsecode: "200",
-          data: DirectIncomeData(
-            totalDirectIncome: 0.0,
+          data: DirectReferralIncomeData(
+            totalDirectReferralIncome: 0.0,
             incomeHistory: [],
           ),
         );
       }
     } catch (e) {
-      print('❌ Network error getting direct income: $e');
-      return DirectIncomeModel(
+      return DirectReferralIncomeModel(
         status: "error",
         message: "Network error: ${e.toString()}",
         responsecode: "500",
-        data: DirectIncomeData(
-          totalDirectIncome: 0.0,
+        data: DirectReferralIncomeData(
+          totalDirectReferralIncome: 0.0,
           incomeHistory: [],
         ),
       );
@@ -455,23 +436,14 @@ class CommonMethod {
   /// Get Level TPS Income
   Future<LevelIncomeModel> getLevelTPSIncome() async {
     try {
-      print('🔄 Making API call to: $getLevelIncomeUrl');
-      print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
-
       final res = await http.post(Uri.parse(getLevelIncomeUrl),
           headers: {
             'Content-Type': 'application/json',
           },
           body: jsonEncode({"user_id": commonuserId}));
 
-      print('📥 Response status: ${res.statusCode}');
-      print('📥 Response body: "${res.body}"');
-      print('📥 Response length: ${res.body.length}');
-
       // Check HTTP status code first
       if (res.statusCode == 500) {
-        print(
-            '🚨 Server Error (500): Level income API endpoint may not be implemented yet');
         return LevelIncomeModel(
           status: "success",
           message:
@@ -485,7 +457,6 @@ class CommonMethod {
       }
 
       if (res.statusCode != 200) {
-        print('⚠️ HTTP Error ${res.statusCode}: ${res.body}');
         return LevelIncomeModel(
           status: "success",
           message: "Level TPS income data temporarily unavailable",
@@ -499,7 +470,6 @@ class CommonMethod {
 
       // Check if response is empty or null
       if (res.body.isEmpty || res.body.trim().isEmpty) {
-        print('⚠️ Empty response from level income API');
         return LevelIncomeModel(
           status: "success",
           message: "No level income data found",
@@ -515,8 +485,6 @@ class CommonMethod {
       try {
         return levelIncomeModelFromJson(res.body);
       } catch (parseError) {
-        print('❌ JSON parsing error: $parseError');
-        print('📄 Raw response: "${res.body}"');
 
         // Return empty data instead of error
         return LevelIncomeModel(
@@ -530,7 +498,6 @@ class CommonMethod {
         );
       }
     } catch (e) {
-      print('❌ Network error getting level income: $e');
       return LevelIncomeModel(
         status: "error",
         message: "Network error: ${e.toString()}",
@@ -546,8 +513,6 @@ class CommonMethod {
   /// Get Salary Income
   Future<SalaryIncomeModel> getSalaryIncome() async {
     try {
-      print('🔄 Making API call to: $getSalaryIncomeUrl');
-      print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
 
       final res = await http.post(Uri.parse(getSalaryIncomeUrl),
           headers: {
@@ -555,15 +520,9 @@ class CommonMethod {
           },
           body: jsonEncode({"user_id": commonuserId}));
 
-      print('📥 Response status: ${res.statusCode}');
-      print('📥 Response body: "${res.body}"');
-      print('📥 Response length: ${res.body.length}');
-
       // Check HTTP status code first
       if (res.statusCode == 500) {
-        print(
-            '🚨 Server Error (500): Salary income API endpoint may not be implemented yet');
-        return SalaryIncomeModel(
+         return SalaryIncomeModel(
           status: "success",
           message:
               "Salary income feature is being prepared. Please check back later.",
@@ -576,8 +535,7 @@ class CommonMethod {
       }
 
       if (res.statusCode != 200) {
-        print('⚠️ HTTP Error ${res.statusCode}: ${res.body}');
-        return SalaryIncomeModel(
+          return SalaryIncomeModel(
           status: "success",
           message: "Salary income data temporarily unavailable",
           responsecode: "200",
@@ -590,8 +548,7 @@ class CommonMethod {
 
       // Check if response is empty or null
       if (res.body.isEmpty || res.body.trim().isEmpty) {
-        print('⚠️ Empty response from salary income API');
-        return SalaryIncomeModel(
+         return SalaryIncomeModel(
           status: "success",
           message: "No salary income data found",
           responsecode: "200",
@@ -606,8 +563,6 @@ class CommonMethod {
       try {
         return salaryIncomeFromJson(res.body);
       } catch (parseError) {
-        print('❌ JSON parsing error: $parseError');
-        print('📄 Raw response: "${res.body}"');
 
         // Return empty data instead of error
         return SalaryIncomeModel(
@@ -621,7 +576,6 @@ class CommonMethod {
         );
       }
     } catch (e) {
-      print('❌ Network error getting salary income: $e');
       return SalaryIncomeModel(
         status: "error",
         message: "Network error: ${e.toString()}",
@@ -637,24 +591,16 @@ class CommonMethod {
   /// Get User Investments (New API)
   Future<UserInvestmentsModel> getUserInvestmentsNew() async {
     try {
-      print('🔄 Making API call to: $getUserInvestmentsUrl');
-      print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
-
-      final res = await http.post(Uri.parse(getUserInvestmentsUrl),
+       final res = await http.post(Uri.parse(getUserInvestmentsUrl),
           headers: {
             'Content-Type': 'application/json',
           },
           body: jsonEncode({"user_id": commonuserId}));
 
-      print('📥 Response status: ${res.statusCode}');
-      print('📥 Response body: "${res.body}"');
-      print('📥 Response length: ${res.body.length}');
 
       // Check HTTP status code first
       if (res.statusCode == 500) {
-        print(
-            '🚨 Server Error (500): User investments API endpoint may not be implemented yet');
-        return UserInvestmentsModel(
+          return UserInvestmentsModel(
           status: "success",
           message:
               "Investment data is being prepared. Please check back later.",
@@ -673,8 +619,7 @@ class CommonMethod {
       }
 
       if (res.statusCode != 200) {
-        print('⚠️ HTTP Error ${res.statusCode}: ${res.body}');
-        return UserInvestmentsModel(
+       return UserInvestmentsModel(
           status: "success",
           message: "Investment data temporarily unavailable",
           responsecode: "200",
@@ -693,7 +638,6 @@ class CommonMethod {
 
       // Check if response is empty or null
       if (res.body.isEmpty || res.body.trim().isEmpty) {
-        print('⚠️ Empty response from user investments API');
         return UserInvestmentsModel(
           status: "success",
           message: "No investment data found",
@@ -715,8 +659,6 @@ class CommonMethod {
       try {
         return userInvestmentsFromJson(res.body);
       } catch (parseError) {
-        print('❌ JSON parsing error: $parseError');
-        print('📄 Raw response: "${res.body}"');
 
         // Return empty data instead of error
         return UserInvestmentsModel(
@@ -736,7 +678,6 @@ class CommonMethod {
         );
       }
     } catch (e) {
-      print('❌ Network error getting user investments: $e');
       return UserInvestmentsModel(
         status: "error",
         message: "Network error: ${e.toString()}",
@@ -758,21 +699,12 @@ class CommonMethod {
   /// Buy Arbitrage Package
   Future<Map<String, dynamic>> buyArbitragePackage(double packageAmount) async {
     try {
-      print('🔄 Making API call to: $buyArbitragePackageUrl');
-      print('📤 Request body: ${jsonEncode({
-            "user_id": commonuserId,
-            "package_amount": packageAmount
-          })}');
-
       final res = await http.post(Uri.parse(buyArbitragePackageUrl),
           headers: {
             'Content-Type': 'application/json',
           },
           body: jsonEncode(
               {"user_id": commonuserId, "package_amount": packageAmount}));
-
-      print('📥 Response status: ${res.statusCode}');
-      print('📥 Response body: "${res.body}"');
 
       if (res.statusCode == 200) {
         return jsonDecode(res.body);
@@ -784,7 +716,6 @@ class CommonMethod {
         };
       }
     } catch (e) {
-      print('❌ Network error buying arbitrage package: $e');
       return {
         "status": "error",
         "message": "Network error: ${e.toString()}",
@@ -799,14 +730,7 @@ class CommonMethod {
     int limit = 30,
   }) async {
     try {
-      print('🔄 Making API call to: $getDailyRoiHistoryUrl');
-      print('📤 Request body: ${jsonEncode({
-            "user_id": commonuserId,
-            "investment_id": investmentId,
-            "limit": limit
-          })}');
-
-      final res = await http.post(Uri.parse(getDailyRoiHistoryUrl),
+        final res = await http.post(Uri.parse(getDailyRoiHistoryUrl),
           headers: {
             'Content-Type': 'application/json',
           },
@@ -816,15 +740,9 @@ class CommonMethod {
             "limit": limit
           }));
 
-      print('📥 Response status: ${res.statusCode}');
-      print('📥 Response body: "${res.body}"');
-      print('📥 Response length: ${res.body.length}');
-
       // Check HTTP status code first
       if (res.statusCode == 500) {
-        print(
-            '🚨 Server Error (500): Daily TPS history API endpoint may not be implemented yet');
-        return DailyRoiHistoryModel(
+         return DailyRoiHistoryModel(
           status: "success",
           message:
               "TPS history data is being prepared. Please check back later.",
@@ -840,8 +758,7 @@ class CommonMethod {
       }
 
       if (res.statusCode != 200) {
-        print('⚠️ HTTP Error ${res.statusCode}: ${res.body}');
-        return DailyRoiHistoryModel(
+         return DailyRoiHistoryModel(
           status: "success",
           message: "TPS history temporarily unavailable",
           responsecode: "200",
@@ -857,7 +774,6 @@ class CommonMethod {
 
       // Check if response is empty or null
       if (res.body.isEmpty || res.body.trim().isEmpty) {
-        print('⚠️ Empty response from daily TPS history API');
         return DailyRoiHistoryModel(
           status: "success",
           message: "No TPS history found",
@@ -876,10 +792,7 @@ class CommonMethod {
       try {
         return dailyRoiHistoryFromJson(res.body);
       } catch (parseError) {
-        print('❌ JSON parsing error: $parseError');
-        print('📄 Raw response: "${res.body}"');
-
-        // Return empty data instead of error
+          // Return empty data instead of error
         return DailyRoiHistoryModel(
           status: "success",
           message: "No TPS history available",
@@ -894,7 +807,6 @@ class CommonMethod {
         );
       }
     } catch (e) {
-      print('❌ Network error getting daily TPS history: $e');
       return DailyRoiHistoryModel(
         status: "error",
         message: "Network error: ${e.toString()}",
@@ -913,24 +825,15 @@ class CommonMethod {
   /// Get User Rank
   Future<UserRankModel> getUserRank() async {
     try {
-      print('🔄 Making API call to: $getUserRankUrl');
-      print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
-
-      final res = await http.post(Uri.parse(getUserRankUrl),
+       final res = await http.post(Uri.parse(getUserRankUrl),
           headers: {
             'Content-Type': 'application/json',
           },
           body: jsonEncode({"user_id": commonuserId}));
 
-      print('📥 Response status: ${res.statusCode}');
-      print('📥 Response body: "${res.body}"');
-      print('📥 Response length: ${res.body.length}');
-
       // Check HTTP status code first
       if (res.statusCode == 500) {
-        print(
-            '🚨 Server Error (500): User rank API endpoint may not be implemented yet');
-        return UserRankModel(
+          return UserRankModel(
           status: "success",
           message: "Rank data is being prepared. Please check back later.",
           responsecode: "200",
@@ -951,8 +854,7 @@ class CommonMethod {
       }
 
       if (res.statusCode != 200) {
-        print('⚠️ HTTP Error ${res.statusCode}: ${res.body}');
-        return UserRankModel(
+          return UserRankModel(
           status: "success",
           message: "Rank data temporarily unavailable",
           responsecode: "200",
@@ -974,7 +876,6 @@ class CommonMethod {
 
       // Check if response is empty or null
       if (res.body.isEmpty || res.body.trim().isEmpty) {
-        print('⚠️ Empty response from user rank API');
         return UserRankModel(
           status: "success",
           message: "No rank data found",
@@ -999,10 +900,7 @@ class CommonMethod {
       try {
         return userRankFromJson(res.body);
       } catch (parseError) {
-        print('❌ JSON parsing error: $parseError');
-        print('📄 Raw response: "${res.body}"');
-
-        // Return default data instead of error
+         // Return default data instead of error
         return UserRankModel(
           status: "success",
           message: "No rank data available",
@@ -1023,7 +921,6 @@ class CommonMethod {
         );
       }
     } catch (e) {
-      print('❌ Network error getting user rank: $e');
       return UserRankModel(
         status: "error",
         message: "Network error: ${e.toString()}",
@@ -1048,24 +945,15 @@ class CommonMethod {
   /// Get Income Summary
   Future<IncomeSummaryModel> getIncomeSummary() async {
     try {
-      print('🔄 Making API call to: $getIncomeSummaryUrl');
-      print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
-
       final res = await http.post(Uri.parse(getIncomeSummaryUrl),
           headers: {
             'Content-Type': 'application/json',
           },
           body: jsonEncode({"user_id": commonuserId}));
 
-      print('📥 Response status: ${res.statusCode}');
-      print('📥 Response body: "${res.body}"');
-      print('📥 Response length: ${res.body.length}');
-
       // Check HTTP status code first
       if (res.statusCode == 500) {
-        print(
-            '🚨 Server Error (500): Income summary API endpoint may not be implemented yet');
-        return IncomeSummaryModel(
+           return IncomeSummaryModel(
           status: "success",
           data: IncomeSummaryData(
             incomeBreakdown: IncomeBreakdown(
@@ -1081,8 +969,7 @@ class CommonMethod {
       }
 
       if (res.statusCode != 200) {
-        print('⚠️ HTTP Error ${res.statusCode}: ${res.body}');
-        return IncomeSummaryModel(
+         return IncomeSummaryModel(
           status: "success",
           data: IncomeSummaryData(
             incomeBreakdown: IncomeBreakdown(
@@ -1099,7 +986,6 @@ class CommonMethod {
 
       // Check if response is empty or null
       if (res.body.isEmpty || res.body.trim().isEmpty) {
-        print('⚠️ Empty response from income summary API');
         return IncomeSummaryModel(
           status: "success",
           data: IncomeSummaryData(
@@ -1119,8 +1005,6 @@ class CommonMethod {
       try {
         return incomeSummaryFromJson(res.body);
       } catch (parseError) {
-        print('❌ JSON parsing error: $parseError');
-        print('📄 Raw response: "${res.body}"');
 
         // Return empty data instead of error
         return IncomeSummaryModel(
@@ -1138,8 +1022,7 @@ class CommonMethod {
         );
       }
     } catch (e) {
-      print('❌ Network error getting income summary: $e');
-      return IncomeSummaryModel(
+       return IncomeSummaryModel(
         status: "error",
         data: IncomeSummaryData(
           incomeBreakdown: IncomeBreakdown(
@@ -1170,8 +1053,6 @@ class CommonMethod {
   /// Get Bot Trading Bonus - Level Income Details
   Future<BotTradingBonusModel> getBotTradingLevelIncome() async {
     try {
-      print('🔄 Making API call to: $levelIncomeDetailsUrl');
-      print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
 
       final res = await http.post(Uri.parse(levelIncomeDetailsUrl),
           headers: {
@@ -1179,17 +1060,13 @@ class CommonMethod {
           },
           body: jsonEncode({"user_id": commonuserId}));
 
-      print('📥 Response status: ${res.statusCode}');
-      print('📥 Response body: ${res.body}');
-
       if (res.statusCode != 200) {
         throw Exception("Server returned status code: ${res.statusCode}");
       }
 
       return botTradingBonusFromJson(res.body);
     } catch (e) {
-      print('❌ Error in getBotTradingLevelIncome: $e');
-      throw Exception(
+       throw Exception(
         'Failed to load bot trading level income: ${e.toString()}',
       );
     }
@@ -1198,17 +1075,11 @@ class CommonMethod {
   /// Get Bot Trading Bonus - Direct Income Details
   Future<BotTradingBonusModel> getBotTradingDirectIncome() async {
     try {
-      print('🔄 Making API call to: $directIncomeDetailsUrl');
-      print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
-
-      final res = await http.post(Uri.parse(directIncomeDetailsUrl),
+       final res = await http.post(Uri.parse(directIncomeDetailsUrl),
           headers: {
             'Content-Type': 'application/json',
           },
           body: jsonEncode({"user_id": commonuserId}));
-
-      print('📥 Response status: ${res.statusCode}');
-      print('📥 Response body: ${res.body}');
 
       if (res.statusCode != 200) {
         throw Exception("Server returned status code: ${res.statusCode}");
@@ -1216,7 +1087,6 @@ class CommonMethod {
 
       return botTradingBonusFromJson(res.body);
     } catch (e) {
-      print('❌ Error in getBotTradingDirectIncome: $e');
       throw Exception(
         'Failed to load direct income details: ${e.toString()}',
       );
@@ -1226,25 +1096,17 @@ class CommonMethod {
   /// Get Bot Trading Bonus - Universal Pool Income Details (Salary)
   Future<BotTradingBonusModel> getBotTradingSalaryIncome() async {
     try {
-      print('🔄 Making API call to: $salaryIncomeDetailsUrl');
-      print('📤 Request body: ${jsonEncode({"user_id": commonuserId})}');
-
-      final res = await http.post(Uri.parse(salaryIncomeDetailsUrl),
+       final res = await http.post(Uri.parse(salaryIncomeDetailsUrl),
           headers: {
             'Content-Type': 'application/json',
           },
           body: jsonEncode({"user_id": commonuserId}));
-
-      print('📥 Response status: ${res.statusCode}');
-      print('📥 Response body: ${res.body}');
-
       if (res.statusCode != 200) {
         throw Exception("Server returned status code: ${res.statusCode}");
       }
 
       return botTradingBonusFromJson(res.body);
     } catch (e) {
-      print('❌ Error in getBotTradingSalaryIncome: $e');
       throw Exception(
         'Failed to load universal pool income details: ${e.toString()}',
       );

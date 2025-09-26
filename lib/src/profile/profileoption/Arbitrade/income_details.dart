@@ -49,12 +49,10 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
       // Use new income management APIs based on income type
       switch (widget.incomeType) {
         case 'direct_income':
-          print('📤 Income API Request: getDirectIncome()');
-          final directRes = await CommonMethod().getDirectIncome();
-          print('📥 Response: ${directRes.status}');
+          final directRes = await CommonMethod().getDirectReferralIncome();
 
           if (directRes.status == "success") {
-            total = directRes.data.totalDirectIncome;
+            total = directRes.data.totalDirectReferralIncome;
             for (var income in directRes.data.incomeHistory) {
               incomes.add({
                 'id': income.id.toString(),
@@ -72,9 +70,7 @@ class _IncomeDetailsPageState extends State<IncomeDetailsPage> {
           break;
 
         case 'level_income':
-          print('📤 Income API Request: getLevelTPSIncome()');
           final levelRes = await CommonMethod().getLevelTPSIncome();
-          print('📥 Response: ${levelRes.status}');
 
           if (levelRes.status == "success") {
             total = levelRes.data.totalLevelIncome;

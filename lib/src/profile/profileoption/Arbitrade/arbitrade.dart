@@ -73,9 +73,9 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   DailyRoiHistoryModel? roiHistoryData;
 
   // New Income Management Data
-  DirectIncomeModel? directIncomeData;
+  DirectReferralIncomeModel? directIncomeData;
   double directTotalIncome = 0.0;
-  List<DirectIncomeHistory> directIncomeHistory = [];
+  List<DirectReferralIncomeHistory> directIncomeHistory = [];
 
   LevelIncomeModel? levelTPSIncomeData;
   double levelTPSTotalIncome = 0.0;
@@ -216,11 +216,11 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
 
   Future<void> _loadDirectIncome() async {
     try {
-      final res = await CommonMethod().getReferralDirectIncome();
+      final res = await CommonMethod().getDirectReferralIncome();
       if (res.status == "success") {
         setState(() {
           directIncomeData = res;
-          directTotalIncome = res.data.totalDirectIncome;
+          directTotalIncome = res.data.totalDirectReferralIncome;
           directIncomeHistory = res.data.incomeHistory;
         });
       }
@@ -558,12 +558,12 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
           ),
           const SizedBox(height: 10),
 
-          _buildIncomeItem(
-            'Direct Income',
-            breakdown.directIncome,
-            Icons.monetization_on_outlined,
-            const Color(0xFF4A90E2),
-          ),
+          // _buildIncomeItem(
+          //   'Direct Income',
+          //   breakdown.directIncome,
+          //   Icons.monetization_on_outlined,
+          //   const Color(0xFF4A90E2),
+          // ),
         ],
       ),
     );

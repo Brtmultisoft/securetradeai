@@ -127,7 +127,7 @@ const String getUserInvestmentsPost = "${url}get_user_investments";
 // const String getIncomesPost = "${url}get_incomes";
 
 // Income Management API endpoints
-const String getDirectIncomeUrl = "${url}get_direct_income";
+const String getDirectReferralIncomeUrl = "${url}get_direct_income";
 const String getLevelIncomeUrl = "${url}get_level_income";
 const String getSalaryIncomeUrl = "${url}get_salary_income";
 

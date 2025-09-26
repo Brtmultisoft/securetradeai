@@ -60,7 +60,7 @@ class _AllIncomeState extends State<AllIncome>
   // Direct Income Data
   dynamic directIncomeData;
   double directTotalIncome = 0.0;
-  List<DirectIncomeHistory> directIncomeHistory = [];
+  List<DirectReferralIncomeHistory> directIncomeHistory = [];
 
   // Royalty Data
   dynamic royaltyData;
@@ -249,11 +249,11 @@ class _AllIncomeState extends State<AllIncome>
 
   Future<void> _loadDirectIncome() async {
     try {
-      final res = await CommonMethod().getDirectIncome();
+      final res = await CommonMethod().getDirectReferralIncome();
       if (res.status == "success") {
         setState(() {
           directIncomeData = res;
-          directTotalIncome = res.data.totalDirectIncome;
+          directTotalIncome = res.data.totalDirectReferralIncome;
           directIncomeHistory = res.data.incomeHistory;
         });
       }

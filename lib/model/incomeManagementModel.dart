@@ -88,13 +88,13 @@ class BotTradingBonusDetail {
 }
 
 // Direct Income Model
-DirectIncomeModel directIncomeFromJson(String str) =>
-    DirectIncomeModel.fromJson(json.decode(str));
+DirectReferralIncomeModel directIncomeFromJson(String str) =>
+    DirectReferralIncomeModel.fromJson(json.decode(str));
 
-String directIncomeToJson(DirectIncomeModel data) => json.encode(data.toJson());
+String directIncomeToJson(DirectReferralIncomeModel data) => json.encode(data.toJson());
 
-class DirectIncomeModel {
-  DirectIncomeModel({
+class DirectReferralIncomeModel {
+  DirectReferralIncomeModel({
     required this.status,
     required this.message,
     required this.responsecode,
@@ -104,13 +104,13 @@ class DirectIncomeModel {
   String status;
   String message;
   String responsecode;
-  DirectIncomeData data;
+  DirectReferralIncomeData data;
 
-  factory DirectIncomeModel.fromJson(Map<String, dynamic> json) => DirectIncomeModel(
+  factory DirectReferralIncomeModel.fromJson(Map<String, dynamic> json) => DirectReferralIncomeModel(
         status: json["status"] ?? "",
         message: json["message"] ?? "",
         responsecode: json["responsecode"] ?? "",
-        data: DirectIncomeData.fromJson(json["data"] ?? {}),
+        data: DirectReferralIncomeData.fromJson(json["data"] ?? {}),
       );
 
   Map<String, dynamic> toJson() => {
@@ -121,31 +121,31 @@ class DirectIncomeModel {
       };
 }
 
-class DirectIncomeData {
-  DirectIncomeData({
-    required this.totalDirectIncome,
+class DirectReferralIncomeData {
+  DirectReferralIncomeData({
+    required this.totalDirectReferralIncome,
     required this.incomeHistory,
   });
 
-  double totalDirectIncome;
-  List<DirectIncomeHistory> incomeHistory;
+  double totalDirectReferralIncome;
+  List<DirectReferralIncomeHistory> incomeHistory;
 
-  factory DirectIncomeData.fromJson(Map<String, dynamic> json) => DirectIncomeData(
-        totalDirectIncome: (json["total_direct_income"] ?? 0).toDouble(),
+  factory DirectReferralIncomeData.fromJson(Map<String, dynamic> json) => DirectReferralIncomeData(
+    totalDirectReferralIncome: (json["total_direct_income"] ?? 0).toDouble(),
         incomeHistory: json["income_history"] != null
-            ? List<DirectIncomeHistory>.from(
-                json["income_history"].map((x) => DirectIncomeHistory.fromJson(x)))
+            ? List<DirectReferralIncomeHistory>.from(
+                json["income_history"].map((x) => DirectReferralIncomeHistory.fromJson(x)))
             : [],
       );
 
   Map<String, dynamic> toJson() => {
-        "total_direct_income": totalDirectIncome,
+        "total_direct_income": totalDirectReferralIncome,
         "income_history": List<dynamic>.from(incomeHistory.map((x) => x.toJson())),
       };
 }
 
-class DirectIncomeHistory {
-  DirectIncomeHistory({
+class DirectReferralIncomeHistory {
+  DirectReferralIncomeHistory({
     required this.id,
     required this.amount,
     required this.incomeType,
@@ -165,7 +165,7 @@ class DirectIncomeHistory {
   String status;
   DateTime createdAt;
 
-  factory DirectIncomeHistory.fromJson(Map<String, dynamic> json) => DirectIncomeHistory(
+  factory DirectReferralIncomeHistory.fromJson(Map<String, dynamic> json) => DirectReferralIncomeHistory(
         id: int.tryParse(json["id"]?.toString() ?? "0") ?? 0,
         amount: double.tryParse(json["amount"]?.toString() ?? "0") ?? 0.0,
         incomeType: json["income_type"] ?? "",
