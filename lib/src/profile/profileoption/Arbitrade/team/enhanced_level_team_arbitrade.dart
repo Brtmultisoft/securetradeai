@@ -517,7 +517,7 @@ class EnhancedArbitradePageLevelTeamState extends State<EnhancedArbitradePageLev
           //   ),
           // ),
 
-          // const SizedBox(height: 20),
+          const SizedBox(height: 20),
 
           // Level title
           Padding(
@@ -1021,6 +1021,7 @@ class EnhancedArbitradePageLevelTeamState extends State<EnhancedArbitradePageLev
           "income_balance": element['income_balance'],
           "gas_balance": element['gas_balance'],
           "doa": element['doa'], // Date of activation
+          "total_investment" : element["total_investment"]
         });
       }
     }

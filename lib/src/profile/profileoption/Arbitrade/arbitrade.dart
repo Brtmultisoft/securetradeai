@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart' as flutter;
 import 'dart:io';
 import 'dart:math';
 
 import 'package:cross_file/cross_file.dart';
 import 'package:excel/excel.dart' as excel_lib;
-import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -22,6 +23,7 @@ import 'package:securetradeai/src/profile/profileoption/Arbitrade/team/team_arbi
 import 'package:share_plus/share_plus.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 
 class ArbiTradeSection extends StatefulWidget {
   const ArbiTradeSection({Key? key}) : super(key: key);
@@ -37,6 +39,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
   double gasBalance = 0.0;
   double bonusBalance = 0.0;
   double totalBalance = 0.0;
+  final dateFormat = DateFormat('dd MMM yyyy');
 
   // Investment form data
   final TextEditingController _amountController = TextEditingController();
@@ -213,7 +216,7 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
 
   Future<void> _loadDirectIncome() async {
     try {
-      final res = await CommonMethod().getDirectIncome();
+      final res = await CommonMethod().getReferralDirectIncome();
       if (res.status == "success") {
         setState(() {
           directIncomeData = res;
@@ -553,6 +556,14 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
               ),
             ],
           ),
+          const SizedBox(height: 10),
+
+          _buildIncomeItem(
+            'Direct Income',
+            breakdown.directIncome,
+            Icons.monetization_on_outlined,
+            const Color(0xFF4A90E2),
+          ),
         ],
       ),
     );
@@ -572,6 +583,10 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
             title = 'Daily TPS Income';
             break;
           case 'Direct Referral':
+            incomeType = 'direct_income';
+            title = 'Direct Referral Income';
+            break;
+          case 'Direct Income':
             incomeType = 'direct_income';
             title = 'Direct Referral Income';
             break;
@@ -1657,15 +1672,17 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
             children: [
               Expanded(
                 child: _buildInvestmentDetail('Investment',
-                    '${investment.investmentAmount.toStringAsFixed(2)}'),
+                    investment.investmentAmount.toStringAsFixed(2)),
               ),
               Expanded(
                 child: _buildInvestmentDetail(
                     'Daily TPS', '${investment.dailyRoiPercentage}%'),
               ),
               Expanded(
-                child: _buildInvestmentDetail('Total Earned',
-                    '${investment.totalRoiEarned.toStringAsFixed(2)}'),
+                child: _buildInvestmentDetail(
+                  'Start Date',
+                  dateFormat.format(investment.startDate), // formatted string
+                ),
               ),
             ],
           ),
@@ -2151,7 +2168,8 @@ class _ArbiTradeSectionState extends State<ArbiTradeSection>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFFF0B90B),
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25),
                     ),
@@ -4614,7 +4632,7 @@ class PieChartPainter extends CustomPainter {
         ],
       ),
       textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
+      textDirection: flutter.TextDirection.ltr,
     );
 
     textPainter.layout();
@@ -4741,7 +4759,7 @@ class EnhancedPieChartPainter extends CustomPainter {
         ],
       ),
       textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
+      textDirection: flutter.TextDirection.ltr,
     );
 
     textPainter.layout();
@@ -4919,7 +4937,7 @@ class BeautifulPieChartPainter extends CustomPainter {
         ],
       ),
       textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
+      textDirection: flutter.TextDirection.ltr,
     );
 
     textPainter.layout();
@@ -4948,5 +4966,3 @@ class IncomeChartData {
     required this.color,
   });
 }
-
-

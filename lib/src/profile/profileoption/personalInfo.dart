@@ -362,7 +362,7 @@ class _PersonalInfoState extends State<PersonalInfo> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            "Wallet Address",
+                            "Bep 20 Wallet Address",
                             style: TextStyle(
                               fontSize: 15,
                               color: Colors.white,

@@ -109,7 +109,8 @@ class TeamArbitradeState extends State<TeamArbitrade> {
                 "user_id": element['user_id'],
                 "uid": element['uid'], // Add UID field
                 "days_bal": element['days_bal'],
-                "level": element['level']
+                "level": element['level'],
+                "total_investment": element['total_investment']
               };
 
               teamDirect.add(memberData);
@@ -154,7 +155,7 @@ class TeamArbitradeState extends State<TeamArbitrade> {
         title: "My Team".tr,
       ),
       body: DefaultTabController(
-        length: 3,
+        length: 2,
         child: Column(
           children: <Widget>[
             Container(

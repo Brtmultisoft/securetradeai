@@ -467,6 +467,9 @@ class EnhancedTeamDetailArbitradeState extends State<EnhancedTeamDetailArbitrade
         //     member['email'] != null ? member['email'].toString() : "";
         String memberMobile =
         member['mobile'] != null ? member['mobile'].toString() : "";
+
+        String total_investment =
+        member['total_investment'] != null ? member['total_investment'].toString() : "";
         // String memberGender = member['gender'] != null
         //     ? member['gender'].toString()
         //     : "Not specified";
@@ -599,13 +602,18 @@ class EnhancedTeamDetailArbitradeState extends State<EnhancedTeamDetailArbitrade
                       const SizedBox(height: 16),
                       // Show only UID, Rank, and Commission for all levels
                       _buildDetailRow("User UID", memberUId, Icons.badge),
-                      const Divider(color: Color(0xFF2A3A5A), height: 24),
+                      // const Divider(color: Color(0xFF2A3A5A)),
 
-                      if (widget.level == "1") ...[                      
+                      if (widget.level == "1") ...[
+                        const Divider(color: Color(0xFF2A3A5A)),
                         _buildDetailRow("Mobile Number", memberMobile, Icons.phone),
-                        const Divider(color: Color(0xFF2A3A5A), height: 24),
+                        // const Divider(color: Color(0xFF2A3A5A)),
                       ],
+                      const Divider(color: Color(0xFF2A3A5A)),
                       _buildDetailRow("Rank", _getRankName(memberRank),
+                          Icons.military_tech),
+                      const Divider(color: Color(0xFF2A3A5A)),const Divider(color: Color(0xFF2A3A5A)),
+                      _buildDetailRow("Total Investment", total_investment,
                           Icons.military_tech),
 
                       // const Divider(color: Color(0xFF2A3A5A), height: 24),
