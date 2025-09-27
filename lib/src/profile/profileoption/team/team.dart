@@ -117,7 +117,8 @@ class TeamState extends State<Team> {
                 "user_id": element['user_id'],
                 "uid": element['uid'], // Add UID field
                 "days_bal": element['days_bal'],
-                "level": element['level']
+                "level": element['level'],
+                "total_investment": element['total_investment']
               };
 
               teamDirect.add(memberData);

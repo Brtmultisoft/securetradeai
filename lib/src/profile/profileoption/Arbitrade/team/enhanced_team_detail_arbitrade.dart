@@ -612,9 +612,9 @@ class EnhancedTeamDetailArbitradeState extends State<EnhancedTeamDetailArbitrade
                       const Divider(color: Color(0xFF2A3A5A)),
                       _buildDetailRow("Rank", _getRankName(memberRank),
                           Icons.military_tech),
-                      const Divider(color: Color(0xFF2A3A5A)),const Divider(color: Color(0xFF2A3A5A)),
+                      const Divider(color: Color(0xFF2A3A5A)),
                       _buildDetailRow("Total Investment", total_investment,
-                          Icons.military_tech),
+                          Icons.money),
 
                       // const Divider(color: Color(0xFF2A3A5A), height: 24),
                       // _buildDetailRow(

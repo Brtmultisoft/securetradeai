@@ -466,6 +466,8 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
         member['rank'] != null ? member['rank'].toString() : "0";
         // String memberEmail =
         //     member['email'] != null ? member['email'].toString() : "";
+        String total_investment =
+        member['total_investment'] != null ? member['total_investment'].toString() : "";
         String memberMobile =
         member['mobile'] != null ? member['mobile'].toString() : "";
         // String memberGender = member['gender'] != null
@@ -608,6 +610,9 @@ class EnhancedTeamDetailState extends State<EnhancedTeamDetail> {
                       ],
                       _buildDetailRow("Rank", _getRankName(memberRank),
                           Icons.military_tech),
+                      const Divider(color: Color(0xFF2A3A5A)),
+                      _buildDetailRow("Total Investment", total_investment,
+                          Icons.money),
 
                       // const Divider(color: Color(0xFF2A3A5A), height: 24),
                       // _buildDetailRow(

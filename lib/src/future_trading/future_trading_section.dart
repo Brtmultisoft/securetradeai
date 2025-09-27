@@ -1288,9 +1288,13 @@ class _FutureTradingSectionState extends State<FutureTradingSection>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildAccountSummaryCard(),
+              const SizedBox(height: 8),
               _buildQuickStatsRow(),
+              const SizedBox(height: 8),
               _buildRecentPositionsCard(),
+              const SizedBox(height: 8),
               _buildTradeRequestsCard(),
+              const SizedBox(height: 8),
               _buildQuickActionsCard(),
               const SizedBox(height: 60), // Space for FAB
             ],
