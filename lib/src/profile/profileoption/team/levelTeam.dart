@@ -476,7 +476,8 @@ class _LevelTeamState extends State<LevelTeam> {
           "balance": element['balance'],
           "income_balance": element['income_balance'],
           "gas_balance": element['gas_balance'],
-          "doa": element['doa'], // Date of activation
+          "doa": element['doa'],
+          "total_investment": element['total_investment']
         });
       }
     }
